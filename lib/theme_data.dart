@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 // Nice to get colors: https://icolorpalette.com/color/101920
 
+const Color checkMKIconColor = Color(0xFF13D389);
+
 ThemeData buildLightTheme() {
   const Color primaryColor = Colors.black;
   const Color secondaryColor = Color(0xFF101920);
@@ -11,10 +13,18 @@ ThemeData buildLightTheme() {
     secondary: secondaryColor,
   );
   final ThemeData base = ThemeData(
+    appBarTheme: AppBarTheme(
+      color: checkMKIconColor,
+      textTheme: Typography.material2018().white,
+      iconTheme: IconThemeData(color: Colors.white),
+    ),
+    primaryTextTheme: Typography.material2018().white,
+    textTheme: Typography.material2018().black,
     brightness: Brightness.light,
     accentColorBrightness: Brightness.dark,
     colorScheme: colorScheme,
     primaryColor: primaryColor,
+    cardColor: checkMKIconColor,
     buttonColor: primaryColor,
     indicatorColor: Colors.white,
     toggleableActiveColor: secondaryColor,
@@ -23,7 +33,7 @@ ThemeData buildLightTheme() {
     accentColor: secondaryColor,
     canvasColor: Colors.white,
     scaffoldBackgroundColor: Colors.white,
-    backgroundColor: Colors.white,
+    backgroundColor: checkMKIconColor,
     errorColor: const Color(0xFFB00020),
     buttonTheme: ButtonThemeData(
       colorScheme: colorScheme,
@@ -36,7 +46,7 @@ ThemeData buildLightTheme() {
 
 ThemeData buildDarkTheme() {
   const Color primaryColor = Colors.white;
-  const Color secondaryColor = Color(0xFF13D389);
+  const Color secondaryColor = checkMKIconColor;
 
   final ColorScheme colorScheme = const ColorScheme.dark().copyWith(
     primary: primaryColor,
@@ -45,6 +55,8 @@ ThemeData buildDarkTheme() {
   final ThemeData base = ThemeData(
     appBarTheme: AppBarTheme(
       color: secondaryColor,
+      textTheme: Typography.material2018().white,
+      iconTheme: IconThemeData(color: Colors.white),
     ),
     brightness: Brightness.dark,
     accentColorBrightness: Brightness.dark,

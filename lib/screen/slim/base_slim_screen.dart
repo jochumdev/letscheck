@@ -110,7 +110,7 @@ abstract class BaseSlimScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Check_MK', style: TextStyle(fontSize: 14)),
+                Text('Let\'s Check', style: TextStyle(fontSize: 14)),
                 Text(settings.title,
                     style:
                         TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),

@@ -8,6 +8,8 @@ const routeSettingsConnection = 'settings_connection';
 const routeNotFound = 'not_found';
 const routeHosts = 'hosts';
 const routeServices = 'services';
+const routeHost = 'host';
+const routeService = 'service';
 
 typedef RouteBuilder = Route<dynamic> Function(RouteSettings context);
 
@@ -123,12 +125,12 @@ GlobalRoute buildRoute(
   var i = 1;
   for (var match in matches) {
     if (lastArgOptional && i == matches.length) {
-      regex = regex.replaceFirst(r'\/{' + match.group(1) + r'}', r"((\/(\S+))?)\/?");
+      regex = regex.replaceFirst(r'\/{' + match.group(1) + r'}', r"((\/([^\/]+))?)\/?");
       args[match.group(1)] = i + 2;
       break;
     }
 
-    regex = regex.replaceFirst('{' + match.group(1) + '}', r"(\S+)");
+    regex = regex.replaceFirst('{' + match.group(1) + '}', r"([^\/]+)");
     args[match.group(1)] = i;
 
     i++;
@@ -206,15 +208,22 @@ class GlobalRouter {
     }
 
     if (exactRoutes.containsKey(context.name)) {
+      if (kDebugMode) {
+        print("... found route: ${context.name}");
+      }
       return exactRoutes[context.name].route(context);
     }
 
     for (var route in dynamicRoutes) {
       if (route.matchesRoute(context.name)) {
+        if (kDebugMode) {
+          print("... found route: ${route.key}");
+        }
         return route.route(context);
       }
     }
 
+    print("... going to 404");
     return routes[routeNotFound].route(context);
   }
 }

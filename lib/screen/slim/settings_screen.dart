@@ -188,7 +188,7 @@ class SettingsScreen extends BaseSlimScreen {
                   height: 22,
                 ),
                 Text(
-                  'Version: 2.4.0 (287)',
+                  'Version: v0.0.2',
                   style: TextStyle(color: Color(0xFF777777)),
                 ),
               ],

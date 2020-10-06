@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../global_router.dart';
 
 class HostCardWidget extends StatelessWidget {
   final String alias;
@@ -15,14 +16,15 @@ class HostCardWidget extends StatelessWidget {
     Widget icon;
     switch (host.state) {
       case 0:
-        icon = FaIcon(FontAwesomeIcons.checkSquare, color: Colors.greenAccent);
+        icon =
+            Icon(Icons.check, color: Colors.green);
         break;
       case 1:
         icon = FaIcon(FontAwesomeIcons.exclamationTriangle,
-            color: Colors.yellowAccent);
+            color: Colors.yellow);
         break;
       case 2:
-        icon = FaIcon(FontAwesomeIcons.ban, color: Colors.redAccent);
+        icon = FaIcon(FontAwesomeIcons.ban, color: Colors.red);
         break;
       case 3:
         icon = FaIcon(FontAwesomeIcons.questionCircle, color: Colors.grey);
@@ -33,9 +35,14 @@ class HostCardWidget extends StatelessWidget {
       child: ListTile(
         leading: icon,
         visualDensity: minimalVisualDensity,
-        isThreeLine: true,
-        title: Text(host.name),
-        subtitle: Text(host.displayName + "\n" + host.address),
+        isThreeLine: host.name != host.displayName,
+        title: GestureDetector(
+            child: Text(host.name),
+            onTap: () {
+              Navigator.of(context).pushNamed(GlobalRouter().buildUri(routeHost,
+                  buildArgs: {"alias": alias, "hostname": host.name}));
+            }),
+        subtitle: host.name != host.displayName ? Text(host.displayName + "\n" + host.address) : Text(host.address),
       ),
     );
   }
