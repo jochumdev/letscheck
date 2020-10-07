@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
 import 'package:flutter/painting.dart';
+import 'package:flutter_js/flutter_js.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import '../bloc/comments/comments.dart';
@@ -30,6 +31,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
     List<Widget> cardWidgets = [];
 
     final cBloc = BlocProvider.of<CommentsBloc>(context);
+    final jsRuntime = RepositoryProvider.of<JavascriptRuntime>(context);
 
     if (showGroupHeader) {
       cardWidgets.add(Padding(
@@ -91,16 +93,18 @@ class ServicesGroupedCardWidget extends StatelessWidget {
               Expanded(
                 flex: 3,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 5),
-                  child: Text("@${comment.author}\n" + DateFormat.yMd('de_AT').format(comment.entryTime.toLocal()),
-                    style: Theme.of(context).textTheme.caption)),
+                    padding: const EdgeInsets.only(left: 5),
+                    child: Text(
+                        "@${comment.author}\n" +
+                            jsRuntime.evaluate("DateTime.fromISO('${comment.entryTime.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});").stringResult,
+                        style: Theme.of(context).textTheme.caption)),
               ),
               Expanded(
                 flex: 6,
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 5),
-                  child: Text(comment.comment,
-                    style: Theme.of(context).textTheme.caption)),
+                    padding: const EdgeInsets.only(right: 5),
+                    child: Text(comment.comment,
+                        style: Theme.of(context).textTheme.caption)),
               ),
             ]));
           }
@@ -130,17 +134,28 @@ class ServicesGroupedCardWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GestureDetector(
-                          child: Text(service.displayName,
-                              style: Theme.of(context).textTheme.bodyText1),
-                          onTap: () {
-                            Navigator.of(context).pushNamed(GlobalRouter()
-                                .buildUri(routeService, buildArgs: {
-                              "alias": alias,
-                              "hostname": service.hostName,
-                              "service": service.displayName
-                            }));
-                          }),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                              child: Text(service.displayName.substring(0, service.displayName.length > 35 ? 35 : service.displayName.length),
+                                  style: Theme.of(context).textTheme.bodyText1),
+                              onTap: () {
+                                Navigator.of(context).pushNamed(GlobalRouter()
+                                    .buildUri(routeService, buildArgs: {
+                                  "alias": alias,
+                                  "hostname": service.hostName,
+                                  "service": service.displayName
+                                }));
+                              }),
+                          Text(
+                            jsRuntime.evaluate("DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});").stringResult,
+                            // jsRuntime.evaluate("console.log('')").stringResult,
+                            maxLines: 2,
+                            style: Theme.of(context).textTheme.caption,
+                          ),
+                        ],
+                      ),
                       Text(
                         pluginOutput,
                         maxLines: 2,

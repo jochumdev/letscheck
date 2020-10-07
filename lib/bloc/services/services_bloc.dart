@@ -26,6 +26,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
         "description",
         "plugin_output",
         "comments",
+        "last_state_change",
       ]})
       : super(ServicesStateUninitialized()) {
     sBlocSubscription = sBloc.listen((state) async {
