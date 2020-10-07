@@ -15,6 +15,10 @@ import 'screen/slim/slim_router.dart';
 import 'package:flutter_bloc_monitor/flutter_bloc_monitor.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:package_info/package_info.dart';
 
 /// layout.
 const double ultraWideLayoutThreshold = 1920;
@@ -23,6 +27,7 @@ const double wideLayoutThreshold = 1200;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 
   if (kDebugMode) {
     Bloc.observer = FlutterBlocMonitorDelegate(
@@ -41,6 +46,8 @@ Future<void> main() async {
   Intl.defaultLocale = 'de_AT';
   await initializeDateFormatting('de_AT');
 
+  final packageInfo = await PackageInfo.fromPlatform();
+
   var mediaWidth = MediaQueryData.fromWindow(window).size.width;
   mediaWidth >= ultraWideLayoutThreshold
       ? registerSlimRoutes() // UltraWide
@@ -51,16 +58,24 @@ Future<void> main() async {
   final sBloc = new SettingsBloc();
   final hdBloc = new ConnectionDataBloc(sBloc: sBloc);
 
-  runApp(MultiBlocProvider(providers: [
-    BlocProvider<SettingsBloc>.value(value: sBloc..add(AppStarted())),
-    BlocProvider<ConnectionDataBloc>.value(value: hdBloc..add(StartFetching())),
-    BlocProvider<SearchBloc>(create: (context) => SearchBloc(sBloc: sBloc)),
-    BlocProvider<CommentsBloc>(create: (context) => CommentsBloc(sBloc: sBloc)),
-  ], child: App()));
+  runApp(RepositoryProvider.value(
+      value: packageInfo,
+      child: MultiBlocProvider(providers: [
+        BlocProvider<SettingsBloc>.value(value: sBloc..add(AppStarted())),
+        BlocProvider<ConnectionDataBloc>.value(
+            value: hdBloc..add(StartFetching())),
+        BlocProvider<SearchBloc>(create: (context) => SearchBloc(sBloc: sBloc)),
+        BlocProvider<CommentsBloc>(
+            create: (context) => CommentsBloc(sBloc: sBloc)),
+      ], child: App())));
 }
 
 class App extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
+  static FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
 
   App({Key key}) : super(key: key);
 
@@ -71,6 +86,7 @@ class App extends StatelessWidget {
 
       return MaterialApp(
         navigatorKey: navigatorKey,
+        navigatorObservers: <NavigatorObserver>[observer],
         debugShowCheckedModeBanner: false,
         title: 'Check_MK',
         theme: state.isLightMode ? buildLightTheme() : buildDarkTheme(),

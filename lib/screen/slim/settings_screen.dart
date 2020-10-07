@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:package_info/package_info.dart';
 import '../../bloc/settings/settings.dart';
 import 'base_slim_screen.dart';
 import 'settings_languages_screen.dart';
@@ -33,6 +34,7 @@ class SettingsScreen extends BaseSlimScreen {
   Widget content(BuildContext context) {
     return BlocBuilder<SettingsBloc, SettingsState>(builder: (context, state) {
       final sBloc = BlocProvider.of<SettingsBloc>(context);
+      final packageInfo = RepositoryProvider.of<PackageInfo>(context);
 
       List<Widget> connectionTiles = [];
       for (var connName in state.connections.keys) {
@@ -188,7 +190,7 @@ class SettingsScreen extends BaseSlimScreen {
                   height: 22,
                 ),
                 Text(
-                  'Version: v0.0.2',
+                  'Version: v${packageInfo.version} (${packageInfo.buildNumber})',
                   style: TextStyle(color: Color(0xFF777777)),
                 ),
               ],
