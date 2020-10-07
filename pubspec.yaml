@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 0.0.2
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -36,7 +36,12 @@ dependencies:
   retry: ^3.0.1
   font_awesome_flutter: ^8.8.1
   grouped_list: ^3.5.0
+  intl: ^0.16.1
 
+  # Check that you have this dependency (added in the previous step)
+  firebase_core: ^0.4.0+9
+  # Add the dependency for the FlutterFire plugin for Google Analytics
+  firebase_analytics: ^5.0.2
 
 dev_dependencies:
   flutter_test:

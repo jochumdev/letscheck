@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "307499567579",
+    "firebase_url": "https://letscheck-dstr.firebaseio.com",
+    "project_id": "letscheck-dstr",
+    "storage_bucket": "letscheck-dstr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:307499567579:android:cb56bb63ca118f24a33ffe",
+        "android_client_info": {
+          "package_name": "it.datenstrom.letscheck"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "307499567579-6rsd8l6ptg2fc37f34rsqpil9fd6regu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZx3JcaNYRpG5oh-dxM9aeTuLkpDojjiM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "307499567579-6rsd8l6ptg2fc37f34rsqpil9fd6regu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "307499567579-ravshv6t7dp76esu7101jv1bi7hfki41.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "it.datenstrom.letscheck"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

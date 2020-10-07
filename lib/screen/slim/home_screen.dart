@@ -6,6 +6,7 @@ import '../../widget/site_stats_widget.dart';
 import '../../widget/services_list_widget.dart';
 import '../../bloc/settings/settings.dart';
 import '../../bloc/connection_data/connection_data.dart';
+import '../../bloc/comments/comments.dart';
 import '../../global_router.dart';
 
 class HomeScreen extends BaseSlimScreen {
@@ -24,46 +25,53 @@ class HomeScreen extends BaseSlimScreen {
   Widget content(BuildContext context) {
     final sBloc = BlocProvider.of<SettingsBloc>(context);
 
-    return BlocBuilder<ConnectionDataBloc, ConnectionDataState>(
-        builder: (context, state) {
-      if (sBloc.state.connections.length > 1) {
-        return DefaultTabController(
-            length: sBloc.state.connections.length,
-            child: TabBarView(
-              children: sBloc.state.connections.keys.map((key) {
-                return Column(
-                  children: [
-                    SiteStatsWidget(alias: key, state: state),
-                    state.unhServices != null
-                        ? state.unhServices.containsKey(key)
-                            ? Expanded(
-                                child: ServicesListWidget(
-                                    alias: key,
-                                    services: state.unhServices[key]))
-                            : Expanded(child: CenterLoadingWidget())
-                        : Expanded(child: CenterLoadingWidget()),
-                    TabPageSelector(),
-                  ],
-                );
-              }).toList(),
-            ));
-      } else if (sBloc.state.connections.length == 1) {
-        final alias = sBloc.state.connections.keys.toList()[0];
-        return Column(
-          children: [
-            SiteStatsWidget(alias: alias, state: state),
-            state.unhServices != null
-                ? state.unhServices.containsKey(alias)
-                    ? Expanded(
-                        child: ServicesListWidget(
-                            alias: alias, services: state.unhServices[alias]))
-                    : Expanded(child: CenterLoadingWidget())
-                : Expanded(child: CenterLoadingWidget()),
-          ],
-        );
-      }
+    return BlocBuilder<CommentsBloc, CommentsState>(
+        builder: (cContext, cState) {
+      return BlocBuilder<ConnectionDataBloc, ConnectionDataState>(
+          builder: (context, state) {
+        if (sBloc.state.connections.length > 1) {
+          return DefaultTabController(
+              length: sBloc.state.connections.length,
+              child: TabBarView(
+                children: sBloc.state.connections.keys.map((alias) {
+                  if (state.unhServices != null && state.unhServices.containsKey(alias)) {
+                    commentsFetchForServices(context: context, alias: alias, services: state.unhServices[alias]);
+                  }
+                  
+                  return Column(
+                    children: [
+                      SiteStatsWidget(alias: alias, state: state),
+                      state.unhServices != null
+                          ? state.unhServices.containsKey(alias)
+                              ? Expanded(
+                                  child: ServicesListWidget(
+                                      alias: alias,
+                                      services: state.unhServices[alias]))
+                              : Expanded(child: CenterLoadingWidget())
+                          : Expanded(child: CenterLoadingWidget()),
+                      TabPageSelector(),
+                    ],
+                  );
+                }).toList(),
+              ));
+        } else if (sBloc.state.connections.length == 1) {
+          final alias = sBloc.state.connections.keys.toList()[0];
+          return Column(
+            children: [
+              SiteStatsWidget(alias: alias, state: state),
+              state.unhServices != null
+                  ? state.unhServices.containsKey(alias)
+                      ? Expanded(
+                          child: ServicesListWidget(
+                              alias: alias, services: state.unhServices[alias]))
+                      : Expanded(child: CenterLoadingWidget())
+                  : Expanded(child: CenterLoadingWidget()),
+            ],
+          );
+        }
 
-      return Container();
+        return Container();
+      });
     });
   }
 }

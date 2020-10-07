@@ -9,17 +9,21 @@ import 'global_router.dart';
 import 'bloc/settings/settings.dart';
 import 'bloc/connection_data/connection_data.dart';
 import 'bloc/search/search.dart';
+import 'bloc/comments/comments.dart';
 import 'theme_data.dart';
 import 'screen/slim/slim_router.dart';
 import 'package:flutter_bloc_monitor/flutter_bloc_monitor.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 /// layout.
 const double ultraWideLayoutThreshold = 1920;
 
 const double wideLayoutThreshold = 1200;
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   if (kDebugMode) {
     Bloc.observer = FlutterBlocMonitorDelegate(
       onEventFunc: (bloc, event) => print(event),
@@ -33,6 +37,9 @@ void main() async {
       storageDirectory: await getApplicationDocumentsDirectory(),
     );
   }
+
+  Intl.defaultLocale = 'de_AT';
+  await initializeDateFormatting('de_AT');
 
   var mediaWidth = MediaQueryData.fromWindow(window).size.width;
   mediaWidth >= ultraWideLayoutThreshold
@@ -48,6 +55,7 @@ void main() async {
     BlocProvider<SettingsBloc>.value(value: sBloc..add(AppStarted())),
     BlocProvider<ConnectionDataBloc>.value(value: hdBloc..add(StartFetching())),
     BlocProvider<SearchBloc>(create: (context) => SearchBloc(sBloc: sBloc)),
+    BlocProvider<CommentsBloc>(create: (context) => CommentsBloc(sBloc: sBloc)),
   ], child: App()));
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'base_slim_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../global_router.dart';
+import '../../bloc/comments/comments.dart';
 import '../../bloc/settings/settings.dart';
 import '../../bloc/services/services.dart';
 import '../../widget/services_list_widget.dart';
@@ -55,20 +56,22 @@ class ServicesScreen extends BaseSlimScreen {
       default:
     }
 
-    return BlocProvider<ServicesBloc>(
-        create: (context) => ServicesBloc(
-            alias: groups["alias"],
-            filter: filter,
-            sBloc: sBloc)
-          ..add(ServicesStartFetching()),
-        child:
-            BlocBuilder<ServicesBloc, ServicesState>(builder: (context, state) {
-          if (state is ServicesStateFetched) {
-            return ServicesListWidget(
-                alias: groups["alias"], services: state.services);
-          } else {
-            return CenterLoadingWidget();
-          }
-        }));
+    return BlocBuilder<CommentsBloc, CommentsState>(
+        builder: (cContext, cState) {
+      return BlocProvider<ServicesBloc>(
+          create: (context) =>
+              ServicesBloc(alias: groups["alias"], filter: filter, sBloc: sBloc)
+                ..add(ServicesStartFetching()),
+          child: BlocBuilder<ServicesBloc, ServicesState>(
+              builder: (context, state) {
+            if (state is ServicesStateFetched) {
+              commentsFetchForServices(context: context, alias: groups["alias"], services: state.services);
+              return ServicesListWidget(
+                  alias: groups["alias"], services: state.services);
+            } else {
+              return CenterLoadingWidget();
+            }
+          }));
+    });
   }
 }

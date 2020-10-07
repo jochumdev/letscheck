@@ -1,4 +1,4 @@
-package com.example.supercheck_mk
+package it.datenstrom.letscheck
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,6 +1,13 @@
 # Generated files
 *.g.dart
 
+# Plugins
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Mac
+._*
+
 # Miscellaneous
 *.class
 *.log

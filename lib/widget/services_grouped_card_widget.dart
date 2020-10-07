@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
 import 'package:flutter/painting.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
+import '../bloc/comments/comments.dart';
 import '../global_router.dart';
 
 enum ServicesGroupedCardMode { HOSTS }
@@ -25,6 +28,8 @@ class ServicesGroupedCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> cardWidgets = [];
+
+    final cBloc = BlocProvider.of<CommentsBloc>(context);
 
     if (showGroupHeader) {
       cardWidgets.add(Padding(
@@ -57,7 +62,8 @@ class ServicesGroupedCardWidget extends StatelessWidget {
           icon = FaIcon(FontAwesomeIcons.ban, color: Colors.red, size: 20);
           break;
         case 3:
-          icon = FaIcon(FontAwesomeIcons.questionCircle, color: Colors.grey, size: 20);
+          icon = FaIcon(FontAwesomeIcons.questionCircle,
+              color: Colors.grey, size: 20);
           break;
       }
 
@@ -69,40 +75,84 @@ class ServicesGroupedCardWidget extends StatelessWidget {
           pluginOutput = pluginOutput.substring(7);
       }
 
-      cardWidgets.add(Padding(
-          padding: const EdgeInsets.fromLTRB(16, 5, 16, 5),
-          child: Row(
-            children: [
+      Widget commentsWidget = Container();
+      if (service.comments != null &&
+          cBloc.state.comments != null &&
+          cBloc.state.comments.containsKey(alias)) {
+        List<Widget> commentRows = List();
+        service.comments.forEach((id) {
+          if (cBloc.state.comments[alias].containsKey(id)) {
+            final comment = cBloc.state.comments[alias][id];
+            commentRows.add(Row(children: [
               Expanded(
                 flex: 1,
-                child: icon,
+                child: Container(),
               ),
               Expanded(
-                flex: 8,
+                flex: 3,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 5),
+                  child: Text("@${comment.author}\n" + DateFormat.yMd('de_AT').format(comment.entryTime.toLocal()),
+                    style: Theme.of(context).textTheme.caption)),
+              ),
+              Expanded(
+                flex: 6,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: Text(comment.comment,
+                    style: Theme.of(context).textTheme.caption)),
+              ),
+            ]));
+          }
+        });
+
+        if (commentRows.length > 0) {
+          commentsWidget = Padding(
+              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                      child: Text(service.displayName, style: Theme.of(context).textTheme.bodyText1),
-                      onTap: () {
-                        Navigator.of(context).pushNamed(GlobalRouter()
-                            .buildUri(routeService, buildArgs: {
-                          "alias": alias,
-                          "hostname": service.hostName,
-                          "service": service.displayName
-                        }));
-                      }),
-                  Text(
-                    pluginOutput,
-                    maxLines: 2,
-                    style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.caption.color),
+                children: commentRows,
+              ));
+        }
+      }
+
+      cardWidgets.add(Padding(
+          padding: const EdgeInsets.fromLTRB(16, 5, 16, 5),
+          child: Column(children: [
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: icon,
+                ),
+                Expanded(
+                  flex: 8,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                          child: Text(service.displayName,
+                              style: Theme.of(context).textTheme.bodyText1),
+                          onTap: () {
+                            Navigator.of(context).pushNamed(GlobalRouter()
+                                .buildUri(routeService, buildArgs: {
+                              "alias": alias,
+                              "hostname": service.hostName,
+                              "service": service.displayName
+                            }));
+                          }),
+                      Text(
+                        pluginOutput,
+                        maxLines: 2,
+                        style: Theme.of(context).textTheme.caption,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              ),
-            ],
-          )));
+                ),
+              ],
+            ),
+            commentsWidget,
+          ])));
     });
 
     return Card(
