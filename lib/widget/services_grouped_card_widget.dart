@@ -4,7 +4,7 @@ import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
 import 'package:flutter/painting.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import '../bloc/comments/comments.dart';
 import '../global_router.dart';
 
@@ -25,6 +25,10 @@ class ServicesGroupedCardWidget extends StatelessWidget {
       @required this.services,
       this.showGroupHeader = true,
       this.groupMode = ServicesGroupedCardMode.HOSTS});
+
+  void _showSnackBar(BuildContext context, String text) {
+    Scaffold.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +100,10 @@ class ServicesGroupedCardWidget extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 5),
                     child: Text(
                         "@${comment.author}\n" +
-                            jsRuntime.evaluate("DateTime.fromISO('${comment.entryTime.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});").stringResult,
+                            jsRuntime
+                                .evaluate(
+                                    "DateTime.fromISO('${comment.entryTime.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});")
+                                .stringResult,
                         style: Theme.of(context).textTheme.caption)),
               ),
               Expanded(
@@ -119,55 +126,87 @@ class ServicesGroupedCardWidget extends StatelessWidget {
         }
       }
 
-      cardWidgets.add(Padding(
-          padding: const EdgeInsets.fromLTRB(16, 5, 16, 5),
-          child: Column(children: [
-            Row(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: icon,
-                ),
-                Expanded(
-                  flex: 8,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      cardWidgets.add(
+        Slidable(
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.25,
+          child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 5, 16, 5),
+              child: GestureDetector(
+                child: Column(children: [
+                  Row(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                              child: Text(service.displayName.substring(0, service.displayName.length > 35 ? 35 : service.displayName.length),
-                                  style: Theme.of(context).textTheme.bodyText1),
-                              onTap: () {
-                                Navigator.of(context).pushNamed(GlobalRouter()
-                                    .buildUri(routeService, buildArgs: {
-                                  "alias": alias,
-                                  "hostname": service.hostName,
-                                  "service": service.displayName
-                                }));
-                              }),
-                          Text(
-                            jsRuntime.evaluate("DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});").stringResult,
-                            // jsRuntime.evaluate("console.log('')").stringResult,
-                            maxLines: 2,
-                            style: Theme.of(context).textTheme.caption,
-                          ),
-                        ],
+                      Expanded(
+                        flex: 1,
+                        child: icon,
                       ),
-                      Text(
-                        pluginOutput,
-                        maxLines: 2,
-                        style: Theme.of(context).textTheme.caption,
+                      Expanded(
+                        flex: 8,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                    service.displayName.substring(
+                                        0,
+                                        service.displayName.length > 35
+                                            ? 35
+                                            : service.displayName.length),
+                                    style:
+                                        Theme.of(context).textTheme.bodyText1),
+                                Text(
+                                  jsRuntime
+                                      .evaluate(
+                                          "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});")
+                                      .stringResult,
+                                  // jsRuntime.evaluate("console.log('')").stringResult,
+                                  maxLines: 2,
+                                  style: Theme.of(context).textTheme.caption,
+                                ),
+                              ],
+                            ),
+                            Text(
+                              pluginOutput,
+                              maxLines: 2,
+                              style: Theme.of(context).textTheme.caption,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  commentsWidget,
+                ]),
+                onTap: () {
+                  Navigator.of(context).pushNamed(GlobalRouter()
+                      .buildUri(routeService, buildArgs: {
+                    "alias": alias,
+                    "hostname": service.hostName,
+                    "service": service.displayName
+                  }));
+                },
+              )),
+          secondaryActions: <Widget>[
+            IconSlideAction(
+              caption: 'More',
+              color: Colors.black45,
+              icon: Icons.more_horiz,
+              onTap: () => _showSnackBar(context, 'More'),
             ),
-            commentsWidget,
-          ])));
+            IconSlideAction(
+              caption: 'Acknowledge',
+              color: Colors.green,
+              icon: Icons.delete,
+              onTap: () => _showSnackBar(context, 'Delete'),
+            ),
+          ],
+        ),
+      );
+
+      //   cardWidgets.add();
     });
 
     return Card(

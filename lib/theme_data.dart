@@ -45,7 +45,7 @@ ThemeData buildLightTheme() {
 }
 
 ThemeData buildDarkTheme() {
-  const Color primaryColor = Colors.white;
+  const Color primaryColor = Color(0xFF101920);
   const Color secondaryColor = checkMKIconColor;
 
   final ColorScheme colorScheme = const ColorScheme.dark().copyWith(
@@ -58,6 +58,7 @@ ThemeData buildDarkTheme() {
       textTheme: Typography.material2018().white,
       iconTheme: IconThemeData(color: Colors.white),
     ),
+    colorScheme: colorScheme,
     brightness: Brightness.dark,
     accentColorBrightness: Brightness.dark,
     primaryColor: primaryColor,
