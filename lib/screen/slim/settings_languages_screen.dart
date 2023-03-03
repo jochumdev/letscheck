@@ -17,9 +17,9 @@ class _SettingsLanguagesScreen extends State<SettingsLanguagesScreen> {
         sections: [
           SettingsSection(tiles: [
             SettingsTile(
-              title: "English",
+              title: Text("English"),
               trailing: trailingWidget(0),
-              onTap: () {
+              onPressed: (ctx) {
                 changeLanguage(0);
               },
             ),

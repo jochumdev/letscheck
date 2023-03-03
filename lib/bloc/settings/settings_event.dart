@@ -9,7 +9,7 @@ class AppStarted extends SettingsEvent {
   List<Object> get props => [];
 
   @override
-  String toString() => "App started";
+  String toString() => 'App started';
 }
 
 class ThemeChanged extends SettingsEvent {

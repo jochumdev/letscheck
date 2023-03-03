@@ -24,35 +24,32 @@ dependencies:
   flutter:
     sdk: flutter
   check_mk_api:
-    path: ../check_mk_api
-  built_value: ^7.1.0
-  built_collection: ^4.3.2
-  flutter_form_bloc: ^0.19.0
-  hydrated_bloc: ^6.0.1
-  path_provider: ^1.6.18
-  equatable: ^1.2.5
-  settings_ui: ^0.4.0
-  numberpicker: ^1.2.1
+    path: ./vendor/check_mk_api
+  built_value: ^8.4.3
+  built_collection: ^5.1.1
+  flutter_form_bloc: ^0.20.6
+  hydrated_bloc: ^7.1.0
+  path_provider: ^2.0.13
+  equatable: ^2.0.3
+  settings_ui: ^2.0.2
+  numberpicker: ^2.1.1
   retry: ^3.0.1
-  font_awesome_flutter: ^8.8.1
-  grouped_list: ^3.5.0
-  intl: ^0.16.1
-  package_info: '>=0.4.3 <2.0.0'
-  flutter_js: 0.2.2+0
+  font_awesome_flutter: ^10.4.0
+  grouped_list: ^5.1.2
+  intl: ^0.17.0
+  package_info: ^2.0.2
+  flutter_js: ^0.6.0
 
-  flutter_slidable: ^0.5.7
+  flutter_slidable: ^2.0.0
 
   # Check that you have this dependency (added in the previous step)
-  firebase_core: ^0.5.0+1
+  # firebase_core: ^2.7.0
   # Add the dependency for the FlutterFire plugin for Google Analytics
-  firebase_analytics: ^6.0.2
+  # firebase_analytics: ^10.1.4
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  built_value_generator: ^7.1.0
-  build_runner: ^1.10.1
-  flutter_bloc_monitor: ^1.0.3+1
+  built_value_generator: ^8.4.3
+  build_runner: ^2.3.3
   pedantic: ^1.9.0
 
 # For information on the generic Dart part of this file, see the

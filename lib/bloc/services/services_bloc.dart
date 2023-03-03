@@ -29,7 +29,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
         "last_state_change",
       ]})
       : super(ServicesStateUninitialized()) {
-    sBlocSubscription = sBloc.listen((state) async {
+    sBlocSubscription = sBloc.stream.listen((state) async {
       switch (state.state) {
         case SettingsStateEnum.clientConnected:
         case SettingsStateEnum.clientDeleted:
@@ -107,7 +107,8 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
     }
 
     try {
-      final services = await client.lqlGetTableServices(filter: filter, columns: columns);
+      final services =
+          await client.lqlGetTableServices(filter: filter, columns: columns);
       add(ServicesEventFetched(alias: alias, services: services));
     } on cmkApi.CheckMkBaseError catch (e) {
       sBloc.add(new ConnectionFailed(alias, e));

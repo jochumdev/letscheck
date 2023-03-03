@@ -29,14 +29,15 @@ class ConnectionFormWidget extends StatelessWidget {
           onFailure: (context, state) {
             LoadingDialog.hide(_ldKey);
 
-            Scaffold.of(context)
+            ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.failureResponse)));
           },
           child: Builder(builder: (context) {
             List<Widget> buttons = [];
             if (!isNew) {
-              buttons.add(RaisedButton(
-                color: Theme.of(context).errorColor,
+              buttons.add(ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).errorColor),
                 onPressed: () async {
                   var dialogResult = await showDialog<bool>(
                     context: context,
@@ -53,14 +54,15 @@ class ConnectionFormWidget extends StatelessWidget {
                           ),
                         ),
                         actions: <Widget>[
-                          RaisedButton(
+                          ElevatedButton(
                             child: Text('Cancel'),
                             onPressed: () {
                               Navigator.of(context).pop(false);
                             },
                           ),
-                          RaisedButton(
-                            color: Theme.of(context).errorColor,
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).errorColor),
                             child: Text('OK'),
                             onPressed: () {
                               Navigator.of(context).pop(true);
@@ -82,7 +84,7 @@ class ConnectionFormWidget extends StatelessWidget {
             } else {
               buttons.add(Container());
             }
-            buttons.add(RaisedButton(
+            buttons.add(ElevatedButton(
               onPressed: formBloc.submit,
               child: Text('Save'),
             ));

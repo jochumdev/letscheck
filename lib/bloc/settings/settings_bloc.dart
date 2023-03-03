@@ -82,8 +82,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
         ..connections[event.alias] = event.connectionSettings
         ..state = SettingsStateEnum.clientConnected
         ..latestAlias = event.alias);
-      yield state.rebuild((b) => b
-        ..state = SettingsStateEnum.connected);
+      yield state.rebuild((b) => b..state = SettingsStateEnum.connected);
     }
 
     if (event is UpdateConnection) {

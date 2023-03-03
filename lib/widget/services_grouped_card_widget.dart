@@ -27,7 +27,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
       this.groupMode = ServicesGroupedCardMode.HOSTS});
 
   void _showSnackBar(BuildContext context, String text) {
-    Scaffold.of(context).showSnackBar(SnackBar(content: Text(text)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   @override
@@ -126,85 +126,85 @@ class ServicesGroupedCardWidget extends StatelessWidget {
         }
       }
 
-      cardWidgets.add(
-        Slidable(
-          actionPane: SlidableDrawerActionPane(),
-          actionExtentRatio: 0.25,
-          child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 5, 16, 5),
-              child: GestureDetector(
-                child: Column(children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: icon,
-                      ),
-                      Expanded(
-                        flex: 8,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                    service.displayName.substring(
-                                        0,
-                                        service.displayName.length > 35
-                                            ? 35
-                                            : service.displayName.length),
-                                    style:
-                                        Theme.of(context).textTheme.bodyText1),
-                                Text(
-                                  jsRuntime
-                                      .evaluate(
-                                          "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});")
-                                      .stringResult,
-                                  // jsRuntime.evaluate("console.log('')").stringResult,
-                                  maxLines: 2,
-                                  style: Theme.of(context).textTheme.caption,
-                                ),
-                              ],
-                            ),
-                            Text(
-                              pluginOutput,
-                              maxLines: 2,
-                              style: Theme.of(context).textTheme.caption,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  commentsWidget,
-                ]),
-                onTap: () {
-                  Navigator.of(context).pushNamed(GlobalRouter()
-                      .buildUri(routeService, buildArgs: {
-                    "alias": alias,
-                    "hostname": service.hostName,
-                    "service": service.displayName
-                  }));
-                },
-              )),
-          secondaryActions: <Widget>[
-            IconSlideAction(
-              caption: 'More',
-              color: Colors.black45,
-              icon: Icons.more_horiz,
-              onTap: () => _showSnackBar(context, 'More'),
-            ),
-            IconSlideAction(
-              caption: 'Acknowledge',
-              color: Colors.green,
-              icon: Icons.delete,
-              onTap: () => _showSnackBar(context, 'Delete'),
-            ),
-          ],
-        ),
-      );
+      // cardWidgets.add(
+      //   Slidable(
+      //     actionPane: SlidableDrawerActionPane(),
+      //     actionExtentRatio: 0.25,
+      //     child: Padding(
+      //         padding: const EdgeInsets.fromLTRB(16, 5, 16, 5),
+      //         child: GestureDetector(
+      //           child: Column(children: [
+      //             Row(
+      //               children: [
+      //                 Expanded(
+      //                   flex: 1,
+      //                   child: icon,
+      //                 ),
+      //                 Expanded(
+      //                   flex: 8,
+      //                   child: Column(
+      //                     mainAxisAlignment: MainAxisAlignment.start,
+      //                     crossAxisAlignment: CrossAxisAlignment.start,
+      //                     children: [
+      //                       Row(
+      //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //                         children: [
+      //                           Text(
+      //                               service.displayName.substring(
+      //                                   0,
+      //                                   service.displayName.length > 35
+      //                                       ? 35
+      //                                       : service.displayName.length),
+      //                               style:
+      //                                   Theme.of(context).textTheme.bodyText1),
+      //                           Text(
+      //                             jsRuntime
+      //                                 .evaluate(
+      //                                     "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});")
+      //                                 .stringResult,
+      //                             // jsRuntime.evaluate("console.log('')").stringResult,
+      //                             maxLines: 2,
+      //                             style: Theme.of(context).textTheme.caption,
+      //                           ),
+      //                         ],
+      //                       ),
+      //                       Text(
+      //                         pluginOutput,
+      //                         maxLines: 2,
+      //                         style: Theme.of(context).textTheme.caption,
+      //                       ),
+      //                     ],
+      //                   ),
+      //                 ),
+      //               ],
+      //             ),
+      //             commentsWidget,
+      //           ]),
+      //           onTap: () {
+      //             Navigator.of(context).pushNamed(GlobalRouter()
+      //                 .buildUri(routeService, buildArgs: {
+      //               "alias": alias,
+      //               "hostname": service.hostName,
+      //               "service": service.displayName
+      //             }));
+      //           },
+      //         )),
+      //     secondaryActions: <Widget>[
+      //       IconSlideAction(
+      //         caption: 'More',
+      //         color: Colors.black45,
+      //         icon: Icons.more_horiz,
+      //         onTap: () => _showSnackBar(context, 'More'),
+      //       ),
+      //       IconSlideAction(
+      //         caption: 'Acknowledge',
+      //         color: Colors.green,
+      //         icon: Icons.delete,
+      //         onTap: () => _showSnackBar(context, 'Delete'),
+      //       ),
+      //     ],
+      //   ),
+      // );
 
       //   cardWidgets.add();
     });

@@ -14,7 +14,7 @@ class ConnectionDataBloc
 
   ConnectionDataBloc({@required this.sBloc})
       : super(ConnectionDataState.init()) {
-    sBlocSubscription = sBloc.listen((state) async {
+    sBlocSubscription = sBloc.stream.listen((state) async {
       switch (state.state) {
         case SettingsStateEnum.clientConnected:
         case SettingsStateEnum.clientDeleted:
@@ -97,16 +97,17 @@ class ConnectionDataBloc
 
     try {
       final stats = await client.lqlGetStatsTacticalOverview();
-      final unhServices =
-          await client.lqlGetTableServices(filter: ["services_unhandled"], columns: const [
-            "state",
-            "host_name",
-            "display_name",
-            "description",
-            "plugin_output",
-            "comments",
-            "last_state_change",
-          ]);
+      final unhServices = await client.lqlGetTableServices(filter: [
+        "services_unhandled"
+      ], columns: const [
+        "state",
+        "host_name",
+        "display_name",
+        "description",
+        "plugin_output",
+        "comments",
+        "last_state_change",
+      ]);
       add(NewConnectionData(
           alias: alias, stats: stats, unhServices: unhServices));
     } on cmkApi.CheckMkBaseError catch (e) {

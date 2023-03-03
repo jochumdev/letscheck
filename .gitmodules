@@ -1,0 +1,3 @@
+[submodule "vendor/check_mk_api"]
+	path = vendor/check_mk_api
+	url = https://github.com/jochumdev/lql-api_flutter.git

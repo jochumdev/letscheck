@@ -7,19 +7,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'global_router.dart';
 import 'bloc/settings/settings.dart';
 import 'bloc/connection_data/connection_data.dart';
 import 'bloc/search/search.dart';
 import 'bloc/comments/comments.dart';
 import 'theme_data.dart';
 import 'screen/slim/slim_router.dart';
-import 'package:flutter_bloc_monitor/flutter_bloc_monitor.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_analytics/firebase_analytics.dart';
+// import 'package:firebase_analytics/observer.dart';
 import 'package:package_info/package_info.dart';
 import 'package:flutter_js/flutter_js.dart';
 
@@ -52,16 +50,12 @@ Future<JavascriptRuntime> initJavascriptRuntime() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // await Firebase.initializeApp();
 
   if (kDebugMode) {
-    Bloc.observer = FlutterBlocMonitorDelegate(
-      onEventFunc: (bloc, event) => print(event),
-      onTransitionFunc: (bloc, transition) => print(transition),
-      onErrorFunc: (bloc, error, stacktrace) => print(error),
+    HydratedBloc.storage = await HydratedStorage.build(
+      storageDirectory: await getApplicationDocumentsDirectory(),
     );
-
-    HydratedBloc.storage = await HydratedStorage.build();
   } else {
     HydratedBloc.storage = await HydratedStorage.build(
       storageDirectory: await getApplicationDocumentsDirectory(),
@@ -82,8 +76,8 @@ Future<void> main() async {
           ? registerSlimRoutes() // Wide
           : registerSlimRoutes(); // Slim
 
-  final sBloc = new SettingsBloc();
-  final hdBloc = new ConnectionDataBloc(sBloc: sBloc);
+  final sBloc = SettingsBloc();
+  final hdBloc = ConnectionDataBloc(sBloc: sBloc);
 
   runApp(MultiRepositoryProvider(
       providers: [
@@ -103,9 +97,9 @@ Future<void> main() async {
 class App extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  static FirebaseAnalytics analytics = FirebaseAnalytics();
-  static FirebaseAnalyticsObserver observer =
-      FirebaseAnalyticsObserver(analytics: analytics);
+  // static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  // static FirebaseAnalyticsObserver observer =
+  //     FirebaseAnalyticsObserver(analytics: analytics);
 
   App({Key key}) : super(key: key);
 
@@ -116,7 +110,7 @@ class App extends StatelessWidget {
 
       return MaterialApp(
         navigatorKey: navigatorKey,
-        navigatorObservers: <NavigatorObserver>[observer],
+        // navigatorObservers: <NavigatorObserver>[observer],
         debugShowCheckedModeBanner: false,
         title: 'Check_MK',
         theme: state.isLightMode ? buildLightTheme() : buildDarkTheme(),

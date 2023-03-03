@@ -58,9 +58,8 @@ class SettingsScreen extends BaseSlimScreen {
       // connectionTiles.add();
 
       return SettingsList(
-        backgroundColor: Theme.of(context).backgroundColor,
         sections: [
-          CustomSection(
+          CustomSettingsSection(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -85,7 +84,7 @@ class SettingsScreen extends BaseSlimScreen {
                   },
                 ),
               ])),
-          CustomSection(
+          CustomSettingsSection(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -99,48 +98,48 @@ class SettingsScreen extends BaseSlimScreen {
             ),
           ),
           SettingsSection(
-            title: 'Common',
+            title: Text('Common'),
             tiles: [
               SettingsTile(
-                title: 'Language',
-                subtitle: 'English',
+                title: Text('Language'),
+                trailing: Text('English'),
                 leading: Icon(Icons.language),
-                onTap: () {
+                onPressed: (ctx) {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (BuildContext context) =>
                           SettingsLanguagesScreen()));
                 },
               ),
               SettingsTile.switchTile(
-                title: 'Dark Mode',
+                title: Text('Dark Mode'),
                 leading: Icon(Icons.design_services),
-                switchValue: !state.isLightMode,
+                initialValue: !state.isLightMode,
                 onToggle: (context) =>
                     sBloc.add(ThemeChanged(!state.isLightMode)),
               ),
               SettingsTile.switchTile(
-                title: 'Enable Notifications',
+                title: Text('Enable Notifications'),
                 leading: Icon(Icons.notifications_active),
-                switchValue: true,
+                initialValue: true,
                 onToggle: (value) {},
               ),
               SettingsTile(
-                title: 'Refresh Time',
-                subtitle: '${sBloc.state.refreshSeconds} Seconds',
+                title: Text('Refresh Time'),
+                trailing: Text('${sBloc.state.refreshSeconds} Seconds'),
                 leading: Icon(Icons.refresh),
-                onTap: () async {
+                onPressed: (ctx) async {
                   var dialogResult = await showDialog<int>(
                     context: context,
                     barrierDismissible: false, // user must tap button!
                     builder: (BuildContext context) {
                       var result = sBloc.state.refreshSeconds;
-                      var numPicker = new NumberPicker.integer(
-                        initialValue: result,
+                      var numPicker = NumberPicker(
+                        value: result,
                         minValue: kDebugMode ? 10 : 60,
                         maxValue: 3600,
                         step: kDebugMode ? 10 : 60,
-                        onChanged: (num) {
-                          result = num;
+                        onChanged: (value) {
+                          result = value;
                         },
                       );
 
@@ -148,14 +147,15 @@ class SettingsScreen extends BaseSlimScreen {
                         title: Text('Set Refresh Time in Seconds'),
                         content: numPicker,
                         actions: <Widget>[
-                          RaisedButton(
-                            color: Theme.of(context).errorColor,
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).errorColor),
                             child: Text('Cancel'),
                             onPressed: () {
                               Navigator.of(context).pop(null);
                             },
                           ),
-                          RaisedButton(
+                          ElevatedButton(
                             child: Text('OK'),
                             onPressed: () {
                               Navigator.of(context).pop(result);
@@ -174,16 +174,17 @@ class SettingsScreen extends BaseSlimScreen {
             ],
           ),
           SettingsSection(
-            title: 'Misc',
+            title: Text('Misc'),
             tiles: [
               SettingsTile(
-                  title: 'Terms of Service', leading: Icon(Icons.description)),
+                  title: Text('Terms of Service'),
+                  leading: Icon(Icons.description)),
               SettingsTile(
-                  title: 'Open source licenses',
+                  title: Text('Open source licenses'),
                   leading: Icon(Icons.collections_bookmark)),
             ],
           ),
-          CustomSection(
+          CustomSettingsSection(
             child: Column(
               children: [
                 SizedBox(

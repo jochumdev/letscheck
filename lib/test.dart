@@ -88,7 +88,7 @@ class ConnectionForm extends StatelessWidget {
               onFailure: (context, state) {
                 LoadingDialog.hide(context);
 
-                Scaffold.of(context).showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(state.failureResponse)));
               },
               child: SingleChildScrollView(
@@ -147,11 +147,11 @@ class ConnectionForm extends StatelessWidget {
 
 class LoadingDialog extends StatelessWidget {
   static void show(BuildContext context, {Key key}) => showDialog<void>(
-    context: context,
-    useRootNavigator: false,
-    barrierDismissible: false,
-    builder: (_) => LoadingDialog(key: key),
-  ).then((_) => FocusScope.of(context).requestFocus(FocusNode()));
+        context: context,
+        useRootNavigator: false,
+        barrierDismissible: false,
+        builder: (_) => LoadingDialog(key: key),
+      ).then((_) => FocusScope.of(context).requestFocus(FocusNode()));
 
   static void hide(BuildContext context) => Navigator.pop(context);
 
@@ -193,7 +193,7 @@ class SuccessScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 10),
-            RaisedButton.icon(
+            ElevatedButton.icon(
               onPressed: () => Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (_) => ConnectionForm())),
               icon: Icon(Icons.replay),
