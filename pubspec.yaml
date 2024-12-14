@@ -35,7 +35,7 @@ dependencies:
   numberpicker: ^2.1.1
   retry: ^3.0.1
   font_awesome_flutter: ^10.4.0
-  grouped_list: ^5.1.2
+  grouped_list: ^6.0.0
   package_info_plus: ^8.1.2
   flutter_js: ^0.8.1
 
