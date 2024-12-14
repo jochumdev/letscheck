@@ -8,20 +8,19 @@ class HostCardWidget extends StatelessWidget {
   final cmkApi.LqlTableHostsDto host;
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 
-  HostCardWidget({Key key, @required this.alias, @required this.host})
+  HostCardWidget({Key? key, required this.alias, required this.host})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Widget icon;
-    switch (host.state) {
+    Widget icon = Icon(Icons.check, color: Colors.green);
+    switch (host.state! as int) {
       case 0:
-        icon =
-            Icon(Icons.check, color: Colors.green);
+        icon = Icon(Icons.check, color: Colors.green);
         break;
       case 1:
-        icon = FaIcon(FontAwesomeIcons.exclamationTriangle,
-            color: Colors.yellow);
+        icon =
+            FaIcon(FontAwesomeIcons.exclamationTriangle, color: Colors.yellow);
         break;
       case 2:
         icon = FaIcon(FontAwesomeIcons.ban, color: Colors.red);
@@ -37,12 +36,14 @@ class HostCardWidget extends StatelessWidget {
         visualDensity: minimalVisualDensity,
         isThreeLine: host.name != host.displayName,
         title: GestureDetector(
-            child: Text(host.name),
+            child: Text(host.name!),
             onTap: () {
               Navigator.of(context).pushNamed(GlobalRouter().buildUri(routeHost,
-                  buildArgs: {"alias": alias, "hostname": host.name}));
+                  buildArgs: {'alias': alias, 'hostname': host.name!}));
             }),
-        subtitle: host.name != host.displayName ? Text(host.displayName + "\n" + host.address) : Text(host.address),
+        subtitle: host.name != host.displayName
+            ? Text(host.displayName! + '\n' + host.address!)
+            : Text(host.address!),
       ),
     );
   }

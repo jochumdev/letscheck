@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
 import 'connection_data_state.dart';
@@ -9,22 +8,22 @@ import '../settings/settings.dart';
 class ConnectionDataBloc
     extends Bloc<ConnectionDataEvent, ConnectionDataState> {
   final SettingsBloc sBloc;
-  StreamSubscription sBlocSubscription;
-  StreamSubscription tickerSubscription;
+  late StreamSubscription sBlocSubscription;
+  StreamSubscription? tickerSubscription;
 
-  ConnectionDataBloc({@required this.sBloc})
+  ConnectionDataBloc({required this.sBloc})
       : super(ConnectionDataState.init()) {
     sBlocSubscription = sBloc.stream.listen((state) async {
-      switch (state.state) {
+      switch (state.state!) {
         case SettingsStateEnum.clientConnected:
         case SettingsStateEnum.clientDeleted:
         case SettingsStateEnum.clientUpdated:
         case SettingsStateEnum.clientFailed:
-          add(UpdateClient(action: state.state, alias: state.latestAlias));
+          add(UpdateClient(action: state.state!, alias: state.latestAlias!));
           break;
         case SettingsStateEnum.updatedRefreshSeconds:
           if (tickerSubscription != null) {
-            tickerSubscription.cancel();
+            await tickerSubscription!.cancel();
             tickerSubscription = null;
           }
           await _startFetching();
@@ -32,43 +31,37 @@ class ConnectionDataBloc
         default:
       }
     });
-  }
 
-  @override
-  Stream<ConnectionDataState> mapEventToState(
-      ConnectionDataEvent event) async* {
-    if (event is StartFetching) {
+    on<StartFetching>((event, emit) async {
       await _startFetching();
-    } else if (event is UpdateClient) {
+    });
+
+    on<UpdateClient>((event, emit) async {
       switch (event.action) {
         case SettingsStateEnum.clientConnected:
         case SettingsStateEnum.clientUpdated:
           await _fetchData(event.alias);
-          break;
         case SettingsStateEnum.clientFailed:
         case SettingsStateEnum.clientDeleted:
-          yield state.rebuild((b) => b..stats.remove(event.alias));
-          break;
+          emit(state.rebuild((b) => b..stats.remove(event.alias)));
         default:
       }
-    } else if (event is NewConnectionData) {
-      yield state.rebuild((b) => b
+    });
+
+    on<NewConnectionData>((event, emit) async {
+      emit(state.rebuild((b) => b
         ..stats[event.alias] = event.stats
-        ..unhServices[event.alias] = event.unhServices);
-    }
+        ..unhServices[event.alias] = event.unhServices));
+    });
   }
 
   Future<void> _startFetching() async {
-    if (tickerSubscription != null) {
-      return;
-    }
-
     // Initial fetch
     for (var alias in sBloc.state.connections.keys) {
       await _fetchData(alias);
     }
 
-    tickerSubscription =
+    tickerSubscription ??=
         Stream.periodic(Duration(seconds: sBloc.state.refreshSeconds))
             .listen((state) async {
       // Ticker fetch
@@ -83,41 +76,37 @@ class ConnectionDataBloc
       return;
     }
 
-    if (sBloc.state.connections[alias].state !=
+    if (sBloc.state.connections[alias]!.state !=
         SettingsConnectionStateEnum.connected) {
       return;
     }
 
-    final client = sBloc.state.connections[alias].client;
-
-    if (client == null) {
-      // This should never happen
-      return;
-    }
+    final client = sBloc.state.connections[alias]!.client!;
 
     try {
       final stats = await client.lqlGetStatsTacticalOverview();
       final unhServices = await client.lqlGetTableServices(filter: [
-        "services_unhandled"
+        'services_unhandled'
       ], columns: const [
-        "state",
-        "host_name",
-        "display_name",
-        "description",
-        "plugin_output",
-        "comments",
-        "last_state_change",
+        'state',
+        'host_name',
+        'display_name',
+        'description',
+        'plugin_output',
+        'comments',
+        'last_state_change',
       ]);
       add(NewConnectionData(
           alias: alias, stats: stats, unhServices: unhServices));
     } on cmkApi.CheckMkBaseError catch (e) {
-      sBloc.add(new ConnectionFailed(alias, e));
+      sBloc.add(ConnectionFailed(alias, e));
     }
   }
 
   void dispose() {
     if (tickerSubscription != null) {
-      tickerSubscription.cancel();
+      tickerSubscription!.cancel();
+      tickerSubscription = null;
     }
     sBlocSubscription.cancel();
   }

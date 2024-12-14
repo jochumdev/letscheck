@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:equatable/equatable.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
@@ -11,14 +10,14 @@ class ServicesStartFetching extends ServicesEvent {
   List<Object> get props => [];
 
   @override
-  String toString() => "Start fetching";
+  String toString() => 'Start fetching';
 }
 
 class ServicesEventFetched extends ServicesEvent {
   final String alias;
   final BuiltList<cmkApi.LqlTableServicesDto> services;
 
-  ServicesEventFetched({@required this.alias, @required this.services});
+  ServicesEventFetched({required this.alias, required this.services});
 
   @override
   List<Object> get props => [alias, services];
@@ -30,7 +29,7 @@ class ServicesEventFetched extends ServicesEvent {
 class ServicesUpdate extends ServicesEvent {
   final SettingsStateEnum action;
 
-  ServicesUpdate({@required this.action});
+  ServicesUpdate({required this.action});
 
   @override
   List<Object> get props => [action];

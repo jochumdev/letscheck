@@ -6,28 +6,24 @@ import 'comments_bloc.dart';
 import 'comments_event.dart';
 
 void commentsFetchForServices(
-    {BuildContext context,
-    String alias,
-    BuiltList<cmkApi.LqlTableServicesDto> services}) {
-
+    {required BuildContext context,
+    required String alias,
+    required BuiltList<cmkApi.LqlTableServicesDto> services}) {
   final cBloc = BlocProvider.of<CommentsBloc>(context);
 
-  List<num> ids = List();
+  var ids = <num>[];
   services.forEach((service) {
-    if (service.comments != null) {
-      if (cBloc.state.comments == null || !cBloc.state.comments.containsKey(alias)) {
-        ids.addAll(service.comments);
-      } else {
-        service.comments.forEach((id) {
-          if (!cBloc.state.comments[alias].containsKey(id)) {
-            ids.add(id);
-          } else {
-          }
-        });
-      }
+    if (!cBloc.state.comments.containsKey(alias)) {
+      ids.addAll(service.comments!);
+    } else {
+      service.comments!.forEach((id) {
+        if (!cBloc.state.comments[alias]!.containsKey(id)) {
+          ids.add(id);
+        } else {}
+      });
     }
   });
-  if (ids.length > 0) {
+  if (ids.isNotEmpty) {
     cBloc.add(CommentsFetchIds(alias: alias, ids: ids));
   }
 }

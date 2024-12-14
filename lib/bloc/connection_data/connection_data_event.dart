@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
@@ -11,14 +10,14 @@ class StartFetching extends ConnectionDataEvent {
   List<Object> get props => [];
 
   @override
-  String toString() => "Start fetching";
+  String toString() => 'Start fetching';
 }
 
 class UpdateClient extends ConnectionDataEvent {
   final SettingsStateEnum action;
   final String alias;
 
-  UpdateClient({@required this.action, @required this.alias});
+  UpdateClient({required this.action, required this.alias});
 
   @override
   List<Object> get props => [action, alias];
@@ -33,7 +32,7 @@ class NewConnectionData extends ConnectionDataEvent {
   final BuiltList<cmkApi.LqlTableServicesDto> unhServices;
 
   NewConnectionData(
-      {@required this.alias, @required this.stats, @required this.unhServices});
+      {required this.alias, required this.stats, required this.unhServices});
 
   @override
   List<Object> get props => [alias, stats];

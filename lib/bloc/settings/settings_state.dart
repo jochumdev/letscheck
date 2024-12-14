@@ -14,18 +14,15 @@ abstract class SettingsState
       _$SettingsState;
 
   @BuiltValueField(serialize: false)
-  @nullable
-  SettingsStateEnum get state;
+  SettingsStateEnum? get state;
 
   @BuiltValueField(serialize: false)
-  @nullable
-  String get latestAlias;
+  String? get latestAlias;
 
   @BuiltValueField(wireName: 'is_light_mode')
   bool get isLightMode;
 
   @BuiltValueField(wireName: 'refresh_seconds')
-  @nullable
   int get refreshSeconds;
 
   BuiltMap<String, SettingsStateConnection> get connections;
@@ -36,7 +33,6 @@ abstract class SettingsState
     ..state = SettingsStateEnum.uninitialized);
 }
 
-
 class SettingsStateEnum extends EnumClass {
   static const SettingsStateEnum uninitialized = _$uninitialized;
   static const SettingsStateEnum noConnection = _$noConnection;
@@ -46,14 +42,14 @@ class SettingsStateEnum extends EnumClass {
   static const SettingsStateEnum clientDeleted = _$clientDeleted;
   static const SettingsStateEnum connected = _$connected;
   static const SettingsStateEnum failed = _$failed;
-  static const SettingsStateEnum updatedRefreshSeconds = _$updatedRefreshSeconds;
+  static const SettingsStateEnum updatedRefreshSeconds =
+      _$updatedRefreshSeconds;
 
   const SettingsStateEnum._(String name) : super(name);
 
   static BuiltSet<SettingsStateEnum> get values => _$values;
   static SettingsStateEnum valueOf(String name) => _$valueOf(name);
 }
-
 
 abstract class SettingsStateConnection
     implements Built<SettingsStateConnection, SettingsStateConnectionBuilder> {
@@ -63,16 +59,13 @@ abstract class SettingsStateConnection
   @BuiltValueField(
     serialize: false,
   )
-  @nullable
-  SettingsConnectionStateEnum get state;
+  SettingsConnectionStateEnum? get state;
 
   @BuiltValueField(serialize: false)
-  @nullable
-  cmkApi.Client get client;
+  cmkApi.Client? get client;
 
   @BuiltValueField(serialize: false)
-  @nullable
-  cmkApi.CheckMkBaseError get error;
+  cmkApi.CheckMkBaseError? get error;
 
   @BuiltValueField(wireName: 'base_url')
   String get baseUrl;
@@ -93,13 +86,13 @@ abstract class SettingsStateConnection
   SettingsStateConnection._();
 
   factory SettingsStateConnection.init(
-          {SettingsConnectionStateEnum state,
-          String baseUrl,
-          String site,
-          String username,
-          String secret,
+          {required SettingsConnectionStateEnum state,
+          required String baseUrl,
+          required String site,
+          required String username,
+          required String secret,
           bool validateSsl = false,
-          cmkApi.Client client}) =>
+          cmkApi.Client? client}) =>
       SettingsStateConnection((b) => b
         ..state = state
         ..baseUrl = baseUrl
@@ -118,5 +111,6 @@ class SettingsConnectionStateEnum extends EnumClass {
   const SettingsConnectionStateEnum._(String name) : super(name);
 
   static BuiltSet<SettingsConnectionStateEnum> get values => _$connValues;
-  static SettingsConnectionStateEnum valueOf(String name) => _$connValueOf(name);
+  static SettingsConnectionStateEnum valueOf(String name) =>
+      _$connValueOf(name);
 }

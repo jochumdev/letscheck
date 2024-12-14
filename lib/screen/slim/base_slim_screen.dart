@@ -20,12 +20,10 @@ class BaseSlimScreenSettings {
 }
 
 abstract class BaseSlimScreen extends StatelessWidget {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
-  Function leadingButtonAction(context) {
-    return () async {
-      Navigator.of(context).pop();
-    };
+  Future<void> leadingButtonAction(context) async {
+    Navigator.of(context).pop();
   }
 
   Widget content(BuildContext context);
@@ -58,20 +56,24 @@ abstract class BaseSlimScreen extends StatelessWidget {
       leading = IconButton(
           icon: Icon(Icons.menu),
           onPressed: () {
-            if (_scaffoldKey.currentState.isDrawerOpen == false) {
-              _scaffoldKey.currentState.openDrawer();
-            } else {
-              _scaffoldKey.currentState.openEndDrawer();
+            if (_scaffoldKey.currentState != null) {
+              if (_scaffoldKey.currentState!.isDrawerOpen == false) {
+                _scaffoldKey.currentState!.openDrawer();
+              } else {
+                _scaffoldKey.currentState!.openEndDrawer();
+              }
             }
           });
     } else {
       leading = IconButton(
         icon: Icon(Icons.arrow_back),
-        onPressed: leadingButtonAction(context),
+        onPressed: () async {
+          await leadingButtonAction(context);
+        },
       );
     }
 
-    List<Widget> actions = [];
+    var actions = <Widget>[];
     if (settings.showSettings) {
       actions.add(IconButton(
         icon: Icon(Icons.settings),

@@ -12,97 +12,118 @@ const routeHost = 'host';
 const routeService = 'service';
 
 typedef RouteBuilder = Route<dynamic> Function(RouteSettings context);
+typedef RouteInitFunc = void Function(RouteSettings context);
 
 class BuildError implements Exception {
   final String message;
   BuildError(this.message);
 
+  @override
   String toString() => message;
 }
 
 abstract class GlobalRoute {
-  String get key;
-  RouteBuilder get route;
-  bool matchesRoute(String route);
-  Map<String, String> extractNamedArgs(BuildContext context);
-  String buildUri({Map<String, String> buildArgs});
+  String? get key;
+  RouteBuilder? get route;
+  RouteInitFunc? get init;
+  bool matchesRoute(String? route);
+  Map<String?, String> extractNamedArgs(BuildContext context);
+  String buildUri({Map<String, String>? buildArgs});
 }
 
 class ExactRoute implements GlobalRoute {
+  @override
   final String key;
   final String uri;
+  @override
   final RouteBuilder route;
+  @override
+  final RouteInitFunc? init;
 
-  ExactRoute({@required this.key, @required this.uri, @required this.route});
+  ExactRoute(
+      {required this.key, required this.uri, required this.route, this.init});
 
-  bool matchesRoute(String route) => route == uri;
+  @override
+  bool matchesRoute(String? route) => route == uri;
 
-  Map<String, String> extractNamedArgs(BuildContext context) => {};
+  @override
+  Map<String?, String> extractNamedArgs(BuildContext context) => {};
 
-  String buildUri({Map<String, String> buildArgs}) {
+  @override
+  String buildUri({Map<String, String>? buildArgs}) {
     assert(buildArgs == null);
     return uri;
   }
 }
 
 class NamedArgsRoute implements GlobalRoute {
+  @override
   final String key;
   final String builderUri;
   final RegExp regex;
-  final Map<String, int> args;
+  final Map<String?, int> args;
+  @override
   final RouteBuilder route;
   final bool lastArgOptional;
+  @override
+  final RouteInitFunc? init;
 
   NamedArgsRoute(
-      {@required this.key,
-      @required this.builderUri,
-      @required this.regex,
-      @required this.args,
-      @required this.route,
-      this.lastArgOptional = false});
+      {required this.key,
+      required this.builderUri,
+      required this.regex,
+      required this.args,
+      required this.route,
+      this.lastArgOptional = false,
+      this.init});
 
-  bool matchesRoute(String route) {
-    return regex.hasMatch(route);
+  @override
+  bool matchesRoute(String? route) {
+    return regex.hasMatch(route!);
   }
 
-  Map<String, String> extractNamedArgs(BuildContext context) {
-    var uri = ModalRoute.of(context).settings.name;
+  @override
+  Map<String?, String> extractNamedArgs(BuildContext context) {
+    var uri = ModalRoute.of(context)?.settings.name!;
     if (!matchesRoute(uri)) {
       return {};
     }
 
-    final match = regex.firstMatch(uri);
+    final match = regex.firstMatch(uri!);
 
-    Map<String, String> result = {};
+    var result = <String?, String>{};
     for (var name in args.keys) {
-      if (match.groupCount >= args[name] && match.group(args[name]) != null) {
-        result[name] = Uri.decodeComponent(match.group(args[name]));
+      if (match!.groupCount >= args[name]! &&
+          match.group(args[name]!) != null) {
+        result[name] = Uri.decodeComponent(match.group(args[name]!)!);
       }
     }
 
     return result;
   }
 
-  String buildUri({Map<String, String> buildArgs}) {
+  @override
+  String buildUri({Map<String, String>? buildArgs}) {
     if (buildArgs == null && lastArgOptional && args.length == 1) {
-      return builderUri.replaceFirst(r'/{' + args.keys.first + r'}', "");
+      return builderUri.replaceFirst(r'/{' + args.keys.first! + r'}', '');
     } else if (buildArgs == null) {
-      throw new BuildError("BuildArgs are not optional for route '$key'");
+      throw BuildError("BuildArgs are not optional for route '$key'");
     }
 
     if (lastArgOptional && buildArgs.keys.length < args.keys.length - 1) {
-      throw new BuildError("Not all args given for route '$key'");
+      throw BuildError("Not all args given for route '$key'");
     } else if (buildArgs.keys.length < args.keys.length) {
-      throw new BuildError("Not all args given for route '$key'");
+      throw BuildError("Not all args given for route '$key'");
     }
 
     var result = builderUri;
     for (var argName in buildArgs.keys) {
-      result = result.replaceAll('{$argName}', Uri.encodeComponent(buildArgs[argName]));
+      result = result.replaceAll(
+          '{$argName}', Uri.encodeComponent(buildArgs[argName]!));
     }
 
     if (lastArgOptional && result.contains('{')) {
-      result = result.replaceFirst(RegExp(r"(\/?\{\S+\})$"), "");
+      result = result.replaceFirst(RegExp(r'(\/?\{\S+\})$'), '');
     }
 
     return result;
@@ -110,27 +131,29 @@ class NamedArgsRoute implements GlobalRoute {
 }
 
 GlobalRoute buildRoute(
-    {@required String key,
-    @required String uri,
+    {required String key,
+    required String uri,
     bool lastArgOptional = false,
-    RouteBuilder route}) {
-  var matches = RegExp(r"\{(\w+)\}").allMatches(uri);
+    required RouteBuilder route,
+    RouteInitFunc? init}) {
+  var matches = RegExp(r'\{(\w+)\}').allMatches(uri);
   if (!matches.isNotEmpty) {
-    return ExactRoute(key: key, uri: uri, route: route);
+    return ExactRoute(key: key, uri: uri, route: route, init: init);
   }
 
-  Map<String, int> args = {};
-  var regex = r'^' + uri.replaceAll("/", r"\/") + r'$';
+  var args = <String?, int>{};
+  var regex = r'^' + uri.replaceAll('/', r'\/') + r'$';
 
   var i = 1;
   for (var match in matches) {
     if (lastArgOptional && i == matches.length) {
-      regex = regex.replaceFirst(r'\/{' + match.group(1) + r'}', r"((\/([^\/]+))?)\/?");
+      regex = regex.replaceFirst(
+          r'\/{' + match.group(1)! + r'}', r'((\/([^\/]+))?)\/?');
       args[match.group(1)] = i + 2;
       break;
     }
 
-    regex = regex.replaceFirst('{' + match.group(1) + '}', r"([^\/]+)");
+    regex = regex.replaceFirst('{${match.group(1)!}}', r'([^\/]+)');
     args[match.group(1)] = i;
 
     i++;
@@ -139,16 +162,17 @@ GlobalRoute buildRoute(
   return NamedArgsRoute(
       key: key,
       builderUri: uri,
-      regex: new RegExp(regex),
+      regex: RegExp(regex),
       args: args,
       route: route,
-      lastArgOptional: lastArgOptional);
+      lastArgOptional: lastArgOptional,
+      init: init);
 }
 
 class GlobalRouter {
-  Map<String, GlobalRoute> routes = {};
+  Map<String?, GlobalRoute> routes = {};
   List<GlobalRoute> dynamicRoutes = [];
-  Map<String, ExactRoute> exactRoutes = {};
+  Map<String?, ExactRoute> exactRoutes = {};
 
   final List<String> requiredRoutes = [
     routeHome,
@@ -166,13 +190,15 @@ class GlobalRouter {
   }
 
   bool validateRoutes() {
-    requiredRoutes.forEach((name) {
+    var result = true;
+    for (var name in requiredRoutes) {
       if (!routes.containsKey(name)) {
-        return false;
+        result = false;
+        continue;
       }
-    });
+    }
 
-    return true;
+    return result;
   }
 
   void clear() {
@@ -190,16 +216,16 @@ class GlobalRouter {
     }
   }
 
-  String buildUri(String key, {Map<String, String> buildArgs}) {
-    return routes[key].buildUri(buildArgs: buildArgs);
+  String buildUri(String key, {Map<String, String>? buildArgs}) {
+    return routes[key]!.buildUri(buildArgs: buildArgs);
   }
 
-  Map<String, String> extractNamedArgs(BuildContext context, String key) {
-    return routes[key].extractNamedArgs(context);
+  Map<String?, String> extractNamedArgs(BuildContext context, String key) {
+    return routes[key]!.extractNamedArgs(context);
   }
 
   bool isCurrentRoute(BuildContext context, String key) {
-    return routes[key].matchesRoute(ModalRoute.of(context).settings.name);
+    return routes[key]!.matchesRoute(ModalRoute.of(context)?.settings.name!);
   }
 
   Route<dynamic> generateRoute(RouteSettings context) {
@@ -209,21 +235,30 @@ class GlobalRouter {
 
     if (exactRoutes.containsKey(context.name)) {
       if (kDebugMode) {
-        print("... found route: ${context.name}");
+        print('... found route: ${context.name}');
       }
-      return exactRoutes[context.name].route(context);
+      var route = exactRoutes[context.name]!;
+      if (route.init != null) {
+        route.init!(context);
+      }
+      return route.route(context);
     }
 
     for (var route in dynamicRoutes) {
       if (route.matchesRoute(context.name)) {
         if (kDebugMode) {
-          print("... found route: ${route.key}");
+          print('... found route: ${route.key}');
         }
-        return route.route(context);
+        if (route.init != null) {
+          route.init!(context);
+        }
+        return route.route!(context);
       }
     }
 
-    print("... going to 404");
-    return routes[routeNotFound].route(context);
+    print('... going to 404');
+    var route = routes[routeNotFound]!;
+    route.init!(context);
+    return route.route!(context);
   }
 }

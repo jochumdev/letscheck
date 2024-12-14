@@ -10,7 +10,7 @@ import '../../widget/services_grouped_card_widget.dart';
 class CustomSearchDelegate extends SearchDelegate {
   CustomSearchDelegate()
       : super(
-          searchFieldLabel: "Search...",
+          searchFieldLabel: 'Search...',
           keyboardType: TextInputType.text,
           textInputAction: TextInputAction.search,
         );
@@ -20,10 +20,9 @@ class CustomSearchDelegate extends SearchDelegate {
     final theme = Theme.of(context);
     if (theme.colorScheme.brightness == Brightness.dark) {
       return theme.copyWith(
-        primaryColor: theme.appBarTheme.color,
+        primaryColor: theme.colorScheme.primary,
         secondaryHeaderColor: Colors.black,
         primaryIconTheme: theme.primaryIconTheme.copyWith(color: Colors.black),
-        primaryColorBrightness: Brightness.dark,
       );
     } else {
       return theme;
@@ -54,29 +53,29 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    print("Query: $query");
+    print('Query: $query');
     if (query.length < 3) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Center(
             child: Text(
-              "Search term must be longer than two letters.",
+              'Search term must be longer than two letters.',
             ),
           )
         ],
       );
     }
 
-    BlocProvider.of<SearchBloc>(context)..add(SearchTerm(term: query));
+    BlocProvider.of<SearchBloc>(context).add(SearchTerm(term: query));
 
     return BlocBuilder<SearchBloc, SearchState>(builder: (context, state) {
       if (state is SearchStateFetched) {
-        List<dynamic> groupItems = List();
+        var groupItems = <dynamic>[];
         state.hosts.forEach((alias, hosts) {
           hosts.forEach((host) {
             groupItems
-                .add({"group": "$alias: Hosts", "alias": alias, "host": host});
+                .add({'group': '$alias: Hosts', 'alias': alias, 'host': host});
           });
         });
         state.services.forEach((alias, services) {
@@ -84,14 +83,14 @@ class CustomSearchDelegate extends SearchDelegate {
 
           groupedServices.forEach((_, hServices) {
             groupItems.add({
-              "group": "$alias: Services",
-              "alias": alias,
-              "services": hServices
+              'group': '$alias: Services',
+              'alias': alias,
+              'services': hServices
             });
           });
         });
 
-        if (groupItems.length == 0) {
+        if (groupItems.isEmpty) {
           return Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -100,7 +99,7 @@ class CustomSearchDelegate extends SearchDelegate {
                     child: Column(
                   children: <Widget>[
                     Text(
-                      "No Results Found.",
+                      'No Results Found.',
                     ),
                   ],
                 ))
@@ -108,7 +107,7 @@ class CustomSearchDelegate extends SearchDelegate {
         } else {
           return GroupedListView<dynamic, String>(
             elements: groupItems,
-            groupBy: (element) => element["group"],
+            groupBy: (element) => element['group'],
             groupComparator: (value1, value2) => value2.compareTo(value1),
             useStickyGroupSeparators: false,
             groupSeparatorBuilder: (String value) => Padding(
@@ -120,15 +119,15 @@ class CustomSearchDelegate extends SearchDelegate {
               ),
             ),
             itemBuilder: (context, element) {
-              if (element.containsKey("host")) {
+              if (element.containsKey('host')) {
                 return HostCardWidget(
-                    alias: element["alias"], host: element["host"]);
+                    alias: element['alias'], host: element['host']);
               }
               // Service
               return ServicesGroupedCardWidget(
-                  alias: element["alias"],
-                  groupName: element["services"][0].hostName,
-                  services: element["services"]);
+                  alias: element['alias'],
+                  groupName: element['services'][0].hostName,
+                  services: element['services']);
             },
           );
         }

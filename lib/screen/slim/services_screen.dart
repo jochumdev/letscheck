@@ -11,20 +11,21 @@ import '../../widget/center_loading_widget.dart';
 class ServicesScreen extends BaseSlimScreen {
   static final route = buildRoute(
       key: routeServices,
-      uri: "/conn/{alias}/services/{filter}",
+      uri: '/conn/{alias}/services/{filter}',
       lastArgOptional: true,
       route: (context) => MaterialPageRoute(
             settings: context,
             builder: (context) => ServicesScreen(),
           ));
 
+  @override
   BaseSlimScreenSettings setup(BuildContext context) {
     final groups = ServicesScreen.route.extractNamedArgs(context);
-    var title = "Services";
-    if (groups.containsKey("alias")) {
-      if (groups.containsKey("filter")) {
-        switch (groups["filter"]) {
-          case "all":
+    var title = 'Services';
+    if (groups.containsKey('alias')) {
+      if (groups.containsKey('filter')) {
+        switch (groups['filter']) {
+          case 'all':
             title = "${groups["alias"]} Services";
             break;
           default:
@@ -38,20 +39,21 @@ class ServicesScreen extends BaseSlimScreen {
     return BaseSlimScreenSettings(title, showMenu: false);
   }
 
+  @override
   Widget content(BuildContext context) {
     final groups = ServicesScreen.route.extractNamedArgs(context);
     final sBloc = BlocProvider.of<SettingsBloc>(context);
 
-    List<String> filter = [];
-    switch (groups["filter"]) {
-      case "problems":
-        filter.add("services_problems");
+    var filter = <String>[];
+    switch (groups['filter']) {
+      case 'problems':
+        filter.add('services_problems');
         break;
-      case "unhandled":
-        filter.add("services_unhandled");
+      case 'unhandled':
+        filter.add('services_unhandled');
         break;
-      case "stale":
-        filter.add("services_stale");
+      case 'stale':
+        filter.add('services_stale');
         break;
       default:
     }
@@ -59,15 +61,18 @@ class ServicesScreen extends BaseSlimScreen {
     return BlocBuilder<CommentsBloc, CommentsState>(
         builder: (cContext, cState) {
       return BlocProvider<ServicesBloc>(
-          create: (context) =>
-              ServicesBloc(alias: groups["alias"], filter: filter, sBloc: sBloc)
-                ..add(ServicesStartFetching()),
+          create: (context) => ServicesBloc(
+              alias: groups['alias']!, filter: filter, sBloc: sBloc)
+            ..add(ServicesStartFetching()),
           child: BlocBuilder<ServicesBloc, ServicesState>(
               builder: (context, state) {
             if (state is ServicesStateFetched) {
-              commentsFetchForServices(context: context, alias: groups["alias"], services: state.services);
+              commentsFetchForServices(
+                  context: context,
+                  alias: groups['alias']!,
+                  services: state.services);
               return ServicesListWidget(
-                  alias: groups["alias"], services: state.services);
+                  alias: groups['alias']!, services: state.services);
             } else {
               return CenterLoadingWidget();
             }

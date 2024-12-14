@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:equatable/equatable.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
@@ -14,7 +13,7 @@ class HostsStateFetched extends HostsState {
   final String alias;
   final BuiltList<cmkApi.LqlTableHostsDto> hosts;
 
-  HostsStateFetched({@required this.alias, @required this.hosts});
+  HostsStateFetched({required this.alias, required this.hosts});
 
   @override
   List<Object> get props => [alias, hosts];

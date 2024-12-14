@@ -7,13 +7,13 @@ class HostsListWidget extends StatelessWidget {
   final String alias;
   final BuiltList<cmkApi.LqlTableHostsDto> hosts;
 
-  HostsListWidget({@required this.alias, @required this.hosts});
+  HostsListWidget({required this.alias, required this.hosts});
 
   @override
   Widget build(BuildContext context) {
-    Map<String, cmkApi.LqlTableHostsDto> mapHosts = {};
+    var mapHosts = <String, cmkApi.LqlTableHostsDto>{};
     hosts.forEach((host) {
-      mapHosts[host.name] = host;
+      mapHosts[host.name!] = host;
     });
 
     var sortedHostNames = mapHosts.keys.toList();
@@ -24,7 +24,7 @@ class HostsListWidget extends StatelessWidget {
       itemBuilder: (context, idx) {
         var hostName = sortedHostNames[idx];
         var host = mapHosts[hostName];
-        return HostCardWidget(alias: alias, host: host);
+        return HostCardWidget(alias: alias, host: host!);
       },
     );
   }

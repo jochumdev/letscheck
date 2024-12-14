@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
 import 'hosts_state.dart';
@@ -11,24 +10,24 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
   final List<String> filter;
   final SettingsBloc sBloc;
 
-  StreamSubscription sBlocSubscription;
-  StreamSubscription tickerSubscription;
+  late StreamSubscription sBlocSubscription;
+  StreamSubscription? tickerSubscription;
 
-  HostsBloc({@required this.alias, @required this.filter, @required this.sBloc})
+  HostsBloc({required this.alias, required this.filter, required this.sBloc})
       : super(HostsStateUninitialized()) {
     sBlocSubscription = sBloc.stream.listen((state) async {
-      switch (state.state) {
+      switch (state.state!) {
         case SettingsStateEnum.clientConnected:
         case SettingsStateEnum.clientDeleted:
         case SettingsStateEnum.clientUpdated:
         case SettingsStateEnum.clientFailed:
           if (state.latestAlias == alias) {
-            add(HostsUpdate(action: state.state));
+            add(HostsUpdate(action: state.state!));
           }
           break;
         case SettingsStateEnum.updatedRefreshSeconds:
           if (tickerSubscription != null) {
-            tickerSubscription.cancel();
+            await tickerSubscription!.cancel();
             tickerSubscription = null;
           }
           await _startFetching();
@@ -36,13 +35,12 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
         default:
       }
     });
-  }
 
-  @override
-  Stream<HostsState> mapEventToState(HostsEvent event) async* {
-    if (event is HostsStartFetching) {
+    on<HostsStartFetching>((event, emit) async {
       await _startFetching();
-    } else if (event is HostsUpdate) {
+    });
+
+    on<HostsUpdate>((event, emit) async {
       switch (event.action) {
         case SettingsStateEnum.clientConnected:
         case SettingsStateEnum.clientUpdated:
@@ -50,25 +48,24 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
           break;
         case SettingsStateEnum.clientFailed:
         case SettingsStateEnum.clientDeleted:
-          tickerSubscription.cancel();
+          if (tickerSubscription != null) {
+            await tickerSubscription!.cancel();
+            tickerSubscription = null;
+          }
           break;
         default:
       }
-    }
+    });
 
-    if (event is HostsEventFetched) {
-      yield HostsStateFetched(alias: event.alias, hosts: event.hosts);
-    }
+    on<HostsEventFetched>((event, emit) async {
+      emit(HostsStateFetched(alias: event.alias, hosts: event.hosts));
+    });
   }
 
   Future<void> _startFetching() async {
-    if (tickerSubscription != null) {
-      return;
-    }
-
     await _fetchData();
 
-    tickerSubscription =
+    tickerSubscription ??=
         Stream.periodic(Duration(seconds: sBloc.state.refreshSeconds))
             .listen((state) async {
       // Ticker fetch
@@ -81,29 +78,25 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
       return;
     }
 
-    if (sBloc.state.connections[alias].state !=
+    if (sBloc.state.connections[alias]!.state !=
         SettingsConnectionStateEnum.connected) {
       return;
     }
 
-    final client = sBloc.state.connections[alias].client;
-
-    if (client == null) {
-      // This should never happen
-      return;
-    }
+    final client = sBloc.state.connections[alias]!.client!;
 
     try {
       final hosts = await client.lqlGetTableHosts(filter: filter);
       add(HostsEventFetched(alias: alias, hosts: hosts));
     } on cmkApi.CheckMkBaseError catch (e) {
-      sBloc.add(new ConnectionFailed(alias, e));
+      sBloc.add(ConnectionFailed(alias, e));
     }
   }
 
   void dispose() {
     if (tickerSubscription != null) {
-      tickerSubscription.cancel();
+      tickerSubscription!.cancel();
+      tickerSubscription = null;
     }
     sBlocSubscription.cancel();
   }

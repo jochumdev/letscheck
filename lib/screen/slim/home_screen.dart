@@ -12,16 +12,18 @@ import '../../global_router.dart';
 class HomeScreen extends BaseSlimScreen {
   static final route = buildRoute(
       key: routeHome,
-      uri: "/",
+      uri: '/',
       route: (context) => MaterialPageRoute(
             settings: context,
             builder: (context) => HomeScreen(),
           ));
 
+  @override
   BaseSlimScreenSettings setup(BuildContext context) {
-    return BaseSlimScreenSettings("Home", showSettings: true);
+    return BaseSlimScreenSettings('Home', showSettings: true);
   }
 
+  @override
   Widget content(BuildContext context) {
     final sBloc = BlocProvider.of<SettingsBloc>(context);
 
@@ -34,20 +36,21 @@ class HomeScreen extends BaseSlimScreen {
               length: sBloc.state.connections.length,
               child: TabBarView(
                 children: sBloc.state.connections.keys.map((alias) {
-                  if (state.unhServices != null && state.unhServices.containsKey(alias)) {
-                    commentsFetchForServices(context: context, alias: alias, services: state.unhServices[alias]);
+                  if (state.unhServices.containsKey(alias)) {
+                    commentsFetchForServices(
+                        context: context,
+                        alias: alias,
+                        services: state.unhServices[alias]!);
                   }
-                  
+
                   return Column(
                     children: [
                       SiteStatsWidget(alias: alias, state: state),
-                      state.unhServices != null
-                          ? state.unhServices.containsKey(alias)
-                              ? Expanded(
-                                  child: ServicesListWidget(
-                                      alias: alias,
-                                      services: state.unhServices[alias]))
-                              : Expanded(child: CenterLoadingWidget())
+                      state.unhServices.containsKey(alias)
+                          ? Expanded(
+                              child: ServicesListWidget(
+                                  alias: alias,
+                                  services: state.unhServices[alias]!))
                           : Expanded(child: CenterLoadingWidget()),
                       TabPageSelector(),
                     ],
@@ -59,12 +62,10 @@ class HomeScreen extends BaseSlimScreen {
           return Column(
             children: [
               SiteStatsWidget(alias: alias, state: state),
-              state.unhServices != null
-                  ? state.unhServices.containsKey(alias)
-                      ? Expanded(
-                          child: ServicesListWidget(
-                              alias: alias, services: state.unhServices[alias]))
-                      : Expanded(child: CenterLoadingWidget())
+              state.unhServices.containsKey(alias)
+                  ? Expanded(
+                      child: ServicesListWidget(
+                          alias: alias, services: state.unhServices[alias]!))
                   : Expanded(child: CenterLoadingWidget()),
             ],
           );

@@ -9,17 +9,14 @@ class SiteStatsWidget extends StatelessWidget {
   final String alias;
   final ConnectionDataState state;
 
-  SiteStatsWidget({@required this.alias,
-    @required this.state});
+  SiteStatsWidget({required this.alias, required this.state});
 
   @override
   Widget build(BuildContext context) {
     final sBloc = BlocProvider.of<SettingsBloc>(context);
-    final conn = sBloc.state.connections[alias];
+    final conn = sBloc.state.connections[alias]!;
 
-    if (state.stats == null ||
-        state.stats[alias] == null ||
-        state.stats[alias].hosts.all == null ||
+    if (state.stats[alias] == null ||
         conn.state != SettingsConnectionStateEnum.connected) {
       return Card(
         clipBehavior: Clip.antiAlias,
@@ -27,22 +24,20 @@ class SiteStatsWidget extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: GestureDetector(
             onTap: () {
-              Navigator.of(context).pushNamed(GlobalRouter()
-                  .buildUri(routeSettingsConnection, buildArgs: {
+              Navigator.of(context).pushNamed(
+                  GlobalRouter().buildUri(routeSettingsConnection, buildArgs: {
                 'name': alias,
               }));
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(alias, style: TextStyle(color: Theme
-                    .of(context)
-                    .colorScheme
-                    .secondary)),
+                Text(alias,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary)),
                 Icon(Icons.settings_input_component,
                     size: 14,
-                    color: conn.state ==
-                        SettingsConnectionStateEnum.connected
+                    color: conn.state == SettingsConnectionStateEnum.connected
                         ? Colors.green
                         : Colors.red),
               ],
@@ -52,7 +47,7 @@ class SiteStatsWidget extends StatelessWidget {
       );
     }
 
-    final stats = state.stats[alias];
+    final stats = state.stats[alias]!;
 
     return Card(
         clipBehavior: Clip.antiAlias,
@@ -72,10 +67,9 @@ class SiteStatsWidget extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(alias, style: TextStyle(color: Theme
-                          .of(context)
-                          .colorScheme
-                          .secondary)),
+                      Text(alias,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary)),
                       Icon(Icons.settings_input_component,
                           size: 14, color: Colors.green),
                     ],
@@ -85,20 +79,18 @@ class SiteStatsWidget extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                   child: Column(children: [
                     Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SiteStatsNumberWidget(
                             caption: 'Hosts',
                             num: stats.hosts.all,
                             valueColor: Colors.white,
                             onTap: () {
-                              Navigator.of(context).pushNamed(
-                                  GlobalRouter().buildUri(routeHosts,
-                                      buildArgs: {
-                                        'alias': alias,
-                                        'filter': 'all'
-                                      }));
+                              Navigator.of(context).pushNamed(GlobalRouter()
+                                  .buildUri(routeHosts, buildArgs: {
+                                'alias': alias,
+                                'filter': 'all'
+                              }));
                             },
                           ),
                           SiteStatsNumberWidget(
@@ -106,12 +98,11 @@ class SiteStatsWidget extends StatelessWidget {
                             num: stats.hosts.problems,
                             valueColor: Colors.yellow,
                             onTap: () {
-                              Navigator.of(context).pushNamed(
-                                  GlobalRouter().buildUri(routeHosts,
-                                      buildArgs: {
-                                        'alias': alias,
-                                        'filter': 'problems'
-                                      }));
+                              Navigator.of(context).pushNamed(GlobalRouter()
+                                  .buildUri(routeHosts, buildArgs: {
+                                'alias': alias,
+                                'filter': 'problems'
+                              }));
                             },
                           ),
                           SiteStatsNumberWidget(
@@ -119,12 +110,11 @@ class SiteStatsWidget extends StatelessWidget {
                             num: stats.hosts.unhandled,
                             valueColor: Colors.red,
                             onTap: () {
-                              Navigator.of(context).pushNamed(
-                                  GlobalRouter().buildUri(routeHosts,
-                                      buildArgs: {
-                                        'alias': alias,
-                                        'filter': 'unhandled'
-                                      }));
+                              Navigator.of(context).pushNamed(GlobalRouter()
+                                  .buildUri(routeHosts, buildArgs: {
+                                'alias': alias,
+                                'filter': 'unhandled'
+                              }));
                             },
                           ),
                           SiteStatsNumberWidget(
@@ -132,31 +122,28 @@ class SiteStatsWidget extends StatelessWidget {
                             num: stats.hosts.stale,
                             valueColor: Colors.yellow,
                             onTap: () {
-                              Navigator.of(context).pushNamed(
-                                  GlobalRouter().buildUri(routeHosts,
-                                      buildArgs: {
-                                        'alias': alias,
-                                        'filter': 'unhandled'
-                                      }));
+                              Navigator.of(context).pushNamed(GlobalRouter()
+                                  .buildUri(routeHosts, buildArgs: {
+                                'alias': alias,
+                                'filter': 'unhandled'
+                              }));
                             },
                           ),
                         ]),
                     SizedBox(height: 5),
                     Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SiteStatsNumberWidget(
                             caption: 'Services',
                             num: stats.services.all,
                             valueColor: Colors.white,
                             onTap: () {
-                              Navigator.of(context).pushNamed(
-                                  GlobalRouter().buildUri(routeServices,
-                                      buildArgs: {
-                                        'alias': alias,
-                                        'filter': 'all'
-                                      }));
+                              Navigator.of(context).pushNamed(GlobalRouter()
+                                  .buildUri(routeServices, buildArgs: {
+                                'alias': alias,
+                                'filter': 'all'
+                              }));
                             },
                           ),
                           SiteStatsNumberWidget(
@@ -164,12 +151,11 @@ class SiteStatsWidget extends StatelessWidget {
                             num: stats.services.problems,
                             valueColor: Colors.yellow,
                             onTap: () {
-                              Navigator.of(context).pushNamed(
-                                  GlobalRouter().buildUri(routeServices,
-                                      buildArgs: {
-                                        'alias': alias,
-                                        'filter': 'problems'
-                                      }));
+                              Navigator.of(context).pushNamed(GlobalRouter()
+                                  .buildUri(routeServices, buildArgs: {
+                                'alias': alias,
+                                'filter': 'problems'
+                              }));
                             },
                           ),
                           SiteStatsNumberWidget(
@@ -177,12 +163,11 @@ class SiteStatsWidget extends StatelessWidget {
                             num: stats.services.unhandled,
                             valueColor: Colors.red,
                             onTap: () {
-                              Navigator.of(context).pushNamed(
-                                  GlobalRouter().buildUri(routeServices,
-                                      buildArgs: {
-                                        'alias': alias,
-                                        'filter': 'unhandled'
-                                      }));
+                              Navigator.of(context).pushNamed(GlobalRouter()
+                                  .buildUri(routeServices, buildArgs: {
+                                'alias': alias,
+                                'filter': 'unhandled'
+                              }));
                             },
                           ),
                           SiteStatsNumberWidget(
@@ -190,12 +175,11 @@ class SiteStatsWidget extends StatelessWidget {
                             num: stats.services.stale,
                             valueColor: Colors.yellow,
                             onTap: () {
-                              Navigator.of(context).pushNamed(
-                                  GlobalRouter().buildUri(routeServices,
-                                      buildArgs: {
-                                        'alias': alias,
-                                        'filter': 'stale'
-                                      }));
+                              Navigator.of(context).pushNamed(GlobalRouter()
+                                  .buildUri(routeServices, buildArgs: {
+                                'alias': alias,
+                                'filter': 'stale'
+                              }));
                             },
                           ),
                         ]),

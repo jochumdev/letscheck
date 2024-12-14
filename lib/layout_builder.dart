@@ -13,21 +13,20 @@ const double wideLayoutThreshold = 1200;
 /// Builds a widget tree that can depend on the parent widget's width
 class ProxmoxLayoutBuilder extends StatelessWidget {
   const ProxmoxLayoutBuilder({
-    @required this.builder,
-    Key key,
-  })  : assert(builder != null),
-        super(key: key);
+    required this.builder,
+    Key? key,
+  }) : super(key: key);
 
   /// Builds the widgets below this widget given this widget's layout width.
   final LayoutLayoutWidgetBuilder builder;
 
   Widget _build(BuildContext context, BoxConstraints constraints) {
     var mediaWidth = MediaQuery.of(context).size.width;
-    final Layout layout = mediaWidth >= ultraWideLayoutThreshold
+    final layout = mediaWidth >= ultraWideLayoutThreshold
         ? Layout.ultrawide
         : mediaWidth > wideLayoutThreshold
-        ? Layout.wide
-        : Layout.slim;
+            ? Layout.wide
+            : Layout.slim;
     return builder(context, layout);
   }
 

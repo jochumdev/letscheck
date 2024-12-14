@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:numberpicker/numberpicker.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../bloc/settings/settings.dart';
 import 'base_slim_screen.dart';
 import 'settings_languages_screen.dart';
@@ -13,32 +13,27 @@ import 'slim_router.dart';
 class SettingsScreen extends BaseSlimScreen {
   static final route = buildRoute(
       key: routeSettings,
-      uri: "/settings",
+      uri: '/settings',
       route: (context) => MaterialPageRoute(
             settings: context,
             builder: (context) => SettingsScreen(),
           ));
 
+  @override
   BaseSlimScreenSettings setup(BuildContext context) {
-    return BaseSlimScreenSettings("Settings",
+    return BaseSlimScreenSettings('Settings',
         showMenu: false, showSettings: false, showSearch: false);
   }
 
   @override
-  Function leadingButtonAction(context) {
-    return () async {
-      Navigator.of(context).pop();
-    };
-  }
-
   Widget content(BuildContext context) {
     return BlocBuilder<SettingsBloc, SettingsState>(builder: (context, state) {
       final sBloc = BlocProvider.of<SettingsBloc>(context);
       final packageInfo = RepositoryProvider.of<PackageInfo>(context);
 
-      List<Widget> connectionTiles = [];
+      var connectionTiles = <Widget>[];
       for (var connName in state.connections.keys) {
-        var conn = state.connections[connName];
+        var conn = state.connections[connName]!;
 
         connectionTiles.add(ListTile(
           title: Text(connName),
@@ -50,7 +45,7 @@ class SettingsScreen extends BaseSlimScreen {
           onTap: () {
             Navigator.of(context).pushNamed(GlobalRouter().buildUri(
                 routeSettingsConnection,
-                buildArgs: {"name": connName}));
+                buildArgs: {'name': connName}));
           },
         ));
       }
@@ -68,7 +63,7 @@ class SettingsScreen extends BaseSlimScreen {
                   child: Text(
                     'Connections',
                     style: TextStyle(
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -132,14 +127,13 @@ class SettingsScreen extends BaseSlimScreen {
                     context: context,
                     barrierDismissible: false, // user must tap button!
                     builder: (BuildContext context) {
-                      var result = sBloc.state.refreshSeconds;
                       var numPicker = NumberPicker(
-                        value: result,
+                        value: sBloc.state.refreshSeconds,
                         minValue: kDebugMode ? 10 : 60,
                         maxValue: 3600,
                         step: kDebugMode ? 10 : 60,
                         onChanged: (value) {
-                          result = value;
+                          sBloc.add(UpdateRefresh(value));
                         },
                       );
 
@@ -149,7 +143,8 @@ class SettingsScreen extends BaseSlimScreen {
                         actions: <Widget>[
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).errorColor),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error),
                             child: Text('Cancel'),
                             onPressed: () {
                               Navigator.of(context).pop(null);
@@ -158,7 +153,8 @@ class SettingsScreen extends BaseSlimScreen {
                           ElevatedButton(
                             child: Text('OK'),
                             onPressed: () {
-                              Navigator.of(context).pop(result);
+                              Navigator.of(context)
+                                  .pop(sBloc.state.refreshSeconds);
                             },
                           ),
                         ],

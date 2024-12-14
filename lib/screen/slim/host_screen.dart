@@ -12,22 +12,23 @@ import '../../widget/host_card_widget.dart';
 class HostScreen extends BaseSlimScreen {
   static final route = buildRoute(
       key: routeHost,
-      uri: "/conn/{alias}/host/{hostname}",
+      uri: '/conn/{alias}/host/{hostname}',
       lastArgOptional: false,
       route: (context) => MaterialPageRoute(
             settings: context,
             builder: (context) => HostScreen(),
           ));
 
+  @override
   BaseSlimScreenSettings setup(BuildContext context) {
     final groups = HostScreen.route.extractNamedArgs(context);
-    var title = "Host";
-    if (!groups.containsKey("alias") || !groups.containsKey("hostname")) {
+    var title = 'Host';
+    if (!groups.containsKey('alias') || !groups.containsKey('hostname')) {
       Navigator.of(context)
           .pushReplacementNamed(GlobalRouter().buildUri(routeNotFound));
     }
 
-    var hostname = groups["hostname"];
+    var hostname = groups['hostname']!;
     if (hostname.length > 25) {
       hostname = hostname.substring(0, 25);
     }
@@ -36,6 +37,7 @@ class HostScreen extends BaseSlimScreen {
     return BaseSlimScreenSettings(title, showMenu: false, showSearch: false);
   }
 
+  @override
   Widget content(BuildContext context) {
     final groups = HostScreen.route.extractNamedArgs(context);
     final sBloc = BlocProvider.of<SettingsBloc>(context);
@@ -44,14 +46,14 @@ class HostScreen extends BaseSlimScreen {
         providers: [
           BlocProvider<ServicesBloc>(
             create: (context) => ServicesBloc(
-                alias: groups["alias"],
+                alias: groups['alias']!,
                 filter: ["Filter: host_name = ${groups["hostname"]}"],
                 sBloc: sBloc)
               ..add(ServicesStartFetching()),
           ),
           BlocProvider<HostsBloc>(
             create: (context) => HostsBloc(
-                alias: groups["alias"],
+                alias: groups['alias']!,
                 filter: ["Filter: name = ${groups["hostname"]}"],
                 sBloc: sBloc)
               ..add(HostsStartFetching()),
@@ -65,13 +67,14 @@ class HostScreen extends BaseSlimScreen {
                 final groupedServices =
                     servicesGroupByHostname(services: state.services);
                 return Column(children: [
-                  HostCardWidget(alias: groups["alias"], host: hstate.hosts[0]),
+                  HostCardWidget(
+                      alias: groups['alias']!, host: hstate.hosts[0]),
                   Expanded(
                       child: ListView(children: [
                     ServicesGroupedCardWidget(
-                      alias: groups["alias"],
-                      groupName: groups["hostname"],
-                      services: groupedServices[groups["hostname"]],
+                      alias: groups['alias']!,
+                      groupName: groups['hostname']!,
+                      services: groupedServices[groups['hostname']!]!,
                       showGroupHeader: false,
                     )
                   ]))

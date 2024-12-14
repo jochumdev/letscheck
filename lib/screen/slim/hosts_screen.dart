@@ -10,20 +10,21 @@ import '../../widget/center_loading_widget.dart';
 class HostsScreen extends BaseSlimScreen {
   static final route = buildRoute(
       key: routeHosts,
-      uri: "/conn/{alias}/hosts/{filter}",
+      uri: '/conn/{alias}/hosts/{filter}',
       lastArgOptional: true,
       route: (context) => MaterialPageRoute(
-        settings: context,
-        builder: (context) => HostsScreen(),
-      ));
+            settings: context,
+            builder: (context) => HostsScreen(),
+          ));
 
+  @override
   BaseSlimScreenSettings setup(BuildContext context) {
     final groups = HostsScreen.route.extractNamedArgs(context);
-    var title = "Hosts";
-    if (groups.containsKey("alias")) {
-      if (groups.containsKey("filter")) {
-        switch (groups["filter"]) {
-          case "all":
+    var title = 'Hosts';
+    if (groups.containsKey('alias')) {
+      if (groups.containsKey('filter')) {
+        switch (groups['filter']) {
+          case 'all':
             title = "${groups["alias"]} Hosts";
             break;
           default:
@@ -37,35 +38,32 @@ class HostsScreen extends BaseSlimScreen {
     return BaseSlimScreenSettings(title, showMenu: false);
   }
 
+  @override
   Widget content(BuildContext context) {
     final groups = HostsScreen.route.extractNamedArgs(context);
     final sBloc = BlocProvider.of<SettingsBloc>(context);
 
-    List<String> filter = [];
-    switch (groups["filter"]) {
-      case "problems":
-        filter.add("hosts_problems");
+    var filter = <String>[];
+    switch (groups['filter']) {
+      case 'problems':
+        filter.add('hosts_problems');
         break;
-      case "unhandled":
-        filter.add("hosts_unhandled");
+      case 'unhandled':
+        filter.add('hosts_unhandled');
         break;
-      case "stale":
-        filter.add("hosts_stale");
+      case 'stale':
+        filter.add('hosts_stale');
         break;
       default:
     }
 
     return BlocProvider<HostsBloc>(
-        create: (context) => HostsBloc(
-            alias: groups["alias"],
-            filter: filter,
-            sBloc: sBloc)
-          ..add(HostsStartFetching()),
-        child:
-        BlocBuilder<HostsBloc, HostsState>(builder: (context, state) {
+        create: (context) =>
+            HostsBloc(alias: groups['alias']!, filter: filter, sBloc: sBloc)
+              ..add(HostsStartFetching()),
+        child: BlocBuilder<HostsBloc, HostsState>(builder: (context, state) {
           if (state is HostsStateFetched) {
-            return HostsListWidget(
-                alias: groups["alias"], hosts: state.hosts);
+            return HostsListWidget(alias: groups['alias']!, hosts: state.hosts);
           } else {
             return CenterLoadingWidget();
           }

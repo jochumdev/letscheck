@@ -18,7 +18,7 @@ import 'package:intl/date_symbol_data_local.dart';
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_analytics/firebase_analytics.dart';
 // import 'package:firebase_analytics/observer.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_js/flutter_js.dart';
 
 /// layout.
@@ -36,11 +36,11 @@ Future<JavascriptRuntime> initJavascriptRuntime() async {
   }
 
   try {
-    String luxonJS = await rootBundle.loadString("assets/js/luxon.min.js");
-    javascriptRuntime.evaluate("var window = global = globalThis;");
+    var luxonJS = await rootBundle.loadString('assets/js/luxon.min.js');
+    javascriptRuntime.evaluate('var window = global = globalThis;');
 
-    await javascriptRuntime.evaluateAsync(luxonJS + "");
-    javascriptRuntime.evaluate("const DateTime = luxon.DateTime;");
+    await javascriptRuntime.evaluateAsync(luxonJS + '');
+    javascriptRuntime.evaluate('const DateTime = luxon.DateTime;');
   } on PlatformException catch (e) {
     print('Failed to init js engine: ${e.details}');
   }
@@ -69,7 +69,7 @@ Future<void> main() async {
 
   final packageInfo = await PackageInfo.fromPlatform();
 
-  var mediaWidth = MediaQueryData.fromWindow(window).size.width;
+  var mediaWidth = MediaQueryData.fromView(window).size.width;
   mediaWidth >= ultraWideLayoutThreshold
       ? registerSlimRoutes() // UltraWide
       : mediaWidth > wideLayoutThreshold
@@ -101,7 +101,7 @@ class App extends StatelessWidget {
   // static FirebaseAnalyticsObserver observer =
   //     FirebaseAnalyticsObserver(analytics: analytics);
 
-  App({Key key}) : super(key: key);
+  App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

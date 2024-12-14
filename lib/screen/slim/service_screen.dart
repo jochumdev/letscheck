@@ -5,24 +5,25 @@ import '../../global_router.dart';
 class ServiceScreen extends BaseSlimScreen {
   static final route = buildRoute(
       key: routeService,
-      uri: "/conn/{alias}/host/{hostname}/services/{service}",
+      uri: '/conn/{alias}/host/{hostname}/services/{service}',
       lastArgOptional: false,
       route: (context) => MaterialPageRoute(
             settings: context,
             builder: (context) => ServiceScreen(),
           ));
 
+  @override
   BaseSlimScreenSettings setup(BuildContext context) {
     final groups = ServiceScreen.route.extractNamedArgs(context);
-    var title = "Service";
-    if (!groups.containsKey("alias") ||
-        !groups.containsKey("hostname") ||
-        !groups.containsKey("service")) {
+    var title = 'Service';
+    if (!groups.containsKey('alias') ||
+        !groups.containsKey('hostname') ||
+        !groups.containsKey('service')) {
       Navigator.of(context)
           .pushReplacementNamed(GlobalRouter().buildUri(routeNotFound));
     }
 
-    var serviceName = groups["service"];
+    var serviceName = groups['service']!;
     if (serviceName.length > 25) {
       serviceName = serviceName.substring(0, 25);
     }
@@ -31,6 +32,7 @@ class ServiceScreen extends BaseSlimScreen {
     return BaseSlimScreenSettings(title, showMenu: false, showSearch: false);
   }
 
+  @override
   Widget content(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -41,7 +43,7 @@ class ServiceScreen extends BaseSlimScreen {
             width: 80,
             height: 80,
             padding: EdgeInsets.all(12.0),
-            child: Text("Service Screen"),
+            child: Text('Service Screen'),
           ),
         ),
       ],

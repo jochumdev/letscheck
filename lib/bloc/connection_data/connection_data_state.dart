@@ -7,15 +7,13 @@ part 'connection_data_state.g.dart';
 abstract class ConnectionDataState
     implements Built<ConnectionDataState, ConnectionDataStateBuilder> {
   ConnectionDataState._();
-  factory ConnectionDataState([void Function(ConnectionDataStateBuilder) updates]) =
+  factory ConnectionDataState(
+          [void Function(ConnectionDataStateBuilder) updates]) =
       _$ConnectionDataState;
 
-  @nullable
   BuiltMap<String, cmkApi.LqlStatsTacticalOverviewDto> get stats;
 
-  @nullable
   BuiltMap<String, BuiltList<cmkApi.LqlTableServicesDto>> get unhServices;
 
-  factory ConnectionDataState.init() =>
-      ConnectionDataState((b) => b);
+  factory ConnectionDataState.init() => ConnectionDataState((b) => b);
 }

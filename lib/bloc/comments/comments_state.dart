@@ -8,11 +8,9 @@ abstract class CommentsState
     implements Built<CommentsState, CommentsStateBuilder> {
   CommentsState._();
   factory CommentsState([void Function(CommentsStateBuilder) updates]) =
-  _$CommentsState;
+      _$CommentsState;
 
-  @nullable
   BuiltMap<String, BuiltMap<num, cmkApi.LqlTableCommentsDto>> get comments;
 
-  factory CommentsState.init() =>
-      CommentsState((b) => b);
+  factory CommentsState.init() => CommentsState((b) => b);
 }

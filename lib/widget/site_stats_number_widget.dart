@@ -8,11 +8,11 @@ class SiteStatsNumberWidget extends StatelessWidget {
   final GestureTapCallback onTap;
 
   SiteStatsNumberWidget(
-      {@required this.caption,
-        @required this.num,
-        @required this.valueColor,
-        this.onTap,
-        this.zeroColor = Colors.white});
+      {required this.caption,
+      required this.num,
+      required this.valueColor,
+      required this.onTap,
+      this.zeroColor = Colors.white});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class SiteStatsNumberWidget extends StatelessWidget {
         onTap: onTap,
         child: Column(
           children: [
-            Text(caption, style: Theme.of(context).textTheme.caption),
+            Text(caption, style: Theme.of(context).textTheme.labelMedium),
             SizedBox(height: 1),
             Container(
                 decoration: BoxDecoration(

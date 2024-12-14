@@ -8,17 +8,18 @@ import '../../global_router.dart';
 class SettingsConnectionScreen extends BaseSlimScreen {
   static final route = buildRoute(
       key: routeSettingsConnection,
-      uri: "/settings/connection/{name}",
+      uri: '/settings/connection/{name}',
       lastArgOptional: true,
       route: (context) => MaterialPageRoute(
             settings: context,
             builder: (context) => SettingsConnectionScreen(),
           ));
 
+  @override
   BaseSlimScreenSettings setup(BuildContext context) {
     final groups = SettingsConnectionScreen.route.extractNamedArgs(context);
-    String title = "Add Connection";
-    if (groups.containsKey("name")) {
+    var title = 'Add Connection';
+    if (groups.containsKey('name')) {
       title = "Connection: ${groups["name"]}";
     }
 
@@ -26,33 +27,35 @@ class SettingsConnectionScreen extends BaseSlimScreen {
         showMenu: false, showSettings: false, showSearch: false);
   }
 
+  @override
   Widget content(BuildContext context) {
     final groups = SettingsConnectionScreen.route.extractNamedArgs(context);
 
-    if (!groups.containsKey("name")) {
+    final sBloc = BlocProvider.of<SettingsBloc>(context);
+
+    if (groups.containsKey('name')) {
+      var alias = groups['name']!;
+
       return SingleChildScrollView(
         physics: ClampingScrollPhysics(),
         child: BlocProvider(
             create: (context) => ConnectionFormBloc(
-                  settingsBloc: BlocProvider.of<SettingsBloc>(context),
+                  settingsBloc: sBloc,
+                  connectionAlias: alias,
+                  connection: sBloc.state.connections[alias]!,
+                  isEditing: true,
                 ),
-            child: ConnectionFormWidget()),
+            child: ConnectionFormWidget(alias: alias)),
       );
     }
-
-    var alias = groups["name"];
-    final sBloc = BlocProvider.of<SettingsBloc>(context);
 
     return SingleChildScrollView(
       physics: ClampingScrollPhysics(),
       child: BlocProvider(
           create: (context) => ConnectionFormBloc(
-                settingsBloc: BlocProvider.of<SettingsBloc>(context),
-                connectionAlias: alias,
-                connection: sBloc.state.connections[alias],
-                isEditing: true,
+                settingsBloc: sBloc,
               ),
-          child: ConnectionFormWidget(alias: alias)),
+          child: ConnectionFormWidget()),
     );
   }
 }

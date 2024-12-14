@@ -1,8 +1,7 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:flutter/material.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import '../settings/settings.dart';
 import 'search_event.dart';
 import 'search_state.dart';
@@ -10,55 +9,47 @@ import 'search_state.dart';
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final SettingsBloc sBloc;
 
-  SearchBloc(
-      {@required this.sBloc})
-      : super(SearchStateUninitialized());
+  SearchBloc({required this.sBloc}) : super(SearchStateUninitialized()) {
+    on<SearchTerm>((event, emit) async {
+      var hosts = <String, BuiltList<cmk_api.LqlTableHostsDto>>{};
+      var services = <String, BuiltList<cmk_api.LqlTableServicesDto>>{};
 
-  @override
-  Stream<SearchState> mapEventToState(SearchEvent event) async* {
-    if (event is SearchTerm) {
-      await _searchTerm(event.term);
-    }
-    if (event is SearchTermResult) {
-      yield SearchStateFetched(hosts: event.hosts, services: event.services);
-    }
-  }
+      for (var alias in sBloc.state.connections.keys) {
+        final connSettings = sBloc.state.connections[alias];
 
-  Future<void> _searchTerm(String term) async {
-    var hosts = Map<String, BuiltList<cmkApi.LqlTableHostsDto>>();
-    var services = Map<String, BuiltList<cmkApi.LqlTableServicesDto>>();
+        if (connSettings!.state != SettingsConnectionStateEnum.connected) {
+          return;
+        }
 
-    for (var alias in sBloc.state.connections.keys) {
-      final connSettings = sBloc.state.connections[alias];
+        final client = connSettings.client!;
 
-      if (connSettings.state !=
-          SettingsConnectionStateEnum.connected) {
-        return;
-      }
+        var term = RegExp.escape(event.term);
 
-      final client = connSettings.client;
-
-      if (client == null) {
-        // This should never happen
-        return;
-      }
-
-      term = RegExp.escape(term);
-
-      try {
-        // Search hosts
-        final connHosts = await client.lqlGetTableHosts(filter: ['Filter: name ~~ .*$term.*', 'Filter: address ~~ .*$term.*', 'Or: 2']);
-        hosts[alias] = connHosts;
-        final connServices = await client.lqlGetTableServices(filter: ['Filter: description ~~ .*$term.*']);
-        services[alias] = connServices;
-      } on cmkApi.CheckMkBaseError catch (e) {
-        // Silently ignore these errors
-        if (kDebugMode) {
-          print(e);
+        try {
+          // Search hosts
+          final connHosts = await client.lqlGetTableHosts(filter: [
+            'Filter: name ~~ .*$term.*',
+            'Filter: address ~~ .*$term.*',
+            'Or: 2'
+          ]);
+          hosts[alias] = connHosts;
+          final connServices = await client.lqlGetTableServices(
+              filter: ['Filter: description ~~ .*$term.*']);
+          services[alias] = connServices;
+        } on cmk_api.CheckMkBaseError catch (e) {
+          // Silently ignore these errors
+          if (kDebugMode) {
+            print(e);
+          }
         }
       }
-    }
 
-    add(SearchTermResult(hosts: BuiltMap(hosts), services: BuiltMap(services)));
+      add(SearchTermResult(
+          hosts: BuiltMap(hosts), services: BuiltMap(services)));
+    });
+
+    on<SearchTermResult>((event, emit) async {
+      emit(SearchStateFetched(hosts: event.hosts, services: event.services));
+    });
   }
 }

@@ -15,10 +15,10 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.0.4
+version: 1.0.0-rc1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ^3.5.0
 
 dependencies:
   flutter:
@@ -27,8 +27,8 @@ dependencies:
     path: ./vendor/check_mk_api
   built_value: ^8.4.3
   built_collection: ^5.1.1
-  flutter_form_bloc: ^0.20.6
-  hydrated_bloc: ^7.1.0
+  flutter_form_bloc: ^0.31.0
+  hydrated_bloc: ^9.1.5
   path_provider: ^2.0.13
   equatable: ^2.0.3
   settings_ui: ^2.0.2
@@ -36,11 +36,10 @@ dependencies:
   retry: ^3.0.1
   font_awesome_flutter: ^10.4.0
   grouped_list: ^5.1.2
-  intl: ^0.17.0
-  package_info: ^2.0.2
-  flutter_js: ^0.6.0
+  package_info_plus: ^8.1.2
+  flutter_js: ^0.8.1
 
-  flutter_slidable: ^2.0.0
+  flutter_slidable: ^3.1.1
 
   # Check that you have this dependency (added in the previous step)
   # firebase_core: ^2.7.0

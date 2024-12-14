@@ -6,7 +6,7 @@ import '../../bloc/settings/settings.dart';
 class SplashScreen extends StatelessWidget {
   static final route = buildRoute(
       key: routeSplash,
-      uri: "/pages/splash",
+      uri: '/pages/splash',
       route: (context) => MaterialPageRoute(
         settings: context,
         builder: (context) => SplashScreen(),
