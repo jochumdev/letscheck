@@ -19,13 +19,13 @@ class HostCardWidget extends StatelessWidget {
         break;
       case cmk_api.hostStateUnreachable:
         icon =
-            FaIcon(FontAwesomeIcons.exclamationTriangle, color: Colors.yellow);
+            FaIcon(FontAwesomeIcons.triangleExclamation, color: Colors.yellow);
         break;
       case cmk_api.hostStateDown:
         icon = FaIcon(FontAwesomeIcons.ban, color: Colors.red);
         break;
       case cmk_api.hostStatePending:
-        icon = FaIcon(FontAwesomeIcons.questionCircle, color: Colors.grey);
+        icon = FaIcon(FontAwesomeIcons.circleQuestion, color: Colors.grey);
         break;
     }
 

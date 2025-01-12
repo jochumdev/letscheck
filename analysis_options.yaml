@@ -31,4 +31,4 @@ linter:
 analyzer:
   exclude:
     - vendor/flutter_local_notifications/**
-    - vendor/flutter_slideable/**
+    - vendor/flutter_slidable/**

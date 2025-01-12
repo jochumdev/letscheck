@@ -7,7 +7,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../bloc/comments/comments.dart';
 import '../global_router.dart';
 
-enum ServicesGroupedCardMode { HOSTS }
+enum ServicesGroupedCardMode { hosts }
 
 class ServicesGroupedCardWidget extends StatelessWidget {
   final String alias;
@@ -23,7 +23,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
       required this.groupName,
       required this.services,
       this.showGroupHeader = true,
-      this.groupMode = ServicesGroupedCardMode.HOSTS});
+      this.groupMode = ServicesGroupedCardMode.hosts});
 
   void _showSnackBar(BuildContext context, String text) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
@@ -39,7 +39,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
     if (showGroupHeader) {
       cardWidgets.add(Padding(
         padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-        child: groupMode == ServicesGroupedCardMode.HOSTS
+        child: groupMode == ServicesGroupedCardMode.hosts
             ? GestureDetector(
                 child: Text(groupName),
                 onTap: () {

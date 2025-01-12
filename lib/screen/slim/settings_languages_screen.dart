@@ -3,10 +3,10 @@ import 'package:settings_ui/settings_ui.dart';
 
 class SettingsLanguagesScreen extends StatefulWidget {
   @override
-  _SettingsLanguagesScreen createState() => _SettingsLanguagesScreen();
+  SettingsLanguagesScreenState createState() => SettingsLanguagesScreenState();
 }
 
-class _SettingsLanguagesScreen extends State<SettingsLanguagesScreen> {
+class SettingsLanguagesScreenState extends State<SettingsLanguagesScreen> {
   int languageIndex = 0;
 
   @override

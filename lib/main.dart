@@ -71,7 +71,7 @@ Future<JavascriptRuntime> initJavascriptRuntime() async {
     var luxonJS = await rootBundle.loadString('assets/js/luxon.min.js');
     javascriptRuntime.evaluate('var window = global = globalThis;');
 
-    await javascriptRuntime.evaluateAsync('$luxonJS');
+    await javascriptRuntime.evaluateAsync(luxonJS);
     javascriptRuntime.evaluate('const DateTime = luxon.DateTime;');
   } on PlatformException catch (e) {
     print('Failed to init js engine: ${e.details}');
@@ -102,7 +102,10 @@ Future<void> main() async {
 
   final packageInfo = await PackageInfo.fromPlatform();
 
-  var mediaWidth = MediaQueryData.fromView(window).size.width;
+  var mediaWidth =
+      MediaQueryData.fromView(PlatformDispatcher.instance.views.first)
+          .size
+          .width;
   mediaWidth >= ultraWideLayoutThreshold
       ? registerSlimRoutes() // UltraWide
       : mediaWidth > wideLayoutThreshold

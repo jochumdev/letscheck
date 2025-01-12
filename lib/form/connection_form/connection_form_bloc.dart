@@ -44,8 +44,7 @@ class ConnectionFormBloc extends FormBloc<String, String> {
       {required this.settingsBloc,
       this.connectionAlias,
       this.connection,
-      bool isEditing = false})
-      : super(isEditing: isEditing) {
+      super.isEditing = false}) {
     alias.updateInitialValue(connectionAlias != null ? connectionAlias! : '');
     baseUrl.updateInitialValue(connection != null ? connection!.baseUrl : '');
     site.updateInitialValue(connection != null ? connection!.site : '');
