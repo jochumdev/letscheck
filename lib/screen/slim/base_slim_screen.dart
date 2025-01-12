@@ -85,8 +85,21 @@ abstract class BaseSlimScreen extends StatelessWidget {
               importance: Importance.max,
               priority: Priority.high,
               ticker: 'ticker');
+          const DarwinNotificationDetails iosNotificationDetails =
+              DarwinNotificationDetails(
+            categoryIdentifier: darwinNotificationCategoryPlain,
+          );
+
+          const DarwinNotificationDetails macOSNotificationDetails =
+              DarwinNotificationDetails(
+            categoryIdentifier: darwinNotificationCategoryPlain,
+          );
           const notificationDetails =
-              NotificationDetails(android: androidNotificationDetails);
+              NotificationDetails(
+                android: androidNotificationDetails,
+                macOS: macOSNotificationDetails,
+                iOS: iosNotificationDetails,
+          );
           await flutterLocalNotificationsPlugin.show(notificationId++,
               'plain title', 'plain body', notificationDetails,
               payload: 'item x');

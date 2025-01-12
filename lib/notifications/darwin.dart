@@ -1,12 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'plugin.dart';
 
-/// Defines a iOS/MacOS notification category for text input actions.
-const String darwinNotificationCategoryText = 'textCategory';
-
-/// Defines a iOS/MacOS notification category for plain actions.
-const String darwinNotificationCategoryPlain = 'plainCategory';
-
 final List<DarwinNotificationCategory> notificationCategories =
     <DarwinNotificationCategory>[
   DarwinNotificationCategory(

@@ -3,6 +3,12 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'package:letscheck/global_router.dart';
 
+/// Defines a iOS/MacOS notification category for text input actions.
+const String darwinNotificationCategoryText = 'textCategory';
+
+/// Defines a iOS/MacOS notification category for plain actions.
+const String darwinNotificationCategoryPlain = 'plainCategory';
+
 class ReceivedNotification {
   ReceivedNotification({
     required this.id,

@@ -85,7 +85,9 @@ Future<JavascriptRuntime> initJavascriptRuntime() async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await windowManager.ensureInitialized();
+  if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+    await windowManager.ensureInitialized();
+  }
 
   await _configureLocalTimeZone();
 
@@ -147,17 +149,19 @@ Future<void> main() async {
             notificationAppLaunchDetails!.notificationResponse?.payload ?? '');
   }
 
-  WindowOptions windowOptions = WindowOptions(
-    size: Size(800, 600),
-    center: false,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
-  );
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
+  if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+    WindowOptions windowOptions = WindowOptions(
+      size: Size(800, 600),
+      center: false,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden,
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
 
   runApp(MultiRepositoryProvider(
       providers: [
