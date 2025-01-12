@@ -5,6 +5,8 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   flutter_js
   flutter_timezone
+  screen_retriever_windows
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

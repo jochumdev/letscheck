@@ -25,6 +25,8 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'package:window_manager/window_manager.dart';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'notifications/android.dart' as notifications_android;
 import 'notifications/darwin.dart' as notifications_darwin;
@@ -82,6 +84,8 @@ Future<JavascriptRuntime> initJavascriptRuntime() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await windowManager.ensureInitialized();
 
   await _configureLocalTimeZone();
 
@@ -142,6 +146,18 @@ Future<void> main() async {
         payload:
             notificationAppLaunchDetails!.notificationResponse?.payload ?? '');
   }
+
+  WindowOptions windowOptions = WindowOptions(
+    size: Size(800, 600),
+    center: false,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+    titleBarStyle: TitleBarStyle.hidden,
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
 
   runApp(MultiRepositoryProvider(
       providers: [

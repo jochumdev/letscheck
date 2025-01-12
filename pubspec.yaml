@@ -47,6 +47,7 @@ dependencies:
   flutter_bloc: ^8.1.6
   intl: ^0.18.1
   timezone: ^0.10.0
+  window_manager: ^0.4.3
 
   # Check that you have this dependency (added in the previous step)
   # firebase_core: ^2.7.0
