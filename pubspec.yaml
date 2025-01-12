@@ -18,14 +18,15 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.0.1-rc1
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.6.0
+  flutter: ">=3.27.1"
 
 dependencies:
   flutter:
     sdk: flutter
   check_mk_api:
     path: ./vendor/check_mk_api
-  built_value: ^8.4.3
+  built_value: ^8.9.3
   built_collection: ^5.1.1
   flutter_form_bloc: ^0.31.0
   hydrated_bloc: ^9.1.5
@@ -37,10 +38,15 @@ dependencies:
   font_awesome_flutter: ^10.4.0
   grouped_list: ^6.0.0
   package_info_plus: ^8.1.2
+  flutter_timezone: ^4.0.0
   flutter_js: ^0.8.1
-
+  flutter_local_notifications:
+    path: vendor/flutter_local_notifications/flutter_local_notifications
   flutter_slidable:
     path: ./vendor/flutter_slidable
+  flutter_bloc: ^8.1.6
+  intl: ^0.18.1
+  timezone: ^0.10.0
 
   # Check that you have this dependency (added in the previous step)
   # firebase_core: ^2.7.0
@@ -50,7 +56,7 @@ dependencies:
 dev_dependencies:
   built_value_generator: ^8.4.3
   build_runner: ^2.3.3
-  pedantic: ^1.9.0
+  lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -66,8 +72,13 @@ flutter:
   assets:
     - assets/icons/
     - assets/js/
+    - assets/sound/
 
   fonts:
     - family: Open Sans
       fonts:
+        - asset: assets/fonts/OpenSans-Light.ttf
         - asset: assets/fonts/OpenSans-Regular.ttf
+        - asset: assets/fonts/OpenSans-SemiBold.ttf
+        - asset: assets/fonts/OpenSans-Bold.ttf
+        - asset: assets/fonts/OpenSans-ExtraBold.ttf

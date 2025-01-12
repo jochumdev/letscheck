@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:built_collection/built_collection.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import '../settings/settings.dart';
 
 abstract class HostsEvent extends Equatable {}
@@ -15,7 +15,7 @@ class HostsStartFetching extends HostsEvent {
 
 class HostsEventFetched extends HostsEvent {
   final String alias;
-  final BuiltList<cmkApi.LqlTableHostsDto> hosts;
+  final BuiltList<cmk_api.LqlTableHostsDto> hosts;
 
   HostsEventFetched({required this.alias, required this.hosts});
 

@@ -1,7 +1,7 @@
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:built_collection/built_collection.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 
 part 'settings_state.g.dart';
 
@@ -45,7 +45,7 @@ class SettingsStateEnum extends EnumClass {
   static const SettingsStateEnum updatedRefreshSeconds =
       _$updatedRefreshSeconds;
 
-  const SettingsStateEnum._(String name) : super(name);
+  const SettingsStateEnum._(super.name);
 
   static BuiltSet<SettingsStateEnum> get values => _$values;
   static SettingsStateEnum valueOf(String name) => _$valueOf(name);
@@ -62,10 +62,10 @@ abstract class SettingsStateConnection
   SettingsConnectionStateEnum? get state;
 
   @BuiltValueField(serialize: false)
-  cmkApi.Client? get client;
+  cmk_api.Client? get client;
 
   @BuiltValueField(serialize: false)
-  cmkApi.CheckMkBaseError? get error;
+  cmk_api.CheckMkBaseError? get error;
 
   @BuiltValueField(wireName: 'base_url')
   String get baseUrl;
@@ -92,7 +92,7 @@ abstract class SettingsStateConnection
           required String username,
           required String secret,
           bool validateSsl = false,
-          cmkApi.Client? client}) =>
+          cmk_api.Client? client}) =>
       SettingsStateConnection((b) => b
         ..state = state
         ..baseUrl = baseUrl
@@ -108,7 +108,7 @@ class SettingsConnectionStateEnum extends EnumClass {
   static const SettingsConnectionStateEnum connected = _$connConnected;
   static const SettingsConnectionStateEnum failed = _$connFailed;
 
-  const SettingsConnectionStateEnum._(String name) : super(name);
+  const SettingsConnectionStateEnum._(super.name);
 
   static BuiltSet<SettingsConnectionStateEnum> get values => _$connValues;
   static SettingsConnectionStateEnum valueOf(String name) =>

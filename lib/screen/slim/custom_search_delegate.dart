@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grouped_list/grouped_list.dart';
-import '../../bloc/services/services.dart';
+import 'package:letscheck/bloc/services/services.dart';
 import '../../bloc/search/search.dart';
 import '../../widget/center_loading_widget.dart';
 import '../../widget/host_card_widget.dart';
@@ -73,10 +73,10 @@ class CustomSearchDelegate extends SearchDelegate {
       if (state is SearchStateFetched) {
         var groupItems = <dynamic>[];
         state.hosts.forEach((alias, hosts) {
-          hosts.forEach((host) {
+          for (var host in hosts) {
             groupItems
                 .add({'group': '$alias: Hosts', 'alias': alias, 'host': host});
-          });
+          }
         });
         state.services.forEach((alias, services) {
           final groupedServices = servicesGroupByHostname(services: services);

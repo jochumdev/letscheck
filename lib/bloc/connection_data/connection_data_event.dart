@@ -1,6 +1,6 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import '../settings/settings.dart';
 
 abstract class ConnectionDataEvent extends Equatable {}
@@ -26,12 +26,13 @@ class UpdateClient extends ConnectionDataEvent {
   String toString() => "Update Client, action '$action' alias '$alias'";
 }
 
-class NewConnectionData extends ConnectionDataEvent {
+class ConnectionData extends ConnectionDataEvent {
   final String alias;
-  final cmkApi.LqlStatsTacticalOverviewDto stats;
-  final BuiltList<cmkApi.LqlTableServicesDto> unhServices;
+  final cmk_api.LqlStatsTacticalOverviewDto stats;
 
-  NewConnectionData(
+  final BuiltList<cmk_api.LqlTableServicesDto> unhServices;
+
+  ConnectionData(
       {required this.alias, required this.stats, required this.unhServices});
 
   @override

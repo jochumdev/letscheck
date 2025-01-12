@@ -99,11 +99,15 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
     final client = sBloc.state.connections[alias]!.client!;
 
     try {
-      final services =
-          await client.lqlGetTableServices(filter: filter, columns: columns);
-      add(ServicesEventFetched(alias: alias, services: services));
-    } on cmk_api.CheckMkBaseError catch (e) {
-      sBloc.add(ConnectionFailed(alias, e));
+      try {
+        final services =
+            await client.lqlGetTableServices(filter: filter, columns: columns);
+        add(ServicesEventFetched(alias: alias, services: services));
+      } on cmk_api.CheckMkBaseError catch (e) {
+        sBloc.add(ConnectionFailed(alias, e));
+      }
+    } on StateError {
+      // Ignore
     }
   }
 

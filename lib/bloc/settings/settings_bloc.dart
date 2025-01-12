@@ -167,11 +167,15 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
 
     final conn = state.connections[alias]!.client!;
     _failedConnectionPoller[alias] = () async {
-      await retry(conn.testConnection,
-          retryIf: (e) => e is cmk_api.CheckMkBaseError);
+      try {
+        await retry(conn.testConnection,
+            retryIf: (e) => e is cmk_api.CheckMkBaseError);
 
-      await _failedConnectionPoller.remove(alias);
-      add(ConnectionBack(alias));
+        await _failedConnectionPoller.remove(alias);
+        add(ConnectionBack(alias));
+      } on cmk_api.CheckMkBaseError {
+        // Ignore.
+      }
     }();
   }
 }

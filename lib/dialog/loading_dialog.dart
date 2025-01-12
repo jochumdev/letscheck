@@ -13,11 +13,11 @@ class LoadingDialog extends StatelessWidget {
     Navigator.of(context, rootNavigator: true).pop();
   }
 
-  LoadingDialog({Key? key}) : super(key: key);
+  LoadingDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope.new(
+    return WillPopScope(
       onWillPop: () async => false,
       child: Center(
         child: Card(

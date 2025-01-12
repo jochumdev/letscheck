@@ -4,3 +4,6 @@
 [submodule "vendor/flutter_slideable"]
 	path = vendor/flutter_slidable
 	url = https://github.com/letsar/flutter_slidable.git
+[submodule "vendor/flutter_local_notifications"]
+	path = vendor/flutter_local_notifications
+	url = https://github.com/MaikuB/flutter_local_notifications.git

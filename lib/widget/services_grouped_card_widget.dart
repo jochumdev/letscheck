@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -14,7 +14,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
   final String groupName;
   final bool showGroupHeader;
   final ServicesGroupedCardMode groupMode;
-  final List<cmkApi.LqlTableServicesDto> services;
+  final List<cmk_api.LqlTableServicesDto> services;
 
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 
@@ -53,20 +53,20 @@ class ServicesGroupedCardWidget extends StatelessWidget {
       ));
     }
 
-    services.forEach((service) {
+    for (var service in services) {
       Widget icon = Icon(Icons.check, color: Colors.green, size: 20);
-      switch (service.state as int) {
-        case 0:
+      switch (service.state) {
+        case cmk_api.svcStateUp:
           icon = Icon(Icons.check, color: Colors.green, size: 20);
           break;
-        case 1:
+        case cmk_api.svcStateWarn:
           icon = FaIcon(FontAwesomeIcons.triangleExclamation,
               color: Colors.yellow, size: 20);
           break;
-        case 2:
+        case cmk_api.svcStateCrit:
           icon = FaIcon(FontAwesomeIcons.ban, color: Colors.red, size: 20);
           break;
-        case 3:
+        case cmk_api.svcStateUnkn:
           icon = FaIcon(FontAwesomeIcons.circleQuestion,
               color: Colors.grey, size: 20);
           break;
@@ -82,7 +82,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
       Widget commentsWidget = Container();
       if (cBloc.state.comments.containsKey(alias)) {
         var commentRows = <Widget>[];
-        service.comments!.forEach((id) {
+        for (var id in service.comments!) {
           if (cBloc.state.comments[alias]!.containsKey(id)) {
             final comment = cBloc.state.comments[alias]![id];
             commentRows.add(Row(children: [
@@ -95,11 +95,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
                 child: Padding(
                     padding: const EdgeInsets.only(left: 5),
                     child: Text(
-                        '@${comment!.author}\n' +
-                            jsRuntime
-                                .evaluate(
-                                    "DateTime.fromISO('${comment.entryTime.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});")
-                                .stringResult,
+                        '@${comment!.author}\n${jsRuntime.evaluate("DateTime.fromISO('${comment.entryTime.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});").stringResult}',
                         style: Theme.of(context).textTheme.bodySmall)),
               ),
               Expanded(
@@ -111,7 +107,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
               ),
             ]));
           }
-        });
+        }
 
         if (commentRows.isNotEmpty) {
           commentsWidget = Padding(
@@ -206,7 +202,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
       );
 
       //   cardWidgets.add();
-    });
+    }
 
     return Card(
       child: Column(

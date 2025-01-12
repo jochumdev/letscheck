@@ -52,7 +52,7 @@ class ConnectionFormBloc extends FormBloc<String, String> {
     username.updateInitialValue(connection != null ? connection!.username : '');
     secret.updateInitialValue(connection != null ? connection!.secret : '');
     validateSsl.updateInitialValue(
-        connection != null ? connection!.validateSsl : false);
+        connection != null ? connection!.validateSsl : true);
 
     addFieldBlocs(fieldBlocs: [
       alias,

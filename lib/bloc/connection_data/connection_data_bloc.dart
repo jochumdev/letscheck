@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'connection_data_state.dart';
 import 'connection_data_event.dart';
 import '../settings/settings.dart';
@@ -48,7 +48,7 @@ class ConnectionDataBloc
       }
     });
 
-    on<NewConnectionData>((event, emit) async {
+    on<ConnectionData>((event, emit) async {
       emit(state.rebuild((b) => b
         ..stats[event.alias] = event.stats
         ..unhServices[event.alias] = event.unhServices));
@@ -96,9 +96,9 @@ class ConnectionDataBloc
         'comments',
         'last_state_change',
       ]);
-      add(NewConnectionData(
-          alias: alias, stats: stats, unhServices: unhServices));
-    } on cmkApi.CheckMkBaseError catch (e) {
+
+      add(ConnectionData(alias: alias, stats: stats, unhServices: unhServices));
+    } on cmk_api.CheckMkBaseError catch (e) {
       sBloc.add(ConnectionFailed(alias, e));
     }
   }

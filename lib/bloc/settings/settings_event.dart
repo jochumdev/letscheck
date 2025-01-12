@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'settings_state.dart';
 
 abstract class SettingsEvent extends Equatable {}
@@ -78,7 +78,7 @@ class ConnectionBack extends SettingsEvent {
 
 /*class ConnectedEvent extends SettingsEvent {
   final String alias;
-  final cmkApi.Client client;
+  final cmk_api.Client client;
 
   ConnectedEvent(this.alias, this.client);
 
@@ -91,7 +91,7 @@ class ConnectionBack extends SettingsEvent {
 
 class ConnectionFailed extends SettingsEvent {
   final String alias;
-  final cmkApi.CheckMkBaseError error;
+  final cmk_api.CheckMkBaseError error;
 
   ConnectionFailed(this.alias, this.error);
 

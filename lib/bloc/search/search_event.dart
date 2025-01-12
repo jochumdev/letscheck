@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:built_collection/built_collection.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 
 abstract class SearchEvent extends Equatable {}
 
@@ -17,8 +17,8 @@ class SearchTerm extends SearchEvent {
 }
 
 class SearchTermResult extends SearchEvent {
-  final BuiltMap<String, BuiltList<cmkApi.LqlTableHostsDto>> hosts;
-  final BuiltMap<String, BuiltList<cmkApi.LqlTableServicesDto>> services;
+  final BuiltMap<String, BuiltList<cmk_api.LqlTableHostsDto>> hosts;
+  final BuiltMap<String, BuiltList<cmk_api.LqlTableServicesDto>> services;
 
   SearchTermResult({required this.hosts, required this.services});
 

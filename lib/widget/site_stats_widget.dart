@@ -125,7 +125,7 @@ class SiteStatsWidget extends StatelessWidget {
                               Navigator.of(context).pushNamed(GlobalRouter()
                                   .buildUri(routeHosts, buildArgs: {
                                 'alias': alias,
-                                'filter': 'unhandled'
+                                'filter': 'stale'
                               }));
                             },
                           ),
@@ -147,7 +147,7 @@ class SiteStatsWidget extends StatelessWidget {
                             },
                           ),
                           SiteStatsNumberWidget(
-                            caption: 'Problems',
+                            caption: 'Warning',
                             num: stats.services.problems,
                             valueColor: Colors.yellow,
                             onTap: () {
@@ -159,7 +159,7 @@ class SiteStatsWidget extends StatelessWidget {
                             },
                           ),
                           SiteStatsNumberWidget(
-                            caption: 'Unhandled',
+                            caption: 'Critical',
                             num: stats.services.unhandled,
                             valueColor: Colors.red,
                             onTap: () {
@@ -171,7 +171,7 @@ class SiteStatsWidget extends StatelessWidget {
                             },
                           ),
                           SiteStatsNumberWidget(
-                            caption: 'Stale',
+                            caption: 'Unknown',
                             num: stats.services.stale,
                             valueColor: Colors.yellow,
                             onTap: () {

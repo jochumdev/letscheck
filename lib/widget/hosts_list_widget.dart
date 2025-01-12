@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:built_collection/built_collection.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'host_card_widget.dart';
 
 class HostsListWidget extends StatelessWidget {
   final String alias;
-  final BuiltList<cmkApi.LqlTableHostsDto> hosts;
+  final BuiltList<cmk_api.LqlTableHostsDto> hosts;
 
   HostsListWidget({required this.alias, required this.hosts});
 
   @override
   Widget build(BuildContext context) {
-    var mapHosts = <String, cmkApi.LqlTableHostsDto>{};
-    hosts.forEach((host) {
+    var mapHosts = <String, cmk_api.LqlTableHostsDto>{};
+    for (var host in hosts) {
       mapHosts[host.name!] = host;
-    });
+    }
 
     var sortedHostNames = mapHosts.keys.toList();
     sortedHostNames.sort();

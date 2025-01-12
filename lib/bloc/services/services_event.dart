@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:built_collection/built_collection.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import '../settings/settings.dart';
 
 abstract class ServicesEvent extends Equatable {}
@@ -15,7 +15,7 @@ class ServicesStartFetching extends ServicesEvent {
 
 class ServicesEventFetched extends ServicesEvent {
   final String alias;
-  final BuiltList<cmkApi.LqlTableServicesDto> services;
+  final BuiltList<cmk_api.LqlTableServicesDto> services;
 
   ServicesEventFetched({required this.alias, required this.services});
 

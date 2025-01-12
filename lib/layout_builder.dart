@@ -14,8 +14,8 @@ const double wideLayoutThreshold = 1200;
 class ProxmoxLayoutBuilder extends StatelessWidget {
   const ProxmoxLayoutBuilder({
     required this.builder,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   /// Builds the widgets below this widget given this widget's layout width.
   final LayoutLayoutWidgetBuilder builder;

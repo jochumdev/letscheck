@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'hosts_state.dart';
 import 'hosts_event.dart';
 import '../settings/settings.dart';
@@ -86,10 +86,14 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
     final client = sBloc.state.connections[alias]!.client!;
 
     try {
-      final hosts = await client.lqlGetTableHosts(filter: filter);
-      add(HostsEventFetched(alias: alias, hosts: hosts));
-    } on cmkApi.CheckMkBaseError catch (e) {
-      sBloc.add(ConnectionFailed(alias, e));
+      try {
+        final hosts = await client.lqlGetTableHosts(filter: filter);
+        add(HostsEventFetched(alias: alias, hosts: hosts));
+      } on cmk_api.CheckMkBaseError catch (e) {
+        sBloc.add(ConnectionFailed(alias, e));
+      }
+    } on StateError {
+      // Ignore.
     }
   }
 

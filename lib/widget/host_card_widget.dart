@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmkApi;
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../global_router.dart';
 
 class HostCardWidget extends StatelessWidget {
   final String alias;
-  final cmkApi.LqlTableHostsDto host;
+  final cmk_api.LqlTableHostsDto host;
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 
-  HostCardWidget({Key? key, required this.alias, required this.host})
-      : super(key: key);
+  HostCardWidget({super.key, required this.alias, required this.host});
 
   @override
   Widget build(BuildContext context) {
     Widget icon = Icon(Icons.check, color: Colors.green);
-    switch (host.state! as int) {
-      case 0:
+    switch (host.state) {
+      case cmk_api.hostStateUp:
         icon = Icon(Icons.check, color: Colors.green);
         break;
-      case 1:
+      case cmk_api.hostStateUnreachable:
         icon =
             FaIcon(FontAwesomeIcons.exclamationTriangle, color: Colors.yellow);
         break;
-      case 2:
+      case cmk_api.hostStateDown:
         icon = FaIcon(FontAwesomeIcons.ban, color: Colors.red);
         break;
-      case 3:
+      case cmk_api.hostStatePending:
         icon = FaIcon(FontAwesomeIcons.questionCircle, color: Colors.grey);
         break;
     }
@@ -42,7 +41,7 @@ class HostCardWidget extends StatelessWidget {
                   buildArgs: {'alias': alias, 'hostname': host.name!}));
             }),
         subtitle: host.name != host.displayName
-            ? Text(host.displayName! + '\n' + host.address!)
+            ? Text('${host.displayName!}\n${host.address!}')
             : Text(host.address!),
       ),
     );
