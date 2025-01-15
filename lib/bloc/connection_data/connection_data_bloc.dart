@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:mutex/mutex.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'connection_data_state.dart';
@@ -13,6 +14,8 @@ class ConnectionDataBloc
   Map<String, Map<String, DateTime>> knownNotifications = {};
   late StreamSubscription sBlocSubscription;
   StreamSubscription? tickerSubscription;
+
+  final knownNotificationsLock = Mutex();
 
   ConnectionDataBloc({required this.sBloc})
       : super(ConnectionDataState.init()) {
@@ -91,41 +94,47 @@ class ConnectionDataBloc
         //
         // Start: Notification
         //
-        if (!knownNotifications.containsKey(alias)) {
-          knownNotifications[alias] = {};
-        }
-        var aliasKnown = knownNotifications[alias]!;
+        try {
+          await knownNotificationsLock.acquire();
 
-        final events = await client.lqlGetTableLogs(filter: [
-          'Filter: time > ${((DateTime.now().millisecondsSinceEpoch / 1000).round() - sBloc.state.refreshSeconds)}',
-          'Filter: state > ${cmk_api.svcStateOk}',
-        ], columns: [
-          'current_host_name',
-          'current_service_display_name',
-          'state',
-          'plugin_output',
-          'time'
-        ]);
-
-        for (var event in events) {
-          final key =
-              '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
-          if (!aliasKnown.containsKey(key)) {
-            sendLogNotification(conn: alias, log: event);
-            aliasKnown[key] = event.time;
+          if (!knownNotifications.containsKey(alias)) {
+            knownNotifications[alias] = {};
           }
-        }
+          var aliasKnown = knownNotifications[alias]!;
 
-        var toOld = DateTime.now()
-            .subtract(Duration(seconds: sBloc.state.refreshSeconds));
-        for (var key in aliasKnown.keys) {
-          if (aliasKnown[key]!.isBefore(toOld)) {
-            aliasKnown.remove(key);
+          final events = await client.lqlGetTableLogs(filter: [
+            'Filter: time > ${((DateTime.now().millisecondsSinceEpoch / 1000).round() - sBloc.state.refreshSeconds)}',
+            'Filter: state > ${cmk_api.svcStateOk}',
+          ], columns: [
+            'current_host_name',
+            'current_service_display_name',
+            'state',
+            'plugin_output',
+            'time'
+          ]);
+
+          for (var event in events) {
+            final key =
+                '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
+            if (!aliasKnown.containsKey(key)) {
+              sendLogNotification(conn: alias, log: event);
+              aliasKnown[key] = event.time;
+            }
           }
+
+          var toOld = DateTime.now()
+              .subtract(Duration(seconds: sBloc.state.refreshSeconds));
+          for (var key in aliasKnown.keys) {
+            if (aliasKnown[key]!.isBefore(toOld)) {
+              aliasKnown.remove(key);
+            }
+          }
+          //
+          // End: Notification
+          //
+        } finally {
+          knownNotificationsLock.release();
         }
-        //
-        // End: Notification
-        //
 
         final stats = await client.lqlGetStatsTacticalOverview();
         final unhServices = await client.lqlGetTableServices(filter: [
