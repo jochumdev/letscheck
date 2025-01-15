@@ -56,17 +56,17 @@ class ServicesGroupedCardWidget extends StatelessWidget {
     for (var service in services) {
       Widget icon = Icon(Icons.check, color: Colors.green, size: 20);
       switch (service.state) {
-        case cmk_api.svcStateUp:
+        case cmk_api.svcStateOk:
           icon = Icon(Icons.check, color: Colors.green, size: 20);
           break;
         case cmk_api.svcStateWarn:
           icon = FaIcon(FontAwesomeIcons.triangleExclamation,
               color: Colors.yellow, size: 20);
           break;
-        case cmk_api.svcStateCrit:
+        case cmk_api.svcStateCritical:
           icon = FaIcon(FontAwesomeIcons.ban, color: Colors.red, size: 20);
           break;
-        case cmk_api.svcStateUnkn:
+        case cmk_api.svcStateUnknown:
           icon = FaIcon(FontAwesomeIcons.circleQuestion,
               color: Colors.grey, size: 20);
           break;

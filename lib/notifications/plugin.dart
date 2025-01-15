@@ -95,89 +95,42 @@ Future<bool> grantNotificationPermission() async {
   return notificationsEnabled;
 }
 
-Future<void> sendServiceNotification({
+Future<void> sendLogNotification({
   required String conn,
-  required cmk_api.LqlTableServicesDto svcOld,
-  required cmk_api.LqlTableServicesDto svcNew,
+  required cmk_api.LqlTableLogDto log,
 }) async {
-  if (svcOld.state == svcNew.state) {
-    return;
-  }
+  var title = '${log.hostName} : ${log.displayName}';
+  var body = log.pluginOutput;
 
-  var title = '';
-  var body = '';
-  if (svcNew.state == cmk_api.svcStateUp &&
-      svcOld.state != cmk_api.svcStateUp) {
-    title = 'Up: Service ${svcNew.hostName} : ${svcNew.displayName}';
-    body = 'Service ${svcNew.displayName} from host ${svcNew.hostName} is up.';
-  } else if (svcNew.state != cmk_api.svcStateUp &&
-      svcOld.state == cmk_api.svcStateUp) {
-    title = 'Down: Service ${svcNew.hostName} : ${svcNew.displayName}';
-    body =
-        'Service ${svcNew.displayName} from host ${svcNew.hostName} is down.';
-  } else {
-    title =
-        'Change: Service ${svcNew.hostName} : ${svcNew.displayName} (${svcOld.state} -> ${svcNew.state})';
-    body =
-        'Service ${svcNew.displayName} from host ${svcNew.hostName} changed.';
-  }
+  print("Notification title: ${title}\nbody: ${body}");
 
   const androidNotificationDetails = AndroidNotificationDetails(
       'your channel id', 'your channel name',
-      icon: 'app_icon',
       channelDescription: 'your channel description',
       importance: Importance.max,
       priority: Priority.high,
       ticker: 'ticker');
-  const notificationDetails =
-      NotificationDetails(android: androidNotificationDetails);
+
+  const DarwinNotificationDetails iosNotificationDetails =
+      DarwinNotificationDetails(
+    categoryIdentifier: darwinNotificationCategoryPlain,
+  );
+
+  const DarwinNotificationDetails macOSNotificationDetails =
+      DarwinNotificationDetails(
+    categoryIdentifier: darwinNotificationCategoryPlain,
+  );
+  const notificationDetails = NotificationDetails(
+    android: androidNotificationDetails,
+    macOS: macOSNotificationDetails,
+    iOS: iosNotificationDetails,
+  );
 
   await flutterLocalNotificationsPlugin.show(
       notificationId++, title, body, notificationDetails,
       payload: GlobalRouter().buildUri(routeService, buildArgs: {
         'alias': conn,
-        'hostname': svcNew.hostName,
-        'service': svcNew.displayName!
+        'hostname': log.hostName,
+        'service': log.displayName
       }));
-}
-
-Future<void> sendHostNotification({
-  required String conn,
-  required cmk_api.LqlTableHostsDto hostOld,
-  required cmk_api.LqlTableHostsDto hostNew,
-}) async {
-  if (hostOld.state == hostNew.state) {
-    return;
-  }
-
-  var title = '';
-  var body = '';
-  if (hostNew.state == cmk_api.svcStateUp &&
-      hostOld.state != cmk_api.svcStateUp) {
-    title = 'Up: Host ${hostNew.displayName}';
-    body = 'Host ${hostNew.displayName} is up.';
-  } else if (hostNew.state != cmk_api.svcStateUp &&
-      hostOld.state == cmk_api.svcStateUp) {
-    title = 'Down: Host ${hostNew.displayName}';
-    body = 'Host ${hostNew.displayName} is down.';
-  } else {
-    title =
-        'Change: Host ${hostNew.displayName} (${hostOld.state} -> ${hostNew.state})';
-    body = 'Host ${hostNew.displayName} changed.';
-  }
-
-  const androidNotificationDetails = AndroidNotificationDetails(
-      'your channel id', 'your channel name',
-      icon: 'app_icon',
-      channelDescription: 'your channel description',
-      importance: Importance.max,
-      priority: Priority.high,
-      ticker: 'ticker');
-  const notificationDetails =
-      NotificationDetails(android: androidNotificationDetails);
-
-  await flutterLocalNotificationsPlugin.show(
-      notificationId++, title, body, notificationDetails,
-      payload: GlobalRouter().buildUri(routeHost,
-          buildArgs: {'alias': conn, 'hostname': hostNew.displayName!}));
 }

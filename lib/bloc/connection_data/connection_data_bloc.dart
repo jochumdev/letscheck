@@ -4,10 +4,13 @@ import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'connection_data_state.dart';
 import 'connection_data_event.dart';
 import '../settings/settings.dart';
+import 'package:letscheck/notifications/plugin.dart';
 
 class ConnectionDataBloc
     extends Bloc<ConnectionDataEvent, ConnectionDataState> {
   final SettingsBloc sBloc;
+
+  Map<String, Map<String, DateTime>> knownNotifications = {};
   late StreamSubscription sBlocSubscription;
   StreamSubscription? tickerSubscription;
 
@@ -84,22 +87,66 @@ class ConnectionDataBloc
     final client = sBloc.state.connections[alias]!.client!;
 
     try {
-      final stats = await client.lqlGetStatsTacticalOverview();
-      final unhServices = await client.lqlGetTableServices(filter: [
-        'services_unhandled'
-      ], columns: const [
-        'state',
-        'host_name',
-        'display_name',
-        'description',
-        'plugin_output',
-        'comments',
-        'last_state_change',
-      ]);
+      try {
+        //
+        // Start: Notification
+        //
+        if (!knownNotifications.containsKey(alias)) {
+          knownNotifications[alias] = {};
+        }
+        var aliasKnown = knownNotifications[alias]!;
 
-      add(ConnectionData(alias: alias, stats: stats, unhServices: unhServices));
-    } on cmk_api.CheckMkBaseError catch (e) {
-      sBloc.add(ConnectionFailed(alias, e));
+        final events = await client.lqlGetTableLogs(filter: [
+          'Filter: time > ${((DateTime.now().millisecondsSinceEpoch / 1000).round() - sBloc.state.refreshSeconds)}',
+          'Filter: state > ${cmk_api.svcStateOk}',
+        ], columns: [
+          'current_host_name',
+          'current_service_display_name',
+          'state',
+          'plugin_output',
+          'time'
+        ]);
+
+        for (var event in events) {
+          final key =
+              '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
+          if (!aliasKnown.containsKey(key)) {
+            sendLogNotification(conn: alias, log: event);
+            aliasKnown[key] = event.time;
+          }
+        }
+
+        var toOld = DateTime.now()
+            .subtract(Duration(seconds: sBloc.state.refreshSeconds));
+        for (var key in aliasKnown.keys) {
+          if (aliasKnown[key]!.isBefore(toOld)) {
+            aliasKnown.remove(key);
+          }
+        }
+        //
+        // End: Notification
+        //
+
+        final stats = await client.lqlGetStatsTacticalOverview();
+        final unhServices = await client.lqlGetTableServices(filter: [
+          'services_unhandled'
+        ], columns: const [
+          'state',
+          'host_name',
+          'display_name',
+          'description',
+          'plugin_output',
+          'comments',
+          'last_state_change',
+        ]);
+
+        add(ConnectionData(
+            alias: alias, stats: stats, unhServices: unhServices));
+      } on cmk_api.CheckMkBaseError catch (e) {
+        sBloc.add(ConnectionFailed(alias, e));
+      }
+    } on StateError {
+      // Ignore.
     }
   }
 

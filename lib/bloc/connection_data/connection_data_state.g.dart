@@ -110,7 +110,9 @@ class ConnectionDataStateBuilder
     try {
       _$result = _$v ??
           new _$ConnectionDataState._(
-              stats: stats.build(), unhServices: unhServices.build());
+            stats: stats.build(),
+            unhServices: unhServices.build(),
+          );
     } catch (_) {
       late String _$failedField;
       try {

@@ -4,8 +4,6 @@ import '../../bloc/connection_data/connection_data.dart';
 import '../../bloc/settings/settings.dart';
 import '../../widget/site_stats_widget.dart';
 import 'custom_search_delegate.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import '../../notifications/plugin.dart';
 
 class BaseSlimScreenSettings {
   final String title;
@@ -76,36 +74,6 @@ abstract class BaseSlimScreen extends StatelessWidget {
     }
 
     var actions = <Widget>[];
-    actions.add(IconButton(
-        onPressed: () async {
-          const androidNotificationDetails = AndroidNotificationDetails(
-              'your channel id', 'your channel name',
-              icon: 'app_icon',
-              channelDescription: 'your channel description',
-              importance: Importance.max,
-              priority: Priority.high,
-              ticker: 'ticker');
-          const DarwinNotificationDetails iosNotificationDetails =
-              DarwinNotificationDetails(
-            categoryIdentifier: darwinNotificationCategoryPlain,
-          );
-
-          const DarwinNotificationDetails macOSNotificationDetails =
-              DarwinNotificationDetails(
-            categoryIdentifier: darwinNotificationCategoryPlain,
-          );
-          const notificationDetails =
-              NotificationDetails(
-                android: androidNotificationDetails,
-                macOS: macOSNotificationDetails,
-                iOS: iosNotificationDetails,
-          );
-          await flutterLocalNotificationsPlugin.show(notificationId++,
-              'plain title', 'plain body', notificationDetails,
-              payload: 'item x');
-        },
-        icon: Icon(Icons.alarm)));
-
     if (settings.showSettings) {
       actions.add(IconButton(
         icon: Icon(Icons.settings),

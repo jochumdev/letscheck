@@ -360,13 +360,14 @@ class SettingsStateBuilder
     try {
       _$result = _$v ??
           new _$SettingsState._(
-              state: state,
-              latestAlias: latestAlias,
-              isLightMode: BuiltValueNullFieldError.checkNotNull(
-                  isLightMode, r'SettingsState', 'isLightMode'),
-              refreshSeconds: BuiltValueNullFieldError.checkNotNull(
-                  refreshSeconds, r'SettingsState', 'refreshSeconds'),
-              connections: connections.build());
+            state: state,
+            latestAlias: latestAlias,
+            isLightMode: BuiltValueNullFieldError.checkNotNull(
+                isLightMode, r'SettingsState', 'isLightMode'),
+            refreshSeconds: BuiltValueNullFieldError.checkNotNull(
+                refreshSeconds, r'SettingsState', 'refreshSeconds'),
+            connections: connections.build(),
+          );
     } catch (_) {
       late String _$failedField;
       try {
@@ -552,19 +553,20 @@ class SettingsStateConnectionBuilder
   _$SettingsStateConnection _build() {
     final _$result = _$v ??
         new _$SettingsStateConnection._(
-            state: state,
-            client: client,
-            error: error,
-            baseUrl: BuiltValueNullFieldError.checkNotNull(
-                baseUrl, r'SettingsStateConnection', 'baseUrl'),
-            site: BuiltValueNullFieldError.checkNotNull(
-                site, r'SettingsStateConnection', 'site'),
-            username: BuiltValueNullFieldError.checkNotNull(
-                username, r'SettingsStateConnection', 'username'),
-            secret: BuiltValueNullFieldError.checkNotNull(
-                secret, r'SettingsStateConnection', 'secret'),
-            validateSsl: BuiltValueNullFieldError.checkNotNull(
-                validateSsl, r'SettingsStateConnection', 'validateSsl'));
+          state: state,
+          client: client,
+          error: error,
+          baseUrl: BuiltValueNullFieldError.checkNotNull(
+              baseUrl, r'SettingsStateConnection', 'baseUrl'),
+          site: BuiltValueNullFieldError.checkNotNull(
+              site, r'SettingsStateConnection', 'site'),
+          username: BuiltValueNullFieldError.checkNotNull(
+              username, r'SettingsStateConnection', 'username'),
+          secret: BuiltValueNullFieldError.checkNotNull(
+              secret, r'SettingsStateConnection', 'secret'),
+          validateSsl: BuiltValueNullFieldError.checkNotNull(
+              validateSsl, r'SettingsStateConnection', 'validateSsl'),
+        );
     replace(_$result);
     return _$result;
   }

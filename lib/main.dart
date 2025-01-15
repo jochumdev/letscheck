@@ -91,15 +91,12 @@ Future<void> main() async {
 
   await _configureLocalTimeZone();
 
-  if (kDebugMode) {
-    HydratedBloc.storage = await HydratedStorage.build(
-      storageDirectory: await getApplicationDocumentsDirectory(),
-    );
-  } else {
-    HydratedBloc.storage = await HydratedStorage.build(
-      storageDirectory: await getApplicationDocumentsDirectory(),
-    );
-  }
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory: kIsWeb
+        ? HydratedStorageDirectory.web
+        : HydratedStorageDirectory(
+            (await getApplicationDocumentsDirectory()).path),
+  );
 
   final javascriptRuntime = await initJavascriptRuntime();
 

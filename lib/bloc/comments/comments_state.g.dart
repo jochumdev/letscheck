@@ -88,7 +88,10 @@ class CommentsStateBuilder
   _$CommentsState _build() {
     _$CommentsState _$result;
     try {
-      _$result = _$v ?? new _$CommentsState._(comments: comments.build());
+      _$result = _$v ??
+          new _$CommentsState._(
+            comments: comments.build(),
+          );
     } catch (_) {
       late String _$failedField;
       try {

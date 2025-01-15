@@ -30,5 +30,4 @@ linter:
 
 analyzer:
   exclude:
-    - vendor/flutter_local_notifications/**
-    - vendor/flutter_slidable/**
+    - vendor/flutter_form_bloc/**

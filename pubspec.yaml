@@ -28,8 +28,12 @@ dependencies:
     path: ./vendor/check_mk_api
   built_value: ^8.9.3
   built_collection: ^5.1.1
-  flutter_form_bloc: ^0.31.0
-  hydrated_bloc: ^9.1.5
+  flutter_form_bloc:
+    path: ./vendor/flutter_form_bloc/packages/flutter_form_bloc
+    # git:
+    #  url: https://github.com/QKSoft/form_bloc.git
+    #  path: packages/flutter_form_bloc
+  hydrated_bloc: ^10.0.0
   path_provider: ^2.0.13
   equatable: ^2.0.3
   settings_ui: ^2.0.2
@@ -37,15 +41,18 @@ dependencies:
   retry: ^3.0.1
   font_awesome_flutter: ^10.4.0
   grouped_list: ^6.0.0
-  package_info_plus: ^8.1.2
+  package_info_plus: ^8.1.3
   flutter_timezone: ^4.0.0
   flutter_js: ^0.8.1
   flutter_local_notifications:
-    path: vendor/flutter_local_notifications/flutter_local_notifications
+    git:
+     url: https://github.com/MaikuB/flutter_local_notifications.git
+     path: flutter_local_notifications
   flutter_slidable:
-    path: ./vendor/flutter_slidable
-  flutter_bloc: ^8.1.6
-  intl: ^0.18.1
+    git:
+     url: https://github.com/letsar/flutter_slidable.git
+  flutter_bloc: ^9.0.0
+  intl: ^0.20.0
   timezone: ^0.10.0
   window_manager: ^0.4.3
 
