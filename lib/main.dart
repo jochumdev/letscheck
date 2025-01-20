@@ -148,7 +148,7 @@ Future<void> main() async {
 
   if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
     WindowOptions windowOptions = WindowOptions(
-      size: Size(800, 600),
+      size: Size(800, 1000),
       center: false,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
