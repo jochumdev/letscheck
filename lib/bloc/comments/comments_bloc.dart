@@ -47,7 +47,7 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
       for (var id in ids) {
         idsStr.add('{"op": "=", "left": "id", "right": "$id"}');
       }
-      filter.add('{"op": "or", "exp": [${idsStr.join(",")}]}');
+      filter.add('{"op": "or", "expr": [${idsStr.join(",")}]}');
     }
 
     try {
@@ -58,7 +58,7 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
       }
       add(CommentsGotIds(alias: alias, comments: BuiltMap(result)));
     } on cmk_api.CheckMkBaseError catch (e) {
-      sBloc.add(ConnectionFailed(alias, e));
+      // Ignore.
     }
   }
 }

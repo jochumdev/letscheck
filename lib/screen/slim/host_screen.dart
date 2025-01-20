@@ -47,14 +47,18 @@ class HostScreen extends BaseSlimScreen {
           BlocProvider<ServicesBloc>(
             create: (context) => ServicesBloc(
                 alias: groups['alias']!,
-                filter: ["Filter: host_name = ${groups["hostname"]}"],
+                filter: [
+                  '{"op": "=", "left": "host_name", "right": "${groups["hostname"]}"}'
+                ],
                 sBloc: sBloc)
               ..add(ServicesStartFetching()),
           ),
           BlocProvider<HostsBloc>(
             create: (context) => HostsBloc(
                 alias: groups['alias']!,
-                filter: ["Filter: name = ${groups["hostname"]}"],
+                filter: [
+                  '{"op": "=", "left": "name", "right": "${groups["hostname"]}"}'
+                ],
                 sBloc: sBloc)
               ..add(HostsStartFetching()),
           )
