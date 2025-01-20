@@ -11,7 +11,7 @@ class HostsStateUninitialized extends HostsState {
 
 class HostsStateFetched extends HostsState {
   final String alias;
-  final BuiltList<cmk_api.LqlTableHostsDto> hosts;
+  final BuiltList<cmk_api.TableHostsDto> hosts;
 
   HostsStateFetched({required this.alias, required this.hosts});
 

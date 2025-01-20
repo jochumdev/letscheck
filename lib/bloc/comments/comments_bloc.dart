@@ -42,15 +42,17 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     final client = sBloc.state.connections[alias]!.client!;
 
     var filter = <String>[];
-    for (var id in ids) {
-      filter.add('Filter: id = $id');
+    if (ids.isNotEmpty) {
+      var idsStr = [];
+      for (var id in ids) {
+        idsStr.add('{"op": "=", "left": "id", "right": "$id"}');
+      }
+      filter.add('{"op": "or", "exp": [${idsStr.join(",")}]}');
     }
-    filter.add('Or: ${ids.length}');
 
     try {
-      final comments =
-          await client.lqlGetTableComments(filter: filter, columns: columns);
-      var result = <num, cmk_api.LqlTableCommentsDto>{};
+      final comments = await client.getApiTableComment(filter: filter);
+      var result = <num, cmk_api.TableCommentsDto>{};
       for (var comment in comments) {
         result[comment.id!] = comment;
       }

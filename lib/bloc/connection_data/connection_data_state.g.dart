@@ -8,9 +8,9 @@ part of 'connection_data_state.dart';
 
 class _$ConnectionDataState extends ConnectionDataState {
   @override
-  final BuiltMap<String, cmk_api.LqlStatsTacticalOverviewDto> stats;
+  final BuiltMap<String, cmk_api.StatsTacticalOverviewDto> stats;
   @override
-  final BuiltMap<String, BuiltList<cmk_api.LqlTableServicesDto>> unhServices;
+  final BuiltMap<String, BuiltList<cmk_api.TableServicesDto>> unhServices;
 
   factory _$ConnectionDataState(
           [void Function(ConnectionDataStateBuilder)? updates]) =>
@@ -63,19 +63,19 @@ class ConnectionDataStateBuilder
     implements Builder<ConnectionDataState, ConnectionDataStateBuilder> {
   _$ConnectionDataState? _$v;
 
-  MapBuilder<String, cmk_api.LqlStatsTacticalOverviewDto>? _stats;
-  MapBuilder<String, cmk_api.LqlStatsTacticalOverviewDto> get stats =>
+  MapBuilder<String, cmk_api.StatsTacticalOverviewDto>? _stats;
+  MapBuilder<String, cmk_api.StatsTacticalOverviewDto> get stats =>
       _$this._stats ??=
-          new MapBuilder<String, cmk_api.LqlStatsTacticalOverviewDto>();
-  set stats(MapBuilder<String, cmk_api.LqlStatsTacticalOverviewDto>? stats) =>
+          new MapBuilder<String, cmk_api.StatsTacticalOverviewDto>();
+  set stats(MapBuilder<String, cmk_api.StatsTacticalOverviewDto>? stats) =>
       _$this._stats = stats;
 
-  MapBuilder<String, BuiltList<cmk_api.LqlTableServicesDto>>? _unhServices;
-  MapBuilder<String, BuiltList<cmk_api.LqlTableServicesDto>> get unhServices =>
+  MapBuilder<String, BuiltList<cmk_api.TableServicesDto>>? _unhServices;
+  MapBuilder<String, BuiltList<cmk_api.TableServicesDto>> get unhServices =>
       _$this._unhServices ??=
-          new MapBuilder<String, BuiltList<cmk_api.LqlTableServicesDto>>();
+          new MapBuilder<String, BuiltList<cmk_api.TableServicesDto>>();
   set unhServices(
-          MapBuilder<String, BuiltList<cmk_api.LqlTableServicesDto>>?
+          MapBuilder<String, BuiltList<cmk_api.TableServicesDto>>?
               unhServices) =>
       _$this._unhServices = unhServices;
 

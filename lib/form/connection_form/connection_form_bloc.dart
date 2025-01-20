@@ -38,6 +38,8 @@ class ConnectionFormBloc extends FormBloc<String, String> {
     ],
   );
 
+  final notifications = BooleanFieldBloc();
+
   final validateSsl = BooleanFieldBloc();
 
   ConnectionFormBloc(
@@ -50,6 +52,8 @@ class ConnectionFormBloc extends FormBloc<String, String> {
     site.updateInitialValue(connection != null ? connection!.site : '');
     username.updateInitialValue(connection != null ? connection!.username : '');
     secret.updateInitialValue(connection != null ? connection!.secret : '');
+    notifications.updateInitialValue(
+        connection != null ? connection!.notifications : false);
     validateSsl.updateInitialValue(
         connection != null ? connection!.validateSsl : true);
 
@@ -59,6 +63,7 @@ class ConnectionFormBloc extends FormBloc<String, String> {
       site,
       username,
       secret,
+      notifications,
       validateSsl,
     ]);
   }
@@ -94,6 +99,7 @@ class ConnectionFormBloc extends FormBloc<String, String> {
           site: site.value,
           username: username.value,
           secret: secret.value,
+          notifications: notifications.value,
           validateSsl: validateSsl.value,
           client: client,
         )));

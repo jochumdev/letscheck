@@ -11,8 +11,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   SearchBloc({required this.sBloc}) : super(SearchStateUninitialized()) {
     on<SearchTerm>((event, emit) async {
-      var hosts = <String, BuiltList<cmk_api.LqlTableHostsDto>>{};
-      var services = <String, BuiltList<cmk_api.LqlTableServicesDto>>{};
+      var hosts = <String, BuiltList<cmk_api.TableHostsDto>>{};
+      var services = <String, BuiltList<cmk_api.TableServicesDto>>{};
 
       for (var alias in sBloc.state.connections.keys) {
         final connSettings = sBloc.state.connections[alias];
@@ -27,14 +27,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
         try {
           // Search hosts
-          final connHosts = await client.lqlGetTableHosts(filter: [
-            'Filter: name ~~ .*$term.*',
-            'Filter: address ~~ .*$term.*',
-            'Or: 2'
+          final connHosts = await client.getApiTableHost(filter: [
+            '{"op": "or", "expr": [{"op": "~~", "left": "name", "right": ".*$term.*"}, {"op": "~~", "left": "address", "right": ".*$term.*"}]}',
           ]);
           hosts[alias] = connHosts;
-          final connServices = await client.lqlGetTableServices(
-              filter: ['Filter: description ~~ .*$term.*']);
+          final connServices = await client.getApiTableService(filter: [
+            '{"op": "or", "expr": [{"op": "~~", "left": "display_name", "right": ".*$term.*"}, {"op": "~~", "left": "description", "right": ".*$term.*"}]}',
+          ]);
           services[alias] = connServices;
         } on cmk_api.CheckMkBaseError catch (e) {
           // Silently ignore these errors

@@ -5,13 +5,13 @@ import 'host_card_widget.dart';
 
 class HostsListWidget extends StatelessWidget {
   final String alias;
-  final BuiltList<cmk_api.LqlTableHostsDto> hosts;
+  final BuiltList<cmk_api.TableHostsDto> hosts;
 
   HostsListWidget({required this.alias, required this.hosts});
 
   @override
   Widget build(BuildContext context) {
-    var mapHosts = <String, cmk_api.LqlTableHostsDto>{};
+    var mapHosts = <String, cmk_api.TableHostsDto>{};
     for (var host in hosts) {
       mapHosts[host.name!] = host;
     }

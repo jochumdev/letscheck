@@ -180,6 +180,9 @@ class _$SettingsStateConnectionSerializer
       'secret',
       serializers.serialize(object.secret,
           specifiedType: const FullType(String)),
+      'notifications',
+      serializers.serialize(object.notifications,
+          specifiedType: const FullType(bool)),
       'validate_ssl',
       serializers.serialize(object.validateSsl,
           specifiedType: const FullType(bool)),
@@ -215,6 +218,10 @@ class _$SettingsStateConnectionSerializer
         case 'secret':
           result.secret = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
+          break;
+        case 'notifications':
+          result.notifications = serializers.deserialize(value,
+              specifiedType: const FullType(bool))! as bool;
           break;
         case 'validate_ssl':
           result.validateSsl = serializers.deserialize(value,
@@ -400,6 +407,8 @@ class _$SettingsStateConnection extends SettingsStateConnection {
   @override
   final String secret;
   @override
+  final bool notifications;
+  @override
   final bool validateSsl;
 
   factory _$SettingsStateConnection(
@@ -414,6 +423,7 @@ class _$SettingsStateConnection extends SettingsStateConnection {
       required this.site,
       required this.username,
       required this.secret,
+      required this.notifications,
       required this.validateSsl})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
@@ -424,6 +434,8 @@ class _$SettingsStateConnection extends SettingsStateConnection {
         username, r'SettingsStateConnection', 'username');
     BuiltValueNullFieldError.checkNotNull(
         secret, r'SettingsStateConnection', 'secret');
+    BuiltValueNullFieldError.checkNotNull(
+        notifications, r'SettingsStateConnection', 'notifications');
     BuiltValueNullFieldError.checkNotNull(
         validateSsl, r'SettingsStateConnection', 'validateSsl');
   }
@@ -448,6 +460,7 @@ class _$SettingsStateConnection extends SettingsStateConnection {
         site == other.site &&
         username == other.username &&
         secret == other.secret &&
+        notifications == other.notifications &&
         validateSsl == other.validateSsl;
   }
 
@@ -461,6 +474,7 @@ class _$SettingsStateConnection extends SettingsStateConnection {
     _$hash = $jc(_$hash, site.hashCode);
     _$hash = $jc(_$hash, username.hashCode);
     _$hash = $jc(_$hash, secret.hashCode);
+    _$hash = $jc(_$hash, notifications.hashCode);
     _$hash = $jc(_$hash, validateSsl.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -476,6 +490,7 @@ class _$SettingsStateConnection extends SettingsStateConnection {
           ..add('site', site)
           ..add('username', username)
           ..add('secret', secret)
+          ..add('notifications', notifications)
           ..add('validateSsl', validateSsl))
         .toString();
   }
@@ -514,6 +529,11 @@ class SettingsStateConnectionBuilder
   String? get secret => _$this._secret;
   set secret(String? secret) => _$this._secret = secret;
 
+  bool? _notifications;
+  bool? get notifications => _$this._notifications;
+  set notifications(bool? notifications) =>
+      _$this._notifications = notifications;
+
   bool? _validateSsl;
   bool? get validateSsl => _$this._validateSsl;
   set validateSsl(bool? validateSsl) => _$this._validateSsl = validateSsl;
@@ -530,6 +550,7 @@ class SettingsStateConnectionBuilder
       _site = $v.site;
       _username = $v.username;
       _secret = $v.secret;
+      _notifications = $v.notifications;
       _validateSsl = $v.validateSsl;
       _$v = null;
     }
@@ -564,6 +585,8 @@ class SettingsStateConnectionBuilder
               username, r'SettingsStateConnection', 'username'),
           secret: BuiltValueNullFieldError.checkNotNull(
               secret, r'SettingsStateConnection', 'secret'),
+          notifications: BuiltValueNullFieldError.checkNotNull(
+              notifications, r'SettingsStateConnection', 'notifications'),
           validateSsl: BuiltValueNullFieldError.checkNotNull(
               validateSsl, r'SettingsStateConnection', 'validateSsl'),
         );

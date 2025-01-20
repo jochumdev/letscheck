@@ -11,7 +11,7 @@ class ServicesStateUninitialized extends ServicesState {
 
 class ServicesStateFetched extends ServicesState {
   final String alias;
-  final BuiltList<cmk_api.LqlTableServicesDto> services;
+  final BuiltList<cmk_api.TableServicesDto> services;
 
   ServicesStateFetched({required this.alias, required this.services});
 

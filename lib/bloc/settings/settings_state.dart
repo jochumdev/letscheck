@@ -76,6 +76,8 @@ abstract class SettingsStateConnection
 
   String get secret;
 
+  bool get notifications;
+
   @BuiltValueField(wireName: 'validate_ssl')
   bool get validateSsl;
 
@@ -91,6 +93,7 @@ abstract class SettingsStateConnection
           required String site,
           required String username,
           required String secret,
+          bool notifications = false,
           bool validateSsl = false,
           cmk_api.Client? client}) =>
       SettingsStateConnection((b) => b
@@ -99,6 +102,7 @@ abstract class SettingsStateConnection
         ..site = site
         ..username = username
         ..secret = secret
+        ..notifications = notifications
         ..validateSsl = validateSsl
         ..client = client);
 }

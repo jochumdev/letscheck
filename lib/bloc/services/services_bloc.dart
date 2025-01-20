@@ -8,25 +8,12 @@ import '../settings/settings.dart';
 class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
   final String alias;
   final List<String> filter;
-  final List<String> columns;
   final SettingsBloc sBloc;
 
   late StreamSubscription sBlocSubscription;
   StreamSubscription? tickerSubscription;
 
-  ServicesBloc(
-      {required this.alias,
-      required this.filter,
-      required this.sBloc,
-      this.columns = const [
-        'state',
-        'host_name',
-        'display_name',
-        'description',
-        'plugin_output',
-        'comments',
-        'last_state_change',
-      ]})
+  ServicesBloc({required this.alias, required this.filter, required this.sBloc})
       : super(ServicesStateUninitialized()) {
     sBlocSubscription = sBloc.stream.listen((state) async {
       switch (state.state) {
@@ -100,8 +87,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
 
     try {
       try {
-        final services =
-            await client.lqlGetTableServices(filter: filter, columns: columns);
+        final services = await client.getApiTableService(filter: filter);
         add(ServicesEventFetched(alias: alias, services: services));
       } on cmk_api.CheckMkBaseError catch (e) {
         sBloc.add(ConnectionFailed(alias, e));

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'base_slim_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import '../../global_router.dart';
 import '../../bloc/comments/comments.dart';
 import '../../bloc/settings/settings.dart';
@@ -47,15 +48,23 @@ class ServicesScreen extends BaseSlimScreen {
     var filter = <String>[];
     switch (groups['filter']) {
       case 'problems':
-        filter.add('services_problems');
+        filter.add(
+            '{"op": "=", "left": "state", "right": "${cmk_api.svcStateWarn}"}');
         break;
       case 'unhandled':
-        filter.add('services_unhandled');
+        filter.add(
+            '{"op": "=", "left": "state", "right": "${cmk_api.svcStateCritical}"}');
         break;
       case 'stale':
-        filter.add('services_stale');
+        filter.add(
+            '{"op": "=", "left": "state", "right": "${cmk_api.svcStateUnknown}"}');
+        break;
+      case 'all':
         break;
       default:
+        if (groups['filter'] != null) {
+          filter.add(groups['filter']!);
+        }
     }
 
     return BlocBuilder<CommentsBloc, CommentsState>(

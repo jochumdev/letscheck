@@ -10,7 +10,7 @@ abstract class CommentsState
   factory CommentsState([void Function(CommentsStateBuilder) updates]) =
       _$CommentsState;
 
-  BuiltMap<String, BuiltMap<num, cmk_api.LqlTableCommentsDto>> get comments;
+  BuiltMap<String, BuiltMap<num, cmk_api.TableCommentsDto>> get comments;
 
   factory CommentsState.init() => CommentsState((b) => b);
 }

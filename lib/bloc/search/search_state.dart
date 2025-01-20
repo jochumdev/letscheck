@@ -15,8 +15,8 @@ class SearchStateLoading extends SearchState {
 }
 
 class SearchStateFetched extends SearchState {
-  final BuiltMap<String, BuiltList<cmk_api.LqlTableHostsDto>> hosts;
-  final BuiltMap<String, BuiltList<cmk_api.LqlTableServicesDto>> services;
+  final BuiltMap<String, BuiltList<cmk_api.TableHostsDto>> hosts;
+  final BuiltMap<String, BuiltList<cmk_api.TableServicesDto>> services;
 
   SearchStateFetched({required this.hosts, required this.services});
 

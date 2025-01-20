@@ -8,7 +8,7 @@ import 'comments_event.dart';
 void commentsFetchForServices(
     {required BuildContext context,
     required String alias,
-    required BuiltList<cmk_api.LqlTableServicesDto> services}) {
+    required BuiltList<cmk_api.TableServicesDto> services}) {
   final cBloc = BlocProvider.of<CommentsBloc>(context);
 
   var ids = <num>[];

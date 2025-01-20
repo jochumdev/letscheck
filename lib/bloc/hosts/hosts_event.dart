@@ -15,7 +15,7 @@ class HostsStartFetching extends HostsEvent {
 
 class HostsEventFetched extends HostsEvent {
   final String alias;
-  final BuiltList<cmk_api.LqlTableHostsDto> hosts;
+  final BuiltList<cmk_api.TableHostsDto> hosts;
 
   HostsEventFetched({required this.alias, required this.hosts});
 

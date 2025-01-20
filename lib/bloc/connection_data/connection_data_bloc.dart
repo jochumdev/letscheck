@@ -89,64 +89,60 @@ class ConnectionDataBloc
 
     final client = sBloc.state.connections[alias]!.client!;
 
-    try {
+    //
+    // Start: Notifications
+    //
+    if (sBloc.state.connections[alias]!.notifications) {
       try {
-        //
-        // Start: Notification
-        //
-        try {
-          await knownNotificationsLock.acquire();
+        await knownNotificationsLock.acquire();
 
-          if (!knownNotifications.containsKey(alias)) {
-            knownNotifications[alias] = {};
+        if (!knownNotifications.containsKey(alias)) {
+          knownNotifications[alias] = {};
+        }
+        var aliasKnown = knownNotifications[alias]!;
+
+        final events = await client.lqlGetTableLogs(filter: [
+          'Filter: time > ${((DateTime.now().millisecondsSinceEpoch / 1000).round() - sBloc.state.refreshSeconds)}',
+          'Filter: state > ${cmk_api.svcStateOk}',
+        ], columns: [
+          'current_host_name',
+          'current_service_display_name',
+          'state',
+          'plugin_output',
+          'time'
+        ]);
+
+        for (var event in events) {
+          final key =
+              '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
+          if (!aliasKnown.containsKey(key)) {
+            sendLogNotification(conn: alias, log: event);
+            aliasKnown[key] = event.time;
           }
-          var aliasKnown = knownNotifications[alias]!;
-
-          final events = await client.lqlGetTableLogs(filter: [
-            'Filter: time > ${((DateTime.now().millisecondsSinceEpoch / 1000).round() - sBloc.state.refreshSeconds)}',
-            'Filter: state > ${cmk_api.svcStateOk}',
-          ], columns: [
-            'current_host_name',
-            'current_service_display_name',
-            'state',
-            'plugin_output',
-            'time'
-          ]);
-
-          for (var event in events) {
-            final key =
-                '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
-            if (!aliasKnown.containsKey(key)) {
-              sendLogNotification(conn: alias, log: event);
-              aliasKnown[key] = event.time;
-            }
-          }
-
-          var toOld = DateTime.now()
-              .subtract(Duration(seconds: sBloc.state.refreshSeconds));
-          for (var key in aliasKnown.keys) {
-            if (aliasKnown[key]!.isBefore(toOld)) {
-              aliasKnown.remove(key);
-            }
-          }
-          //
-          // End: Notification
-          //
-        } finally {
-          knownNotificationsLock.release();
         }
 
-        final stats = await client.lqlGetStatsTacticalOverview();
-        final unhServices = await client.lqlGetTableServices(filter: [
-          'services_unhandled'
-        ], columns: const [
-          'state',
-          'host_name',
-          'display_name',
-          'description',
-          'plugin_output',
-          'comments',
-          'last_state_change',
+        var toOld = DateTime.now()
+            .subtract(Duration(seconds: sBloc.state.refreshSeconds));
+        for (var key in aliasKnown.keys) {
+          if (aliasKnown[key]!.isBefore(toOld)) {
+            aliasKnown.remove(key);
+          }
+        }
+      } on cmk_api.CheckMkBaseError {
+        // Ignore.
+      } finally {
+        knownNotificationsLock.release();
+      }
+    }
+    //
+    // End: Notifications
+    //
+
+    try {
+      try {
+        final stats = await client.getApiStatsTacticalOverview();
+        final unhServices = await client.getApiTableService(filter: [
+          '{"op": ">", "left": "state", "right": "${cmk_api.svcStateOk}"}'
         ]);
 
         add(ConnectionData(

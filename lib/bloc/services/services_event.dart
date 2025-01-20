@@ -15,7 +15,7 @@ class ServicesStartFetching extends ServicesEvent {
 
 class ServicesEventFetched extends ServicesEvent {
   final String alias;
-  final BuiltList<cmk_api.LqlTableServicesDto> services;
+  final BuiltList<cmk_api.TableServicesDto> services;
 
   ServicesEventFetched({required this.alias, required this.services});
 

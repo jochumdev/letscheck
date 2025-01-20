@@ -17,8 +17,8 @@ class SearchTerm extends SearchEvent {
 }
 
 class SearchTermResult extends SearchEvent {
-  final BuiltMap<String, BuiltList<cmk_api.LqlTableHostsDto>> hosts;
-  final BuiltMap<String, BuiltList<cmk_api.LqlTableServicesDto>> services;
+  final BuiltMap<String, BuiltList<cmk_api.TableHostsDto>> hosts;
+  final BuiltMap<String, BuiltList<cmk_api.TableServicesDto>> services;
 
   SearchTermResult({required this.hosts, required this.services});
 

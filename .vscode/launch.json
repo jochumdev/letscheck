@@ -4,7 +4,8 @@
         {
             "name": "letscheck",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "program": "lib/main.dart"
         }
     ]
 }

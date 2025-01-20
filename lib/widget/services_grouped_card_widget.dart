@@ -14,7 +14,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
   final String groupName;
   final bool showGroupHeader;
   final ServicesGroupedCardMode groupMode;
-  final List<cmk_api.LqlTableServicesDto> services;
+  final List<cmk_api.TableServicesDto> services;
 
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 
@@ -46,7 +46,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
                   Navigator.of(context).pushNamed(GlobalRouter()
                       .buildUri(routeHost, buildArgs: {
                     'alias': alias,
-                    'hostname': services[0].hostName
+                    'hostname': services[0].hostName!
                   }));
                 })
             : Text(groupName),
@@ -193,7 +193,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
                   Navigator.of(context).pushNamed(GlobalRouter()
                       .buildUri(routeService, buildArgs: {
                     'alias': alias,
-                    'hostname': service.hostName,
+                    'hostname': service.hostName!,
                     'service': service.displayName!
                   }));
                 },

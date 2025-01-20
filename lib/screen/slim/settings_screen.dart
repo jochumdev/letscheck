@@ -112,12 +112,6 @@ class SettingsScreen extends BaseSlimScreen {
                 onToggle: (context) =>
                     sBloc.add(ThemeChanged(!state.isLightMode)),
               ),
-              SettingsTile.switchTile(
-                title: Text('Enable Notifications'),
-                leading: Icon(Icons.notifications_active),
-                initialValue: true,
-                onToggle: (value) {},
-              ),
               SettingsTile(
                 title: Text('Refresh Time'),
                 trailing: Text('${sBloc.state.refreshSeconds} Seconds'),

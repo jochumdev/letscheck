@@ -62,6 +62,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
     });
 
     on<UpdateConnection>((event, emit) async {
+      print(event.connectionSettings);
       emit(state.rebuild((b) => b
         ..connections[event.alias] = event.connectionSettings
         ..state = SettingsStateEnum.clientUpdated

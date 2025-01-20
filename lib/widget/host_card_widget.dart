@@ -5,7 +5,7 @@ import '../global_router.dart';
 
 class HostCardWidget extends StatelessWidget {
   final String alias;
-  final cmk_api.LqlTableHostsDto host;
+  final cmk_api.TableHostsDto host;
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 
   HostCardWidget({super.key, required this.alias, required this.host});

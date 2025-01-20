@@ -28,9 +28,9 @@ class UpdateClient extends ConnectionDataEvent {
 
 class ConnectionData extends ConnectionDataEvent {
   final String alias;
-  final cmk_api.LqlStatsTacticalOverviewDto stats;
+  final cmk_api.StatsTacticalOverviewDto stats;
 
-  final BuiltList<cmk_api.LqlTableServicesDto> unhServices;
+  final BuiltList<cmk_api.TableServicesDto> unhServices;
 
   ConnectionData(
       {required this.alias, required this.stats, required this.unhServices});

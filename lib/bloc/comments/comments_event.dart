@@ -30,7 +30,7 @@ class CommentsFetchIds extends CommentsEvent {
 
 class CommentsGotIds extends CommentsEvent {
   final String alias;
-  final BuiltMap<num, cmk_api.LqlTableCommentsDto> comments;
+  final BuiltMap<num, cmk_api.TableCommentsDto> comments;
 
   CommentsGotIds({required this.alias, required this.comments});
 

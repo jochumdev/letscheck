@@ -8,7 +8,7 @@ part of 'comments_state.dart';
 
 class _$CommentsState extends CommentsState {
   @override
-  final BuiltMap<String, BuiltMap<num, cmk_api.LqlTableCommentsDto>> comments;
+  final BuiltMap<String, BuiltMap<num, cmk_api.TableCommentsDto>> comments;
 
   factory _$CommentsState([void Function(CommentsStateBuilder)? updates]) =>
       (new CommentsStateBuilder()..update(updates))._build();
@@ -51,12 +51,12 @@ class CommentsStateBuilder
     implements Builder<CommentsState, CommentsStateBuilder> {
   _$CommentsState? _$v;
 
-  MapBuilder<String, BuiltMap<num, cmk_api.LqlTableCommentsDto>>? _comments;
-  MapBuilder<String, BuiltMap<num, cmk_api.LqlTableCommentsDto>> get comments =>
+  MapBuilder<String, BuiltMap<num, cmk_api.TableCommentsDto>>? _comments;
+  MapBuilder<String, BuiltMap<num, cmk_api.TableCommentsDto>> get comments =>
       _$this._comments ??=
-          new MapBuilder<String, BuiltMap<num, cmk_api.LqlTableCommentsDto>>();
+          new MapBuilder<String, BuiltMap<num, cmk_api.TableCommentsDto>>();
   set comments(
-          MapBuilder<String, BuiltMap<num, cmk_api.LqlTableCommentsDto>>?
+          MapBuilder<String, BuiltMap<num, cmk_api.TableCommentsDto>>?
               comments) =>
       _$this._comments = comments;
 

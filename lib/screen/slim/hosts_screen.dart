@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'base_slim_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import '../../global_router.dart';
 import '../../bloc/settings/settings.dart';
 import '../../bloc/hosts/hosts.dart';
@@ -46,15 +47,23 @@ class HostsScreen extends BaseSlimScreen {
     var filter = <String>[];
     switch (groups['filter']) {
       case 'problems':
-        filter.add('hosts_problems');
+        filter.add(
+            '{"op": "=", "left": "state", "right": "${cmk_api.hostStateDown}"}');
         break;
       case 'unhandled':
-        filter.add('hosts_unhandled');
+        filter.add(
+            '{"op": "=", "left": "state", "right": "${cmk_api.hostStateUnreachable}"}');
         break;
       case 'stale':
-        filter.add('hosts_stale');
+        filter.add(
+            '{"op": "=", "left": "state", "right": "${cmk_api.hostStatePending}"}');
+        break;
+      case 'all':
         break;
       default:
+        if (groups['filter'] != null) {
+          filter.add(groups['filter']!);
+        }
     }
 
     return BlocProvider<HostsBloc>(

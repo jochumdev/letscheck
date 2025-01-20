@@ -11,8 +11,8 @@ abstract class ConnectionDataState
           [void Function(ConnectionDataStateBuilder) updates]) =
       _$ConnectionDataState;
 
-  BuiltMap<String, cmk_api.LqlStatsTacticalOverviewDto> get stats;
+  BuiltMap<String, cmk_api.StatsTacticalOverviewDto> get stats;
 
-  BuiltMap<String, BuiltList<cmk_api.LqlTableServicesDto>> get unhServices;
+  BuiltMap<String, BuiltList<cmk_api.TableServicesDto>> get unhServices;
   factory ConnectionDataState.init() => ConnectionDataState((b) => b);
 }
