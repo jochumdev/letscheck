@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Generator for metainfo & .desktop files: 
+    https://www.freedesktop.org/software/appstream/metainfocreator/#/
+-->
+<component type="desktop-application">
+  <id>dev.jochum.letscheck</id>
+  
+  <name>LetsCheck</name>
+  <summary>LetsCheck - the check_mk Client for GNU/Linux</summary>
+  
+  <metadata_license>MIT</metadata_license>
+  <project_license>Artistic-2.0</project_license>
+  
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+    <control>tablet</control>
+  </supports>
+  
+  <description>
+    <p>
+      LetsCheck is the check_mk Client for GNU/Linux.
+    </p>
+    <p>
+      It features: - View Hosts/Services with comments - Notifications
+    </p>
+  </description>
+  
+  <launchable type="desktop-id">dev.jochum.letscheck.desktop</launchable>
+</component>

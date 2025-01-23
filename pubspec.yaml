@@ -15,11 +15,11 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.0.5+1225
+version: 0.0.7+1230
 
 environment:
   sdk: ^3.6.0
-  flutter: ">=3.27.1 <4.0.0"
+  flutter: "3.27.1" # Workflow "subosito/flutter-action@v2" need exact version here.
 
 dependencies:
   flutter:
@@ -59,6 +59,7 @@ dev_dependencies:
   built_value_generator: ^8.4.3
   build_runner: ^2.3.3
   lints: ^5.0.0
+  msix: ^3.16.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -79,3 +80,5 @@ flutter:
 
 flutter_intl:
   enabled: true
+
+# Empty line required by workflows.

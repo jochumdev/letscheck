@@ -1,0 +1,281 @@
+on:
+  release:
+    types:
+      - created
+
+name: Release Artifacts
+
+jobs:
+  build-linux:
+    name: "Build Linux"
+    runs-on: ubuntu-latest
+    permissions: write-all
+    timeout-minutes: 30
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Install Flutter dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libx11-dev pkg-config cmake ninja-build libblkid-dev jq
+  
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+  
+      - name: Enable desktop
+        run: flutter config --enable-linux-desktop
+
+      - name: Install Cider
+        run: flutter pub global activate cider
+
+      - name: Set new Flutter version
+        run: cider version ${{ github.event.release.tag_name }}
+
+      - name: Set release changelog
+        run: cider release
+
+      - name: Flutter get packages
+        run: flutter pub get
+
+      - name: Build Runner & version
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Flutter build app
+        run: flutter build linux
+
+      - name: Compress artifacts
+        run: tar -a -c -f letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz ./build/linux/x64/release/bundle
+
+      - name: Upload artifcats for flatpak job
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux_x86_64_binary
+          path: letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz
+
+      - name: Upload files to a GitHub release
+        uses: svenstaro/upload-release-action@2.2.1
+        with:
+          # GitHub token.
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          # Local file to upload.
+          file: letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz
+          # Tag to use as a release.
+          tag: ${{ github.ref }}
+
+  build-linux-flatpak:
+    needs: build-linux
+    name: "Build Linux flatpak"
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-47
+      options: --privileged
+    permissions: write-all
+    timeout-minutes: 10
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Download binary from build-linux
+        uses: actions/download-artifact@v4
+        with:
+          name: linux_x86_64_binary
+
+      - name: Extract binary
+        run: cd ./build/linux/x64/release/bundle && tar -x -f ../../../../../letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz .
+
+      - name: Build flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: letscheck.flatpak
+          manifest-path: ./flathub/dev.jochum.letscheck.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+
+      - name: Upload Flatpak to release
+        uses: svenstaro/upload-release-action@2.2.1
+        with:
+          # GitHub token.
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          # Local file to upload.
+          file: letscheck.flatpak
+          asset_name: letscheck-linux-x86_64-${{ github.event.release.tag_name }}.flatpak
+          # Tag to use as a release.
+          tag: ${{ github.ref }}
+
+  build-macos:
+    name: "Build MacOS"
+    runs-on: macos-latest
+    permissions: write-all
+    timeout-minutes: 30
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+
+      - name: "Select the latest stable Xcode 12"
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable    
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Enable desktop
+        run: flutter config --enable-macos-desktop
+
+      - name: Install Cider
+        run: flutter pub global activate cider
+
+      - name: Set new Flutter version
+        run: cider version ${{ github.event.release.tag_name }}
+
+      - name: Set release changelog
+        run: cider release
+
+      - name: Flutter get packages
+        run: flutter pub get
+
+      - name: Build Runner & version
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Flutter build app
+        run: flutter build macos
+
+      - name: Create dmg
+        run: |
+          ./scripts/create_mac_dmg.sh
+      - name: Compress artifacts
+        run: cd build/macos/Build/Products/Release && zip -r ../../../../../letscheck-macos-${{ github.event.release.tag_name }}.zip letscheck.app
+
+      - name: Upload artifacts to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          # GitHub token.
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          # Local file to upload.
+          file: letscheck-macos-${{ github.event.release.tag_name }}.zip
+          # Tag to use as a release.
+          tag: ${{ github.ref }}
+
+      - name: Upload DMG to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          # GitHub token.
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          # Local file to upload.
+          file: build/macos/Build/Products/Release/letscheck.dmg
+          asset_name: letscheck-macos-${{ github.event.release.tag_name }}.dmg
+          # Tag to use as a release.
+          tag: ${{ github.ref }}
+
+  build-windows:
+    name: "Build Windows"
+    runs-on: windows-latest
+    permissions: write-all
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Make yq tool available on Windows runners
+        run: choco install yq
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+
+      - name: Enable desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Install Cider
+        run: flutter pub global activate cider
+
+      - name: Set new Flutter version
+        run: cider version ${{ github.event.release.tag_name }}
+
+      - name: Set release changelog
+        run: cider release
+
+      - name: Generate MSIX-compatible version
+        uses: ashley-taylor/regex-property-action@v1.4
+        id: msixver
+        with:
+          value: ${{ github.event.release.tag_name }}
+          regex: (\-\w+)|(\+\w+)
+          replacement: ""
+
+      # - name: Write MSIX
+      #   uses: DamianReeves/write-file-action@v1.0
+      #   with:
+      #     path: pubspec.yaml
+      #     contents: |
+      #       msix_config:
+      #         display_name: Letscheck
+      #         publisher_display_name: René Jochum
+      #         identity_name: dev.jochum.letscheck
+      #         publisher: CN=Letscheck
+      #         msix_version: ${{steps.msixver.outputs.value }}.0
+      #         logo_path: assets\icons\letscheck.png
+      #         architecture: x64
+      #         capabilities: "internetClient,removableStorage"
+      #         store: false
+      #         certificate_path: flathub\letscheck.pfx
+      #         certificate_password: ${{ secrets.WIN_CERT_PASS }}
+      #         build_windows: false
+      #         install_certificate: false
+      #     write-mode: append
+
+      - name: Flutter get packages
+        run: flutter pub get
+
+      - name: Build Runner & version
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Flutter build app
+        run: flutter build windows
+
+      - name: Compress artifacts
+        run: cd build/windows/x64/runner/Release && C:/ProgramData/Chocolatey/bin/7z.exe a ../../../../../letscheck-windows-x86_64-${{ github.event.release.tag_name }}.zip .
+
+      - name: Upload artifacts to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: letscheck-windows-x86_64-${{ github.event.release.tag_name }}.zip
+          tag: ${{ github.ref }}
+
+      # - name: Create MSIX
+      #   run: flutter pub run msix:create
+
+      # - name: Upload MSIX to release
+      #   uses: svenstaro/upload-release-action@v2
+      #   with:
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     file: build\windows\x64\runner\Release\letscheck.msix
+      #     asset_name: letscheck-windows-x86_64-${{ github.event.release.tag_name }}.msix
+      #     tag: ${{ github.ref }}
