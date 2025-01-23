@@ -16,4 +16,4 @@ Get it from [Github Releases](https://github.com/jochumdev/letscheck/releases)
 
 ## License
 
-MIT - Copyright 2024 by [@jochumdev](https://github.com/jochumdev)
+Apache 2.0 - Copyright 2024 by [@jochumdev](https://github.com/jochumdev)
