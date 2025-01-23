@@ -118,7 +118,7 @@ class SiteStatsWidget extends StatelessWidget {
                             },
                           ),
                           SizedBox(
-                            width: 50,
+                            width: 54,
                           ),
                         ]),
                     SizedBox(height: 5),

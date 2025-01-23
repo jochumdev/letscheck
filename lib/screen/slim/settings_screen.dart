@@ -170,8 +170,12 @@ class SettingsScreen extends BaseSlimScreen {
                   title: Text('Terms of Service'),
                   leading: Icon(Icons.description)),
               SettingsTile(
-                  title: Text('Open source licenses'),
-                  leading: Icon(Icons.collections_bookmark)),
+                title: Text('Open source licenses'),
+                leading: Icon(Icons.collections_bookmark),
+                onPressed: (ctx) async {
+                  showLicensePage(context: ctx);
+                },
+              ),
             ],
           ),
           CustomSettingsSection(

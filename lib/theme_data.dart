@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // Nice to get colors: https://icolorpalette.com/color/101920
 
@@ -15,9 +16,11 @@ ThemeData buildLightTheme() {
     textTheme: Typography.material2021().black,
     brightness: Brightness.light,
     colorScheme: ColorScheme.fromSeed(seedColor: checkMKIconColor),
-    fontFamily: 'Open Sans',
   );
-  return base;
+
+  return base.copyWith(
+    textTheme: GoogleFonts.latoTextTheme(base.textTheme),
+  );
 }
 
 ThemeData buildDarkTheme() {
@@ -32,7 +35,9 @@ ThemeData buildDarkTheme() {
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
         seedColor: checkMKIconColor, brightness: Brightness.dark),
-    fontFamily: 'Open Sans',
   );
-  return base;
+
+  return base.copyWith(
+    textTheme: GoogleFonts.latoTextTheme(base.textTheme),
+  );
 }
