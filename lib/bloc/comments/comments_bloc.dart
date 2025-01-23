@@ -57,7 +57,7 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
         result[comment.id!] = comment;
       }
       add(CommentsGotIds(alias: alias, comments: BuiltMap(result)));
-    } on cmk_api.CheckMkBaseError catch (e) {
+    } on cmk_api.CheckMkBaseError {
       // Ignore.
     }
   }

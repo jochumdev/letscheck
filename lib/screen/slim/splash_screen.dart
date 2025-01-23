@@ -8,9 +8,9 @@ class SplashScreen extends StatelessWidget {
       key: routeSplash,
       uri: '/pages/splash',
       route: (context) => MaterialPageRoute(
-        settings: context,
-        builder: (context) => SplashScreen(),
-      ));
+            settings: context,
+            builder: (context) => SplashScreen(),
+          ));
 
   @override
   Widget build(BuildContext context) {
@@ -21,20 +21,20 @@ class SplashScreen extends StatelessWidget {
       listener: (context, state) {
         switch (state.state) {
           case SettingsStateEnum.noConnection:
-            Navigator.of(context).pushReplacementNamed(
-                GlobalRouter().buildUri(routeHome));
-            Navigator.of(context).pushNamed(
-                GlobalRouter().buildUri(routeSettings));
-            Navigator.of(context).pushNamed(
-                GlobalRouter().buildUri(routeSettingsConnection));
+            Navigator.of(context)
+                .pushReplacementNamed(GlobalRouter().buildUri(routeHome));
+            Navigator.of(context)
+                .pushNamed(GlobalRouter().buildUri(routeSettings));
+            Navigator.of(context)
+                .pushNamed(GlobalRouter().buildUri(routeSettingsConnection));
             break;
           case SettingsStateEnum.connected:
-            Navigator.of(context).pushReplacementNamed(
-                GlobalRouter().buildUri(routeHome));
+            Navigator.of(context)
+                .pushReplacementNamed(GlobalRouter().buildUri(routeHome));
             break;
           case SettingsStateEnum.failed:
-            Navigator.of(context).pushReplacementNamed(
-                GlobalRouter().buildUri(routeHome));
+            Navigator.of(context)
+                .pushReplacementNamed(GlobalRouter().buildUri(routeHome));
             Navigator.of(context)
                 .pushNamed(GlobalRouter().buildUri(routeSettings));
             break;
@@ -42,7 +42,7 @@ class SplashScreen extends StatelessWidget {
         }
       },
       child: Container(
-        child: Image.asset('assets/icons/check_mk.png'),
+        child: Image.asset('assets/icons/letscheck.png'),
       ),
     );
   }

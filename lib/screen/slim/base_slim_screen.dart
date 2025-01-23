@@ -102,7 +102,7 @@ abstract class BaseSlimScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/icons/check_mk.png',
+              'assets/icons/letscheck.png',
               width: 40,
             ),
             SizedBox(
