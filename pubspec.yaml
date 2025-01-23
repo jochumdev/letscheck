@@ -19,7 +19,7 @@ version: 0.0.5+1225
 
 environment:
   sdk: ^3.6.0
-  flutter: ">=3.27.1"
+  flutter: ">=3.27.1 <4.0.0"
 
 dependencies:
   flutter:
@@ -76,3 +76,6 @@ flutter:
     - assets/js/
     - assets/sound/
     - assets/fonts/
+
+flutter_intl:
+  enabled: true
