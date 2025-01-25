@@ -48,8 +48,14 @@ jobs:
       - name: Build Runner & version
         run: flutter pub run build_runner build --delete-conflicting-outputs
 
+      - name: Flutter build app debug (for libquickjs)
+        run: flutter build linux --debug
+
       - name: Flutter build app
         run: flutter build linux
+
+      - name: Copy libquickjs
+        run: cp ./build/linux/x64/debug/bundle/lib/libquickjs_c_bridge_plugin.so ./build/linux/x64/release/bundle/lib
 
       - name: Compress artifacts
         run: tar -a -c -f letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz ./build/linux/x64/release/bundle
@@ -221,13 +227,13 @@ jobs:
       - name: Set release changelog
         run: cider release
 
-      - name: Generate MSIX-compatible version
-        uses: ashley-taylor/regex-property-action@v1.4
-        id: msixver
-        with:
-          value: ${{ github.event.release.tag_name }}
-          regex: (\-\w+)|(\+\w+)
-          replacement: ""
+      # - name: Generate MSIX-compatible version
+      #   uses: ashley-taylor/regex-property-action@v1.4
+      #   id: msixver
+      #   with:
+      #     value: ${{ github.event.release.tag_name }}
+      #     regex: (\-\w+)|(\+\w+)
+      #     replacement: ""
 
       # - name: Write MSIX
       #   uses: DamianReeves/write-file-action@v1.0
