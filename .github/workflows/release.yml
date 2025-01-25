@@ -93,7 +93,7 @@ jobs:
           name: linux_x86_64_binary
 
       - name: Extract binary
-        run: cd ./build/linux/x64/release/bundle && tar -x -f ../../../../../letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz .
+        run: mkdir ./build/linux/x64/release/bundle && cd ./build/linux/x64/release/bundle && tar -x -f ../../../../../letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz .
 
       - name: Build flatpak
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
