@@ -52,7 +52,7 @@ jobs:
         run: cp ./flathub/linux/x64/libquickjs_c_bridge_plugin.so ./build/linux/x64/release/bundle/lib || exit 0
 
       - name: Compress artifacts
-        run: tar -a -c -f letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz ./build/linux/x64/release/bundle
+        run: cd ./build/linux/x64/release/bundle; tar -a -c -f ../../../../../letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz .
 
       - name: Upload artifcats for flatpak job
         uses: actions/upload-artifact@v4
