@@ -75,7 +75,7 @@ jobs:
     name: "Build Linux flatpak"
     runs-on: ubuntu-latest
     container:
-      image: bilelmoussaoui/flatpak-github-actions:gnome-47
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-22.08
       options: --privileged
     permissions: write-all
     timeout-minutes: 10
