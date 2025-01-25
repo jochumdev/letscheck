@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:letscheck/bloc/connection_data/connection_data.dart';
+import 'package:letscheck/widget/site_stats_widget.dart';
 import 'base_slim_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
@@ -75,15 +77,30 @@ class ServicesScreen extends BaseSlimScreen {
         builder: (context, state) {
           return BlocBuilder<CommentsBloc, CommentsState>(
             builder: (cContext, cState) {
+              final cBloc = BlocProvider.of<ConnectionDataBloc>(context);
               if (state is ServicesStateFetched) {
                 commentsFetchForServices(
                     context: context,
                     alias: groups['alias']!,
                     services: state.services);
-                return ServicesListWidget(
-                    alias: groups['alias']!, services: state.services);
+                return Column(
+                  children: [
+                    SiteStatsWidget(
+                        alias: groups['alias']!, state: cBloc.state),
+                    Expanded(
+                      child: ServicesListWidget(
+                          alias: groups['alias']!, services: state.services),
+                    ),
+                  ],
+                );
               } else {
-                return CenterLoadingWidget();
+                return Column(
+                  children: [
+                    SiteStatsWidget(
+                        alias: groups['alias']!, state: cBloc.state),
+                    Expanded(child: CenterLoadingWidget()),
+                  ],
+                );
               }
             },
           );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:letscheck/bloc/connection_data/connection_data.dart';
+import 'package:letscheck/widget/site_stats_widget.dart';
 import 'base_slim_screen.dart';
 import '../../bloc/services/services.dart';
 import '../../bloc/settings/settings.dart';
@@ -70,19 +72,27 @@ class HostScreen extends BaseSlimScreen {
               if (state is ServicesStateFetched) {
                 final groupedServices =
                     servicesGroupByHostname(services: state.services);
-                return Column(children: [
-                  HostCardWidget(
-                      alias: groups['alias']!, host: hstate.hosts[0]),
-                  Expanded(
-                      child: ListView(children: [
-                    ServicesGroupedCardWidget(
-                      alias: groups['alias']!,
-                      groupName: groups['hostname']!,
-                      services: groupedServices[groups['hostname']!]!,
-                      showGroupHeader: false,
-                    )
-                  ]))
-                ]);
+                final cBloc = BlocProvider.of<ConnectionDataBloc>(context);
+                return Column(
+                  children: [
+                    SiteStatsWidget(
+                        alias: groups['alias']!, state: cBloc.state),
+                    Expanded(
+                        child: Column(children: [
+                      HostCardWidget(
+                          alias: groups['alias']!, host: hstate.hosts[0]),
+                      Expanded(
+                          child: ListView(children: [
+                        ServicesGroupedCardWidget(
+                          alias: groups['alias']!,
+                          groupName: groups['hostname']!,
+                          services: groupedServices[groups['hostname']!]!,
+                          showGroupHeader: false,
+                        )
+                      ]))
+                    ])),
+                  ],
+                );
               } else {
                 return CenterLoadingWidget();
               }

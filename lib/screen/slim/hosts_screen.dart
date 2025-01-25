@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:letscheck/bloc/connection_data/connection_data.dart';
+import 'package:letscheck/widget/site_stats_widget.dart';
 import 'base_slim_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
@@ -72,10 +74,23 @@ class HostsScreen extends BaseSlimScreen {
             ..add(HostsStartFetching()),
       child: BlocBuilder<HostsBloc, HostsState>(
         builder: (context, state) {
+          final cBloc = BlocProvider.of<ConnectionDataBloc>(context);
           if (state is HostsStateFetched) {
-            return HostsListWidget(alias: groups['alias']!, hosts: state.hosts);
+            return Column(
+              children: [
+                SiteStatsWidget(alias: groups['alias']!, state: cBloc.state),
+                Expanded(
+                    child: HostsListWidget(
+                        alias: groups['alias']!, hosts: state.hosts)),
+              ],
+            );
           } else {
-            return CenterLoadingWidget();
+            return Column(
+              children: [
+                SiteStatsWidget(alias: groups['alias']!, state: cBloc.state),
+                Expanded(child: CenterLoadingWidget()),
+              ],
+            );
           }
         },
       ),
