@@ -32,17 +32,15 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
                 ..state = SettingsConnectionStateEnum.connected
                 ..client = client
                 ..error = null)));
-            emit(state.rebuild((b) => b
-              ..state = SettingsStateEnum.clientConnected
-              ..latestAlias = alias));
+            emit(state
+                .rebuild((b) => b..state = SettingsStateEnum.clientConnected));
           } on cmk_api.CheckMkBaseError catch (e) {
             emit(state.rebuild((b) => b
               ..connections[alias] = b.connections[alias]!.rebuild((b) => b
                 ..state = SettingsConnectionStateEnum.failed
                 ..error = e)));
-            emit(state.rebuild((b) => b
-              ..state = SettingsStateEnum.clientFailed
-              ..latestAlias = alias));
+            emit(state
+                .rebuild((b) => b..state = SettingsStateEnum.clientFailed));
           }
         }
         _updateConnectionState();
@@ -56,25 +54,20 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
     on<NewConnection>((event, emit) async {
       emit(state.rebuild((b) => b
         ..connections[event.alias] = event.connectionSettings
-        ..state = SettingsStateEnum.clientConnected
-        ..latestAlias = event.alias));
+        ..state = SettingsStateEnum.clientConnected));
       emit(state.rebuild((b) => b..state = SettingsStateEnum.connected));
     });
 
     on<UpdateConnection>((event, emit) async {
-      print(event.connectionSettings);
       emit(state.rebuild((b) => b
         ..connections[event.alias] = event.connectionSettings
-        ..state = SettingsStateEnum.clientUpdated
-        ..latestAlias = event.alias));
+        ..state = SettingsStateEnum.clientUpdated));
       _updateConnectionState();
     });
 
     on<DeleteConnection>((event, emit) async {
       emit(state.rebuild((b) => b..connections.remove(event.alias)));
-      emit(state.rebuild((b) => b
-        ..state = SettingsStateEnum.clientDeleted
-        ..latestAlias = event.alias));
+      emit(state.rebuild((b) => b..state = SettingsStateEnum.clientDeleted));
       _updateConnectionState();
     });
 
@@ -84,9 +77,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
             b.connections[event.alias]!.rebuild((b) => b
               ..state = SettingsConnectionStateEnum.failed
               ..error = event.error)));
-      emit(state.rebuild((b) => b
-        ..state = SettingsStateEnum.clientFailed
-        ..latestAlias = event.alias));
+      emit(state.rebuild((b) => b..state = SettingsStateEnum.clientFailed));
       _updateConnectionState();
 
       _startConnectionPoller(event.alias);
@@ -98,9 +89,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
             b.connections[event.alias]!.rebuild((b) => b
               ..state = SettingsConnectionStateEnum.connected
               ..error = null)));
-      emit(state.rebuild((b) => b
-        ..state = SettingsStateEnum.clientConnected
-        ..latestAlias = event.alias));
+      emit(state.rebuild((b) => b..state = SettingsStateEnum.clientConnected));
       _updateConnectionState();
     });
 
@@ -110,6 +99,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
         ..state = SettingsStateEnum.updatedRefreshSeconds
         ..refreshSeconds = event.refreshSeconds));
       emit(state.rebuild((b) => b..state = myState));
+    });
+
+    on<SettingsSetCurrentAlias>((event, emit) async {
+      emit(state.rebuild((b) => b..currentAlias = event.alias));
     });
   }
 

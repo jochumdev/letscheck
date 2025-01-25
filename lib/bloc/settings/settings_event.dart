@@ -101,3 +101,15 @@ class ConnectionFailed extends SettingsEvent {
   @override
   String toString() => "Connection '$alias' failed";
 }
+
+class SettingsSetCurrentAlias extends SettingsEvent {
+  final String alias;
+
+  SettingsSetCurrentAlias(this.alias);
+
+  @override
+  List<Object> get props => [alias];
+
+  @override
+  String toString() => "Set current alias '$alias'";
+}

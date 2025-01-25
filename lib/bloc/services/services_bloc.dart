@@ -21,8 +21,12 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
         case SettingsStateEnum.clientDeleted:
         case SettingsStateEnum.clientUpdated:
         case SettingsStateEnum.clientFailed:
-          if (state.latestAlias == alias) {
-            add(ServicesUpdate(action: state.state!));
+          if (state.currentAlias == alias) {
+            try {
+              add(ServicesUpdate(action: state.state!));
+            } on StateError {
+              // Ignore.
+            }
           }
           break;
         case SettingsStateEnum.updatedRefreshSeconds:
@@ -63,13 +67,21 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
   }
 
   Future<void> _startFetching() async {
-    await _fetchData();
+    try {
+      add(ServicesUpdate(action: sBloc.state.state!));
+    } on StateError {
+      // Ignore.
+    }
 
     tickerSubscription ??=
         Stream.periodic(Duration(seconds: sBloc.state.refreshSeconds))
             .listen((state) async {
       // Ticker fetch
-      await _fetchData();
+      try {
+        add(ServicesUpdate(action: sBloc.state.state!));
+      } on StateError {
+        // Ignore.
+      }
     });
   }
 

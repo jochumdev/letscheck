@@ -103,6 +103,9 @@ class _$SettingsStateSerializer implements StructuredSerializer<SettingsState> {
   Iterable<Object?> serialize(Serializers serializers, SettingsState object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object?>[
+      'current_alias',
+      serializers.serialize(object.currentAlias,
+          specifiedType: const FullType(String)),
       'is_light_mode',
       serializers.serialize(object.isLightMode,
           specifiedType: const FullType(bool)),
@@ -132,6 +135,10 @@ class _$SettingsStateSerializer implements StructuredSerializer<SettingsState> {
       iterator.moveNext();
       final Object? value = iterator.current;
       switch (key) {
+        case 'current_alias':
+          result.currentAlias = serializers.deserialize(value,
+              specifiedType: const FullType(String))! as String;
+          break;
         case 'is_light_mode':
           result.isLightMode = serializers.deserialize(value,
               specifiedType: const FullType(bool))! as bool;
@@ -238,7 +245,7 @@ class _$SettingsState extends SettingsState {
   @override
   final SettingsStateEnum? state;
   @override
-  final String? latestAlias;
+  final String currentAlias;
   @override
   final bool isLightMode;
   @override
@@ -251,11 +258,13 @@ class _$SettingsState extends SettingsState {
 
   _$SettingsState._(
       {this.state,
-      this.latestAlias,
+      required this.currentAlias,
       required this.isLightMode,
       required this.refreshSeconds,
       required this.connections})
       : super._() {
+    BuiltValueNullFieldError.checkNotNull(
+        currentAlias, r'SettingsState', 'currentAlias');
     BuiltValueNullFieldError.checkNotNull(
         isLightMode, r'SettingsState', 'isLightMode');
     BuiltValueNullFieldError.checkNotNull(
@@ -276,7 +285,7 @@ class _$SettingsState extends SettingsState {
     if (identical(other, this)) return true;
     return other is SettingsState &&
         state == other.state &&
-        latestAlias == other.latestAlias &&
+        currentAlias == other.currentAlias &&
         isLightMode == other.isLightMode &&
         refreshSeconds == other.refreshSeconds &&
         connections == other.connections;
@@ -286,7 +295,7 @@ class _$SettingsState extends SettingsState {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, state.hashCode);
-    _$hash = $jc(_$hash, latestAlias.hashCode);
+    _$hash = $jc(_$hash, currentAlias.hashCode);
     _$hash = $jc(_$hash, isLightMode.hashCode);
     _$hash = $jc(_$hash, refreshSeconds.hashCode);
     _$hash = $jc(_$hash, connections.hashCode);
@@ -298,7 +307,7 @@ class _$SettingsState extends SettingsState {
   String toString() {
     return (newBuiltValueToStringHelper(r'SettingsState')
           ..add('state', state)
-          ..add('latestAlias', latestAlias)
+          ..add('currentAlias', currentAlias)
           ..add('isLightMode', isLightMode)
           ..add('refreshSeconds', refreshSeconds)
           ..add('connections', connections))
@@ -314,9 +323,9 @@ class SettingsStateBuilder
   SettingsStateEnum? get state => _$this._state;
   set state(SettingsStateEnum? state) => _$this._state = state;
 
-  String? _latestAlias;
-  String? get latestAlias => _$this._latestAlias;
-  set latestAlias(String? latestAlias) => _$this._latestAlias = latestAlias;
+  String? _currentAlias;
+  String? get currentAlias => _$this._currentAlias;
+  set currentAlias(String? currentAlias) => _$this._currentAlias = currentAlias;
 
   bool? _isLightMode;
   bool? get isLightMode => _$this._isLightMode;
@@ -339,7 +348,7 @@ class SettingsStateBuilder
     final $v = _$v;
     if ($v != null) {
       _state = $v.state;
-      _latestAlias = $v.latestAlias;
+      _currentAlias = $v.currentAlias;
       _isLightMode = $v.isLightMode;
       _refreshSeconds = $v.refreshSeconds;
       _connections = $v.connections.toBuilder();
@@ -368,7 +377,8 @@ class SettingsStateBuilder
       _$result = _$v ??
           new _$SettingsState._(
             state: state,
-            latestAlias: latestAlias,
+            currentAlias: BuiltValueNullFieldError.checkNotNull(
+                currentAlias, r'SettingsState', 'currentAlias'),
             isLightMode: BuiltValueNullFieldError.checkNotNull(
                 isLightMode, r'SettingsState', 'isLightMode'),
             refreshSeconds: BuiltValueNullFieldError.checkNotNull(

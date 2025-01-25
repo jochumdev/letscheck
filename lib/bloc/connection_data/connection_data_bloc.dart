@@ -25,7 +25,11 @@ class ConnectionDataBloc
         case SettingsStateEnum.clientDeleted:
         case SettingsStateEnum.clientUpdated:
         case SettingsStateEnum.clientFailed:
-          add(UpdateClient(action: state.state!, alias: state.latestAlias!));
+          try {
+            add(UpdateClient(action: state.state!, alias: state.currentAlias));
+          } on StateError {
+            // Ignore.
+          }
           break;
         case SettingsStateEnum.updatedRefreshSeconds:
           if (tickerSubscription != null) {
@@ -64,7 +68,12 @@ class ConnectionDataBloc
   Future<void> _startFetching() async {
     // Initial fetch
     for (var alias in sBloc.state.connections.keys) {
-      await _fetchData(alias);
+      try {
+        add(UpdateClient(
+            action: SettingsStateEnum.clientUpdated, alias: alias));
+      } on StateError {
+        // Ignore.
+      }
     }
 
     tickerSubscription ??=
@@ -72,7 +81,12 @@ class ConnectionDataBloc
             .listen((state) async {
       // Ticker fetch
       for (var alias in sBloc.state.connections.keys) {
-        await _fetchData(alias);
+        try {
+          add(UpdateClient(
+              action: SettingsStateEnum.clientUpdated, alias: alias));
+        } on StateError {
+          // Ignore.
+        }
       }
     });
   }
@@ -121,13 +135,16 @@ class ConnectionDataBloc
           }
         }
 
-        var toOld = DateTime.now()
-            .subtract(Duration(seconds: sBloc.state.refreshSeconds));
+        var toOld = DateTime.now().subtract(
+          Duration(seconds: sBloc.state.refreshSeconds),
+        );
+        var toRemove = [];
         for (var key in aliasKnown.keys) {
           if (aliasKnown[key]!.isBefore(toOld)) {
-            aliasKnown.remove(key);
+            toRemove.add(key);
           }
         }
+        aliasKnown.removeWhere((key, item) => toRemove.contains(key));
       } on cmk_api.CheckMkBaseError {
         // Ignore.
       } finally {

@@ -67,25 +67,28 @@ class ServicesScreen extends BaseSlimScreen {
         }
     }
 
-    return BlocBuilder<CommentsBloc, CommentsState>(
-        builder: (cContext, cState) {
-      return BlocProvider<ServicesBloc>(
-          create: (context) => ServicesBloc(
-              alias: groups['alias']!, filter: filter, sBloc: sBloc)
+    return BlocProvider<ServicesBloc>(
+      create: (context) =>
+          ServicesBloc(alias: groups['alias']!, filter: filter, sBloc: sBloc)
             ..add(ServicesStartFetching()),
-          child: BlocBuilder<ServicesBloc, ServicesState>(
-              builder: (context, state) {
-            if (state is ServicesStateFetched) {
-              commentsFetchForServices(
-                  context: context,
-                  alias: groups['alias']!,
-                  services: state.services);
-              return ServicesListWidget(
-                  alias: groups['alias']!, services: state.services);
-            } else {
-              return CenterLoadingWidget();
-            }
-          }));
-    });
+      child: BlocBuilder<ServicesBloc, ServicesState>(
+        builder: (context, state) {
+          return BlocBuilder<CommentsBloc, CommentsState>(
+            builder: (cContext, cState) {
+              if (state is ServicesStateFetched) {
+                commentsFetchForServices(
+                    context: context,
+                    alias: groups['alias']!,
+                    services: state.services);
+                return ServicesListWidget(
+                    alias: groups['alias']!, services: state.services);
+              } else {
+                return CenterLoadingWidget();
+              }
+            },
+          );
+        },
+      ),
+    );
   }
 }

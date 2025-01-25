@@ -21,8 +21,12 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
         case SettingsStateEnum.clientDeleted:
         case SettingsStateEnum.clientUpdated:
         case SettingsStateEnum.clientFailed:
-          if (state.latestAlias == alias) {
-            add(HostsUpdate(action: state.state!));
+          if (state.currentAlias == alias) {
+            try {
+              add(HostsUpdate(action: state.state!));
+            } on StateError {
+              // Ignore.
+            }
           }
           break;
         case SettingsStateEnum.updatedRefreshSeconds:
@@ -63,13 +67,21 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
   }
 
   Future<void> _startFetching() async {
-    await _fetchData();
+    try {
+      add(HostsUpdate(action: sBloc.state.state!));
+    } on StateError {
+      // Ignore.
+    }
 
     tickerSubscription ??=
         Stream.periodic(Duration(seconds: sBloc.state.refreshSeconds))
             .listen((state) async {
       // Ticker fetch
-      await _fetchData();
+      try {
+        add(HostsUpdate(action: sBloc.state.state!));
+      } on StateError {
+        // Ignore.
+      }
     });
   }
 

@@ -7,13 +7,15 @@ import 'custom_search_delegate.dart';
 
 class BaseSlimScreenSettings {
   final String title;
+  final bool showRefresh;
   final bool showSettings;
   final bool showMenu;
   final bool showLeading;
   final bool showSearch;
 
   BaseSlimScreenSettings(this.title,
-      {this.showSettings = false,
+      {this.showRefresh = true,
+      this.showSettings = true,
       this.showMenu = true,
       this.showLeading = true,
       this.showSearch = true});
@@ -25,6 +27,8 @@ abstract class BaseSlimScreen extends StatelessWidget {
   Future<void> leadingButtonAction(context) async {
     Navigator.of(context).pop();
   }
+
+  Future<void> refreshAction(context) async {}
 
   Widget content(BuildContext context);
 
@@ -55,6 +59,7 @@ abstract class BaseSlimScreen extends StatelessWidget {
     if (settings.showMenu) {
       leading = IconButton(
           icon: Icon(Icons.menu),
+          tooltip: "Menu",
           onPressed: () {
             if (_scaffoldKey.currentState != null) {
               if (_scaffoldKey.currentState!.isDrawerOpen == false) {
@@ -67,6 +72,7 @@ abstract class BaseSlimScreen extends StatelessWidget {
     } else {
       leading = IconButton(
         icon: Icon(Icons.arrow_back),
+        tooltip: "Back",
         onPressed: () async {
           await leadingButtonAction(context);
         },
@@ -74,9 +80,20 @@ abstract class BaseSlimScreen extends StatelessWidget {
     }
 
     var actions = <Widget>[];
+    if (settings.showRefresh) {
+      actions.add(IconButton(
+        icon: Icon(Icons.refresh),
+        tooltip: "Refresh",
+        onPressed: () async {
+          await refreshAction(context);
+        },
+      ));
+    }
+
     if (settings.showSettings) {
       actions.add(IconButton(
         icon: Icon(Icons.settings),
+        tooltip: "Settings",
         onPressed: () {
           Navigator.of(context).pushNamed('/settings');
         },
@@ -86,6 +103,7 @@ abstract class BaseSlimScreen extends StatelessWidget {
     if (settings.showSearch) {
       actions.add(IconButton(
         icon: Icon(Icons.search),
+        tooltip: "Search",
         onPressed: () {
           showSearch(context: context, delegate: CustomSearchDelegate());
         },

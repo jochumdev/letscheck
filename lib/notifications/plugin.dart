@@ -99,8 +99,6 @@ Future<void> sendLogNotification({
   var title = '${log.hostName} : ${log.displayName}';
   var body = log.pluginOutput;
 
-  print("Notification title: $title\nbody: $body");
-
   const androidNotificationDetails = AndroidNotificationDetails(
       'your channel id', 'your channel name',
       channelDescription: 'your channel description',

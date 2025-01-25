@@ -16,8 +16,8 @@ abstract class SettingsState
   @BuiltValueField(serialize: false)
   SettingsStateEnum? get state;
 
-  @BuiltValueField(serialize: false)
-  String? get latestAlias;
+  @BuiltValueField(wireName: 'current_alias')
+  String get currentAlias;
 
   @BuiltValueField(wireName: 'is_light_mode')
   bool get isLightMode;
@@ -28,6 +28,7 @@ abstract class SettingsState
   BuiltMap<String, SettingsStateConnection> get connections;
 
   factory SettingsState.init() => SettingsState((b) => b
+    ..currentAlias = ""
     ..isLightMode = false // Dark mode by default
     ..refreshSeconds = 300 // 5 minutes
     ..state = SettingsStateEnum.uninitialized);
@@ -95,6 +96,7 @@ abstract class SettingsStateConnection
           required String secret,
           bool notifications = false,
           bool validateSsl = false,
+          String currentAlias = "",
           cmk_api.Client? client}) =>
       SettingsStateConnection((b) => b
         ..state = state

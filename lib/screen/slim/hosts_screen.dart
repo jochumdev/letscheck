@@ -67,15 +67,18 @@ class HostsScreen extends BaseSlimScreen {
     }
 
     return BlocProvider<HostsBloc>(
-        create: (context) =>
-            HostsBloc(alias: groups['alias']!, filter: filter, sBloc: sBloc)
-              ..add(HostsStartFetching()),
-        child: BlocBuilder<HostsBloc, HostsState>(builder: (context, state) {
+      create: (context) =>
+          HostsBloc(alias: groups['alias']!, filter: filter, sBloc: sBloc)
+            ..add(HostsStartFetching()),
+      child: BlocBuilder<HostsBloc, HostsState>(
+        builder: (context, state) {
           if (state is HostsStateFetched) {
             return HostsListWidget(alias: groups['alias']!, hosts: state.hosts);
           } else {
             return CenterLoadingWidget();
           }
-        }));
+        },
+      ),
+    );
   }
 }
