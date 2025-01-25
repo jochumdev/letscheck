@@ -45,14 +45,11 @@ jobs:
       - name: Flutter get packages
         run: flutter pub get
 
-      - name: Flutter build app debug (for libquickjs)
-        run: flutter build linux --debug
-
       - name: Flutter build app
         run: flutter build linux
 
       - name: Copy libquickjs
-        run: cp ./build/linux/x64/debug/bundle/lib/libquickjs_c_bridge_plugin.so ./build/linux/x64/release/bundle/lib
+        run: cp ./flathub/linux/x64/libquickjs_c_bridge_plugin.so ./build/linux/x64/release/bundle/lib || exit 0
 
       - name: Compress artifacts
         run: tar -a -c -f letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz ./build/linux/x64/release/bundle
