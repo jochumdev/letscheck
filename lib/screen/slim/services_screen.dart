@@ -29,13 +29,13 @@ class ServicesScreen extends BaseSlimScreen {
       if (groups.containsKey('filter')) {
         switch (groups['filter']) {
           case 'all':
-            title = "${groups["alias"]} Services";
+            title = "Services";
             break;
           default:
-            title = "${groups["alias"]} Services ${groups["filter"]}";
+            title = "Services ${groups["filter"]}";
         }
       } else {
-        title = "${groups["alias"]} Services";
+        title = "Services";
       }
     }
 

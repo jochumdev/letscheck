@@ -34,7 +34,7 @@ class HostScreen extends BaseSlimScreen {
     if (hostname.length > 25) {
       hostname = hostname.substring(0, 25);
     }
-    title = "${groups["alias"]} Host $hostname";
+    title = "Host $hostname";
 
     return BaseSlimScreenSettings(title, showMenu: false, showSearch: false);
   }

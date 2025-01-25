@@ -23,8 +23,13 @@ class SettingsConnectionScreen extends BaseSlimScreen {
       title = "Connection: ${groups["name"]}";
     }
 
-    return BaseSlimScreenSettings(title,
-        showMenu: false, showSettings: false, showSearch: false);
+    return BaseSlimScreenSettings(
+      title,
+      showRefresh: false,
+      showMenu: false,
+      showSettings: false,
+      showSearch: false,
+    );
   }
 
   @override

@@ -8,7 +8,6 @@ import 'package:flutter/foundation.dart'
     show kDebugMode, kIsWeb, LicenseRegistry, LicenseEntryWithLineBreaks;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
-import 'package:letscheck/bloc/notifications/notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'bloc/settings/settings.dart';
@@ -34,6 +33,8 @@ import 'notifications/darwin.dart' as notifications_darwin;
 import 'notifications/linux.dart' as notifications_linux;
 import 'notifications/windows.dart' as notifications_windows;
 import 'notifications/plugin.dart';
+
+import 'bg_service.dart' as bg_service;
 
 /// Streams are created so that app can respond to notification-related events
 /// since the plugin is initialized in the `main` function
@@ -123,7 +124,6 @@ Future<void> main() async {
 
   final sBloc = SettingsBloc();
   final hdBloc = ConnectionDataBloc(sBloc: sBloc);
-  final notificationsBloc = NotificationsBloc();
 
   final initializationSettings = InitializationSettings(
     android: notifications_android.initializationSettings,
@@ -139,17 +139,10 @@ Future<void> main() async {
     onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
   );
 
-  final notificationsEnabled = await grantNotificationPermission();
-  var notificationsInit =
-      NotificationInit(enabled: notificationsEnabled, payload: '');
-  final notificationAppLaunchDetails = !kIsWeb && Platform.isLinux
-      ? null
-      : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-  if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-    notificationsInit = NotificationInit(
-        enabled: notificationsEnabled,
-        payload:
-            notificationAppLaunchDetails!.notificationResponse?.payload ?? '');
+  await grantNotificationPermission();
+
+  if (Platform.isAndroid || Platform.isIOS) {
+    await bg_service.initialize();
   }
 
   if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
@@ -173,8 +166,6 @@ Future<void> main() async {
         RepositoryProvider.value(value: javascriptRuntime),
       ],
       child: MultiBlocProvider(providers: [
-        BlocProvider<NotificationsBloc>.value(
-            value: notificationsBloc..add(notificationsInit)),
         BlocProvider<SettingsBloc>.value(value: sBloc..add(AppStarted())),
         BlocProvider<ConnectionDataBloc>.value(
             value: hdBloc..add(StartFetching())),
@@ -194,10 +185,7 @@ class App extends StatelessWidget {
     return BlocBuilder<SettingsBloc, SettingsState>(builder: (context, state) {
       BlocProvider.of<ConnectionDataBloc>(context);
 
-      final notificationsBloc = BlocProvider.of<NotificationsBloc>(context);
-
       return MaterialApp(
-        initialRoute: notificationsBloc.state.route,
         navigatorKey: navigatorKey,
         // navigatorObservers: <NavigatorObserver>[observer],
         debugShowCheckedModeBanner: false,

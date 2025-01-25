@@ -21,8 +21,13 @@ class SettingsScreen extends BaseSlimScreen {
 
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
-    return BaseSlimScreenSettings('Settings',
-        showMenu: false, showSettings: false, showSearch: false);
+    return BaseSlimScreenSettings(
+      'Settings',
+      showRefresh: false,
+      showMenu: false,
+      showSettings: false,
+      showSearch: false,
+    );
   }
 
   @override

@@ -1,29 +1,28 @@
 import 'dart:async';
-import 'package:mutex/mutex.dart';
+import 'dart:io' show Platform;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:letscheck/notifications/plugin.dart';
 import 'connection_data_state.dart';
 import 'connection_data_event.dart';
 import '../settings/settings.dart';
-import 'package:letscheck/notifications/plugin.dart';
+
+import 'package:letscheck/bg_service.dart' as bg_service;
 
 class ConnectionDataBloc
     extends Bloc<ConnectionDataEvent, ConnectionDataState> {
   final SettingsBloc sBloc;
 
-  Map<String, Map<String, DateTime>> knownNotifications = {};
   late StreamSubscription sBlocSubscription;
   StreamSubscription? tickerSubscription;
-
-  final knownNotificationsLock = Mutex();
 
   ConnectionDataBloc({required this.sBloc})
       : super(ConnectionDataState.init()) {
     sBlocSubscription = sBloc.stream.listen((state) async {
       switch (state.state!) {
         case SettingsStateEnum.clientConnected:
-        case SettingsStateEnum.clientDeleted:
         case SettingsStateEnum.clientUpdated:
+        case SettingsStateEnum.clientDeleted:
         case SettingsStateEnum.clientFailed:
           try {
             add(UpdateClient(action: state.state!, alias: state.currentAlias));
@@ -66,6 +65,11 @@ class ConnectionDataBloc
   }
 
   Future<void> _startFetching() async {
+    // Update the background service.
+    if (Platform.isIOS || Platform.isAndroid) {
+      bg_service.sendSettings(sBloc.state);
+    }
+
     // Initial fetch
     for (var alias in sBloc.state.connections.keys) {
       try {
@@ -103,57 +107,16 @@ class ConnectionDataBloc
 
     final client = sBloc.state.connections[alias]!.client!;
 
-    //
-    // Start: Notifications
-    //
-    if (sBloc.state.connections[alias]!.notifications) {
-      try {
-        await knownNotificationsLock.acquire();
-
-        if (!knownNotifications.containsKey(alias)) {
-          knownNotifications[alias] = {};
-        }
-        var aliasKnown = knownNotifications[alias]!;
-
-        final events = await client.lqlGetTableLogs(filter: [
-          'Filter: time > ${((DateTime.now().millisecondsSinceEpoch / 1000).round() - sBloc.state.refreshSeconds)}',
-          'Filter: state > ${cmk_api.svcStateOk}',
-        ], columns: [
-          'current_host_name',
-          'current_service_display_name',
-          'state',
-          'plugin_output',
-          'time'
-        ]);
-
-        for (var event in events) {
-          final key =
-              '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
-          if (!aliasKnown.containsKey(key)) {
-            sendLogNotification(conn: alias, log: event);
-            aliasKnown[key] = event.time;
-          }
-        }
-
-        var toOld = DateTime.now().subtract(
-          Duration(seconds: sBloc.state.refreshSeconds),
-        );
-        var toRemove = [];
-        for (var key in aliasKnown.keys) {
-          if (aliasKnown[key]!.isBefore(toOld)) {
-            toRemove.add(key);
-          }
-        }
-        aliasKnown.removeWhere((key, item) => toRemove.contains(key));
-      } on cmk_api.CheckMkBaseError {
-        // Ignore.
-      } finally {
-        knownNotificationsLock.release();
-      }
+    // Send Notifications if not on mobile. Mobile uses as background service.
+    if (!Platform.isIOS &&
+        !Platform.isAndroid &&
+        sBloc.state.connections[alias]!.notifications) {
+      await sendNotificationsForConnection(
+        conn: alias,
+        client: client,
+        refreshSeconds: sBloc.state.refreshSeconds,
+      );
     }
-    //
-    // End: Notifications
-    //
 
     try {
       try {

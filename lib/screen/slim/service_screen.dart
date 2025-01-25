@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:letscheck/bloc/connection_data/connection_data.dart';
-import 'package:letscheck/widget/center_loading_widget.dart';
 import 'package:letscheck/widget/site_stats_widget.dart';
 import 'base_slim_screen.dart';
 import '../../global_router.dart';
@@ -31,7 +30,7 @@ class ServiceScreen extends BaseSlimScreen {
     if (serviceName.length > 25) {
       serviceName = serviceName.substring(0, 25);
     }
-    title = "${groups["alias"]} Service $serviceName";
+    title = "Service $serviceName";
 
     return BaseSlimScreenSettings(title, showMenu: false, showSearch: false);
   }

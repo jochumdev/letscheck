@@ -1,7 +1,8 @@
 import 'dart:io' show Platform;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
-import 'package:letscheck/global_router.dart';
+import 'package:mutex/mutex.dart';
+import 'android.dart' as android;
 
 /// Defines a iOS/MacOS notification category for plain actions.
 const String darwinNotificationCategoryPlain = 'plainCategory';
@@ -67,7 +68,26 @@ Future<bool> grantNotificationPermission() async {
           await androidImplementation?.requestNotificationsPermission();
 
       notificationsEnabled = grantedNotificationPermission ?? false;
+
+      if (notificationsEnabled) {
+        await flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.createNotificationChannel(android.channel);
+      }
     }
+
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'dev.jochum.letscheck.high', // id
+      'Letscheck high', // title
+      description: 'CheckMK notifications over letscheck.', // description
+      importance: Importance.high, // importance must be at low or higher level
+    );
+
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
   }
 
   if (Platform.isIOS || Platform.isMacOS) {
@@ -100,9 +120,9 @@ Future<void> sendLogNotification({
   var body = log.pluginOutput;
 
   const androidNotificationDetails = AndroidNotificationDetails(
-      'your channel id', 'your channel name',
-      channelDescription: 'your channel description',
-      importance: Importance.max,
+      android.notificationChannelId, 'LetsCheck',
+      channelDescription: 'Notifications for letscheck',
+      importance: Importance.high,
       priority: Priority.high,
       ticker: 'ticker');
 
@@ -115,17 +135,74 @@ Future<void> sendLogNotification({
       DarwinNotificationDetails(
     categoryIdentifier: darwinNotificationCategoryPlain,
   );
+
+  const LinuxNotificationDetails linuxNotificationDetails =
+      LinuxNotificationDetails();
+
   const notificationDetails = NotificationDetails(
     android: androidNotificationDetails,
     macOS: macOSNotificationDetails,
     iOS: iosNotificationDetails,
+    linux: linuxNotificationDetails,
   );
 
   await flutterLocalNotificationsPlugin.show(
-      notificationId++, title, body, notificationDetails,
-      payload: GlobalRouter().buildUri(routeService, buildArgs: {
-        'alias': conn,
-        'hostname': log.hostName,
-        'service': log.displayName
-      }));
+    notificationId++,
+    title,
+    body,
+    notificationDetails,
+    payload: '/conn/$conn/host/${log.hostName}/services/${log.displayName}',
+  );
+}
+
+var _notificationsLock = Mutex();
+var knownNotifications = <String, Map<String, DateTime>>{};
+
+Future<void> sendNotificationsForConnection(
+    {required String conn,
+    required cmk_api.Client client,
+    required int refreshSeconds}) async {
+  try {
+    await _notificationsLock.acquire();
+
+    if (!knownNotifications.containsKey(conn)) {
+      knownNotifications[conn] = {};
+    }
+    var aliasKnown = knownNotifications[conn]!;
+
+    final events = await client.lqlGetTableLogs(filter: [
+      'Filter: time > ${((DateTime.now().millisecondsSinceEpoch / 1000).round() - refreshSeconds)}',
+      'Filter: state > ${cmk_api.svcStateOk}',
+    ], columns: [
+      'current_host_name',
+      'current_service_display_name',
+      'state',
+      'plugin_output',
+      'time'
+    ]);
+
+    for (var event in events) {
+      final key =
+          '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
+      if (!aliasKnown.containsKey(key)) {
+        sendLogNotification(conn: conn, log: event);
+        aliasKnown[key] = event.time;
+      }
+    }
+
+    var toOld = DateTime.now().subtract(
+      Duration(seconds: refreshSeconds),
+    );
+    var toRemove = [];
+    for (var key in aliasKnown.keys) {
+      if (aliasKnown[key]!.isBefore(toOld)) {
+        toRemove.add(key);
+      }
+    }
+    aliasKnown.removeWhere((key, item) => toRemove.contains(key));
+  } on cmk_api.CheckMkBaseError {
+    // Ignore.
+  } finally {
+    _notificationsLock.release();
+  }
 }

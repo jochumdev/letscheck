@@ -119,13 +119,6 @@ abstract class BaseSlimScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/icons/letscheck.png',
-              width: 40,
-            ),
-            SizedBox(
-              width: 10,
-            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
