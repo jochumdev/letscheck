@@ -136,7 +136,6 @@ Future<void> main() async {
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
     onDidReceiveNotificationResponse: selectNotificationStream.add,
-    onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
   );
 
   await grantNotificationPermission();

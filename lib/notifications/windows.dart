@@ -5,4 +5,5 @@ const WindowsInitializationSettings initializationSettings =
   appName: 'Letscheck',
   appUserModelId: 'dev.jochum.letscheck',
   guid: '7dba2765-0e22-4048-b0f9-80ab10eba346',
+  iconPath: 'assets/icons/letscheck.ico',
 );

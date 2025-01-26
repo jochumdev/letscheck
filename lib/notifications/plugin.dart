@@ -106,6 +106,20 @@ Future<void> sendLogNotification({
   var title = '${log.hostName} : ${log.displayName}';
   var body = log.pluginOutput;
 
+  switch (log.state) {
+    case cmk_api.svcStateOk:
+      title = 'OK: $title';
+    break;
+    case cmk_api.svcStateWarn:
+      title = 'WARN: $title';
+    break;
+    case cmk_api.svcStateCritical:
+      title = 'CRIT: $title';
+    break;
+    default:
+      title = 'UNKN: $title';
+  }
+
   const androidNotificationDetails = AndroidNotificationDetails(
       android.notificationChannelId, 'LetsCheck',
       channelDescription: 'Notifications for letscheck',
@@ -159,7 +173,6 @@ Future<void> sendNotificationsForConnection(
 
     final events = await client.lqlGetTableLogs(filter: [
       'Filter: time > ${((DateTime.now().millisecondsSinceEpoch / 1000).round() - refreshSeconds)}',
-      'Filter: state > ${cmk_api.svcStateOk}',
     ], columns: [
       'current_host_name',
       'current_service_display_name',
@@ -168,16 +181,20 @@ Future<void> sendNotificationsForConnection(
       'time'
     ]);
 
+    // print("Found ${events.length} notifications logs for $conn within $refreshSeconds seconds");
+
     for (var event in events) {
-      final key =
-          '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
-      if (!aliasKnown.containsKey(key)) {
-        sendLogNotification(conn: conn, log: event);
-        aliasKnown[key] = event.time;
+      if (event.displayName.isNotEmpty) {
+        final key =
+            '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
+        if (!aliasKnown.containsKey(key)) {
+          sendLogNotification(conn: conn, log: event);
+          aliasKnown[key] = event.time;
+        }
       }
     }
 
-    var toOld = DateTime.now().subtract(
+    var toOld = DateTime.now().toUtc().subtract(
       Duration(seconds: refreshSeconds),
     );
     var toRemove = [];
