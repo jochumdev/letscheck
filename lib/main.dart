@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, File;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart'
@@ -84,6 +84,18 @@ Future<JavascriptRuntime> initJavascriptRuntime() async {
   return javascriptRuntime;
 }
 
+Future<String> getAppConfigDirectory() async {
+  if (Platform.isLinux) {
+    var path = String.fromEnvironment("XDG_CONFIG_HOME",
+        defaultValue: (await getApplicationDocumentsDirectory()).path);
+    path += "/letscheck";
+    File(path).create(recursive: true);
+    return path;
+  }
+
+  return (await getApplicationDocumentsDirectory()).path;
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -102,7 +114,8 @@ Future<void> main() async {
     storageDirectory: kIsWeb
         ? HydratedStorageDirectory.web
         : HydratedStorageDirectory(
-            (await getApplicationDocumentsDirectory()).path),
+            await getAppConfigDirectory(),
+          ),
   );
 
   final javascriptRuntime = await initJavascriptRuntime();
@@ -188,7 +201,7 @@ class App extends StatelessWidget {
         navigatorKey: navigatorKey,
         // navigatorObservers: <NavigatorObserver>[observer],
         debugShowCheckedModeBanner: false,
-        title: 'Check_MK',
+        title: 'LetsCheck',
         theme: state.isLightMode ? buildLightTheme() : buildDarkTheme(),
         onGenerateRoute: (routeContext) =>
             GlobalRouter().generateRoute(routeContext),
