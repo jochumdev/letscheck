@@ -6,6 +6,67 @@ on:
 name: Release Artifacts
 
 jobs:
+  build-android-apk:
+    name: "Build Android APK"
+    runs-on: ubuntu-latest
+    permissions: write-all
+    timeout-minutes: 30
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Install java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "21.x"
+          cache: "gradle"
+  
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+          flutter-version-file: pubspec.yaml
+  
+      - name: Enable android
+        run: flutter config --enable-android
+
+      - name: Show flutter version
+        run: flutter doctor --verbose
+
+
+      - name: Decode keystore and create jks and properties file for signing the app
+        shell: bash
+        run: |
+          echo "$KEYSTORE" | base64 --decode > app/keystore.jks
+          echo "storeFile=keystore.jks" >> key.properties
+          echo "keyAlias=upload" >> key.properties
+          echo "storePassword=$KEYSTORE_PASSWORD" >> key.properties
+          echo "keyPassword=$KEYSTORE_PASSWORD" >> key.properties
+        env:
+          KEYSTORE: "${{ secrets.ANDROID_RELEASE_KEY }}"
+          KEYSTORE_PASSWORD: "${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}"
+        working-directory: ./android
+
+      - name: Build
+        run: flutter build apk --release
+
+      - name: Upload file to the GitHub release
+        uses: svenstaro/upload-release-action@2.2.1
+        with:
+          # GitHub token.
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          # Local file to upload.
+          file: build/app/outputs/flutter-apk/app-release.apk
+          asset_name: letscheck-android-${{ github.event.release.tag_name }}.apk
+          # Tag to use as a release.
+          tag: ${{ github.ref }}
+
   build-linux:
     name: "Build Linux"
     runs-on: ubuntu-latest
@@ -28,6 +89,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
           flutter-version-file: pubspec.yaml
   
       - name: Enable desktop
@@ -130,6 +192,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
           flutter-version-file: pubspec.yaml
 
       - name: "Select the latest stable Xcode 12"
@@ -204,6 +267,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
           flutter-version-file: pubspec.yaml
 
       - name: Enable desktop
