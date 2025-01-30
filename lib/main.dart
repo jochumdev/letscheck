@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show Platform, File;
+import 'dart:io' show Platform, Directory;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart'
@@ -86,10 +86,15 @@ Future<JavascriptRuntime> initJavascriptRuntime() async {
 
 Future<String> getAppConfigDirectory() async {
   if (Platform.isLinux) {
-    var path = String.fromEnvironment("XDG_CONFIG_HOME",
-        defaultValue: (await getApplicationDocumentsDirectory()).path);
-    path += "/letscheck";
-    File(path).create(recursive: true);
+    var path = "";
+    if (Platform.environment.containsKey("XDG_CONFIG_HOME")) {
+      var xdgConfigHome = Platform.environment["XDG_CONFIG_HOME"]!;
+      path = "$xdgConfigHome/letscheck";
+    } else {
+      var documents = (await getApplicationDocumentsDirectory()).path;
+      path = "$documents/letscheck";
+    }
+    await Directory(path).create(recursive: true);
     return path;
   }
 
