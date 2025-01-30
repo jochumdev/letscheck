@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_js
   flutter_timezone
   screen_retriever_linux
+  tray_manager
   window_manager
 )
 

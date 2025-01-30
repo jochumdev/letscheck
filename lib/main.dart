@@ -27,6 +27,8 @@ import 'package:timezone/timezone.dart' as tz;
 
 import 'package:window_manager/window_manager.dart';
 
+import 'package:tray_manager/tray_manager.dart';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'notifications/android.dart' as notifications_android;
 import 'notifications/darwin.dart' as notifications_darwin;
@@ -175,6 +177,27 @@ Future<void> main() async {
       await windowManager.show();
       await windowManager.focus();
     });
+
+    await trayManager.setIcon(
+      Platform.isWindows
+          ? 'assets/icons/letscheck.ico'
+          : 'assets/icons/letscheck.png',
+    );
+    Menu menu = Menu(
+      items: [
+        MenuItem(
+          key: 'show_window',
+          label: 'Show Window',
+        ),
+        MenuItem.separator(),
+        MenuItem(
+          key: 'exit_app',
+          label: 'Exit App',
+        ),
+      ],
+    );
+
+    await trayManager.setContextMenu(menu);
   }
 
   runApp(MultiRepositoryProvider(
@@ -192,10 +215,19 @@ Future<void> main() async {
       ], child: App())));
 }
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
+  @override
+  AppState createState() => AppState();
+}
+
+class AppState extends State<App> with TrayListener {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  App({super.key});
+  @override
+  void initState() {
+    trayManager.addListener(this);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,5 +244,25 @@ class App extends StatelessWidget {
             GlobalRouter().generateRoute(routeContext),
       );
     });
+  }
+
+  @override
+  void dispose() {
+    trayManager.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  void onTrayMenuItemClick(MenuItem menuItem) async {
+    switch (menuItem.key) {
+      case 'show_window':
+        await windowManager.focus();
+        break;
+      case 'exit_app':
+        await windowManager.destroy();
+        break;
+      default:
+      // no action.
+    }
   }
 }
