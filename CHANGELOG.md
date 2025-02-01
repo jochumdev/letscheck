@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Fixed
+- add base href to web/index.html
+
 ## 0.0.12+1262 - 2025-02-01
 ### Added
 - github pages pwa
