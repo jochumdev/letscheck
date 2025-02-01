@@ -23,16 +23,27 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
         final client = connSettings.client!;
 
-        var term = RegExp.escape(event.term);
+        var terms = event.term.split('|');
 
         try {
+          var f1 = <String>[];
+          for (var t in terms) {
+            f1.add(
+                '{"op": "~~", "left": "name", "right": ".*${RegExp.escape(t)}.*"}');
+          }
           // Search hosts
-          final connHosts = await client.getApiTableHost(filter: [
-            '{"op": "or", "expr": [{"op": "~~", "left": "name", "right": ".*$term.*"}, {"op": "~~", "left": "address", "right": ".*$term.*"}]}',
-          ]);
+          var filter = '{"op": "or", "expr": [${f1.join(', ')}]}';
+          print(filter);
+          final connHosts = await client.getApiTableHost(filter: [filter]);
           hosts[alias] = connHosts;
+
+          var f2 = <String>[];
+          for (var t in terms) {
+            f2.add(
+                '{"op": "~~", "left": "display_name", "right": ".*${RegExp.escape(t)}.*"}');
+          }
           final connServices = await client.getApiTableService(filter: [
-            '{"op": "or", "expr": [{"op": "~~", "left": "display_name", "right": ".*$term.*"}, {"op": "~~", "left": "description", "right": ".*$term.*"}]}',
+            '{"op": "or", "expr": [${f2.join(', ')}]}',
           ]);
           services[alias] = connServices;
         } on cmk_api.CheckMkBaseError catch (e) {

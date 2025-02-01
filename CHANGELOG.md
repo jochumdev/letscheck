@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Added
+- allow multiple search terms seperated by a pipe, refs issue #8
+
 ## 0.0.10+1260 - 2025-02-01
 ### Added
 - add development docs to the README
