@@ -1,8 +1,4 @@
 # LetsCheck
-## Unreleased
-### Fixed
-- flatpak appindicator icon, fixes issue #11
-
 ## 0.0.10+1260 - 2025-02-01
 ### Added
 - add development docs to the README
