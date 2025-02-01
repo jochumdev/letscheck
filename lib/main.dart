@@ -184,7 +184,7 @@ Future<void> main() async {
       Platform.isWindows
           ? 'assets/icons/letscheck.ico'
           : Platform.isLinux && runningInSandbox()
-              ? 'dev.jochum.letscheck'
+              ? 'io.github.jochumdev.letscheck'
               : 'assets/icons/letscheck.png',
     );
     await trayManager.setTitle("LetsCheck");

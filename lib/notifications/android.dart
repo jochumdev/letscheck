@@ -1,6 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-const notificationChannelId = "dev.jochum.letscheck.high";
+const notificationChannelId = "io.github.jochumdev.letscheck.high";
 
 const AndroidInitializationSettings initializationSettings =
     AndroidInitializationSettings('notification_icon');

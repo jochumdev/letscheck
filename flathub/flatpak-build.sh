@@ -8,7 +8,7 @@ set -x # Echo all commands for debug purposes
 
 # No spaces in project name.
 projectName=LetsCheck
-projectId=dev.jochum.letscheck
+projectId=io.github.jochumdev.letscheck
 executableName=letscheck
 
 mkdir "/app" && chown -R $(id -u -n): "/app"

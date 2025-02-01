@@ -6,6 +6,6 @@ Name=LetsCheck
 Comment=LetsCheck - the check_mk Client for GNU/Linux
 Categories=Network;Monitor;
 
-Icon=dev.jochum.letscheck
+Icon=io.github.jochumdev.letscheck
 Exec=letscheck
 Terminal=false

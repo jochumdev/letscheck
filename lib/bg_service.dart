@@ -19,7 +19,7 @@ Future<void> initialize() async {
       onStart: onStart,
       isForegroundMode: false,
       autoStartOnBoot: true,
-      notificationChannelId: "dev.jochum.letscheck.high",
+      notificationChannelId: "io.github.jochumdev.letscheck.high",
     ),
   );
 }

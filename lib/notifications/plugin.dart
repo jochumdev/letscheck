@@ -65,7 +65,7 @@ Future<bool> grantNotificationPermission() async {
     }
 
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'dev.jochum.letscheck.high', // id
+      'io.github.jochumdev.letscheck.high', // id
       'Letscheck high', // title
       description: 'CheckMK notifications over letscheck.', // description
       importance: Importance.high, // importance must be at low or higher level

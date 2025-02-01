@@ -4,7 +4,7 @@
     https://www.freedesktop.org/software/appstream/metainfocreator/#/
 -->
 <component type="desktop-application">
-  <id>dev.jochum.letscheck</id>
+  <id>io.github.jochumdev.letscheck</id>
   
   <name>LetsCheck</name>
   <summary>LetsCheck - the checkmk Client for many platforms</summary>
@@ -28,5 +28,5 @@
     </p>
   </description>
   
-  <launchable type="desktop-id">dev.jochum.letscheck.desktop</launchable>
+  <launchable type="desktop-id">io.github.jochumdev.letscheck.desktop</launchable>
 </component>

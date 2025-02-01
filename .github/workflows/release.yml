@@ -152,7 +152,7 @@ jobs:
         uses: jochumdev/flatpak-github-actions/flatpak-builder@builder-update-deps
         with:
           bundle: letscheck.flatpak
-          manifest-path: ./flathub/dev.jochum.letscheck.yml
+          manifest-path: ./flathub/io.github.jochumdev.letscheck.yml
           cache-key: flatpak-builder-${{ github.sha }}
           upload-artifact: "false"
 
@@ -269,7 +269,7 @@ jobs:
       #       msix_config:
       #         display_name: Letscheck
       #         publisher_display_name: René Jochum
-      #         identity_name: dev.jochum.letscheck
+      #         identity_name: io.github.jochumdev.letscheck
       #         publisher: CN=Letscheck
       #         msix_version: ${{steps.msixver.outputs.value }}.0
       #         logo_path: assets\icons\letscheck.png

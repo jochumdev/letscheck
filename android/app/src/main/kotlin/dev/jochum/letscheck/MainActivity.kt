@@ -1,4 +1,4 @@
-package dev.jochum.letscheck
+package io.github.jochumdev.letscheck
 
 import android.content.ContentResolver
 import android.content.Context

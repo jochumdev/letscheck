@@ -31,8 +31,8 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <receiver android:exported="false" android:name="dev.jochum.letscheck.ScheduledNotificationReceiver" />
-        <receiver android:exported="false" android:name="dev.jochum.letscheck.ScheduledNotificationBootReceiver">
+        <receiver android:exported="false" android:name="io.github.jochumdev.letscheck.ScheduledNotificationReceiver" />
+        <receiver android:exported="false" android:name="io.github.jochumdev.letscheck.ScheduledNotificationBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
@@ -40,7 +40,7 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
             </intent-filter>
         </receiver>
-        <receiver android:exported="false" android:name="dev.jochum.letscheck.ActionBroadcastReceiver" />
+        <receiver android:exported="false" android:name="io.github.jochumdev.letscheck.ActionBroadcastReceiver" />
 
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
