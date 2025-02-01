@@ -109,13 +109,13 @@ Future<void> sendLogNotification({
   switch (log.state) {
     case cmk_api.svcStateOk:
       title = 'OK: $title';
-    break;
+      break;
     case cmk_api.svcStateWarn:
       title = 'WARN: $title';
-    break;
+      break;
     case cmk_api.svcStateCritical:
       title = 'CRIT: $title';
-    break;
+      break;
     default:
       title = 'UNKN: $title';
   }
@@ -173,6 +173,7 @@ Future<void> sendNotificationsForConnection(
 
     final events = await client.lqlGetTableLogs(filter: [
       'Filter: time > ${((DateTime.now().millisecondsSinceEpoch / 1000).round() - refreshSeconds)}',
+      'Filter: state > 0',
     ], columns: [
       'current_host_name',
       'current_service_display_name',
@@ -195,8 +196,8 @@ Future<void> sendNotificationsForConnection(
     }
 
     var toOld = DateTime.now().toUtc().subtract(
-      Duration(seconds: refreshSeconds),
-    );
+          Duration(seconds: refreshSeconds),
+        );
     var toRemove = [];
     for (var key in aliasKnown.keys) {
       if (aliasKnown[key]!.isBefore(toOld)) {
