@@ -1,6 +1,6 @@
 # Let's Check
 
-Let's check is a Checkmk client for Android, iOS, Linux, Mac OS-X and Windows written with the [Flutter SDK](https://flutter.dev/).
+Let's check is a CheckMk client for Android, iOS, Linux, Mac OS-X and Windows written with the [Flutter SDK](https://flutter.dev/).
 
 ## Download
 
@@ -9,6 +9,10 @@ Get it from [Github Releases](https://github.com/jochumdev/letscheck/releases)
 ## Demo:
 
 ![image](docs/videos/letscheck_v0.0.1-rc1.webp)
+
+## Preview:
+
+[Available as PWA](https://jochumdev.github.io/letscheck/pwa/) **important** you need proper CORS Headers on you'r CheckMk proxy for a connection to work.
 
 ## FAQ
 
