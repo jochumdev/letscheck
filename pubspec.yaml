@@ -33,7 +33,6 @@ dependencies:
   hydrated_bloc: ^10.0.0
   path_provider: ^2.0.13
   equatable: ^2.0.3
-  settings_ui: ^2.0.2
   numberpicker: ^2.1.1
   retry: ^3.0.1
   font_awesome_flutter: ^10.4.0
@@ -56,6 +55,7 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_background_service: ^5.1.0
   tray_manager: ^0.3.2
+  flutter_settings_ui: ^3.0.1
 
 dev_dependencies:
   built_value_generator: ^8.4.3

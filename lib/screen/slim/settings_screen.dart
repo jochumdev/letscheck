@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:settings_ui/settings_ui.dart';
+import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../bloc/settings/settings.dart';
@@ -55,41 +55,46 @@ class SettingsScreen extends BaseSlimScreen {
         ));
       }
 
-      // connectionTiles.add();
+      var titleColor = Theme.of(context).brightness == Brightness.dark
+          ? Color.fromRGBO(211, 227, 253, 1)
+          : Color.fromRGBO(11, 87, 208, 1);
 
       return SettingsList(
         sections: [
           CustomSettingsSection(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
                     'Connections',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall!
+                        .copyWith(color: titleColor),
                   ),
-                ),
-                ListView.separated(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: connectionTiles.length,
-                  separatorBuilder: (BuildContext context, int index) =>
-                      Divider(height: 1),
-                  itemBuilder: (BuildContext context, int index) {
-                    return connectionTiles[index];
-                  },
-                ),
-              ])),
+                  ListView.separated(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: connectionTiles.length,
+                    separatorBuilder: (BuildContext context, int index) =>
+                        Divider(height: 1),
+                    itemBuilder: (BuildContext context, int index) {
+                      return connectionTiles[index];
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
           CustomSettingsSection(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
                   icon: Icon(Icons.add_circle_outline),
+                  color: titleColor,
                   iconSize: 32,
                   onPressed: () => Navigator.of(context).pushNamed(
                       GlobalRouter().buildUri(routeSettingsConnection)),
@@ -117,7 +122,7 @@ class SettingsScreen extends BaseSlimScreen {
                 onToggle: (context) =>
                     sBloc.add(ThemeChanged(!state.isLightMode)),
               ),
-              SettingsTile(
+              SettingsTile.navigation(
                 title: Text('Refresh Time'),
                 trailing: Text('${sBloc.state.refreshSeconds} Seconds'),
                 leading: Icon(Icons.refresh),

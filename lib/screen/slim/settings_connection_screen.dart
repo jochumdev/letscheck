@@ -41,26 +41,22 @@ class SettingsConnectionScreen extends BaseSlimScreen {
     if (groups.containsKey('name')) {
       var alias = groups['name']!;
 
-      return SingleChildScrollView(
-        physics: ClampingScrollPhysics(),
-        child: BlocProvider(
-            create: (context) => ConnectionFormBloc(
-                  settingsBloc: sBloc,
-                  connectionAlias: alias,
-                  connection: sBloc.state.connections[alias]!,
-                  isEditing: true,
-                ),
-            child: ConnectionFormWidget(alias: alias)),
+      return BlocProvider(
+        create: (context) => ConnectionFormBloc(
+          settingsBloc: sBloc,
+          connectionAlias: alias,
+          connection: sBloc.state.connections[alias]!,
+          isEditing: true,
+        ),
+        child: ConnectionFormWidget(alias: alias),
       );
     }
 
-    return SingleChildScrollView(
-      physics: ClampingScrollPhysics(),
-      child: BlocProvider(
-          create: (context) => ConnectionFormBloc(
-                settingsBloc: sBloc,
-              ),
-          child: ConnectionFormWidget()),
+    return BlocProvider(
+      create: (context) => ConnectionFormBloc(
+        settingsBloc: sBloc,
+      ),
+      child: ConnectionFormWidget(),
     );
   }
 }
