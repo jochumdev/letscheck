@@ -82,6 +82,8 @@ abstract class SettingsStateConnection
   @BuiltValueField(wireName: 'validate_ssl')
   bool get validateSsl;
 
+  BuiltMap<String, bool>? get filters;
+
   factory SettingsStateConnection(
           [void Function(SettingsStateConnectionBuilder) updates]) =
       _$SettingsStateConnection;
@@ -97,6 +99,7 @@ abstract class SettingsStateConnection
           bool notifications = false,
           bool validateSsl = false,
           String currentAlias = "",
+          Map<String, bool> filters = const {},
           cmk_api.Client? client}) =>
       SettingsStateConnection((b) => b
         ..state = state
@@ -106,6 +109,7 @@ abstract class SettingsStateConnection
         ..secret = secret
         ..notifications = notifications
         ..validateSsl = validateSsl
+        ..filters = BuiltMap<String, bool>.from(filters).toBuilder()
         ..client = client);
 }
 

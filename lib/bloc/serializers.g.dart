@@ -14,7 +14,11 @@ Serializers _$serializers = (new Serializers().toBuilder()
             const FullType(String),
             const FullType(SettingsStateConnection)
           ]),
-          () => new MapBuilder<String, SettingsStateConnection>()))
+          () => new MapBuilder<String, SettingsStateConnection>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(bool)]),
+          () => new MapBuilder<String, bool>()))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

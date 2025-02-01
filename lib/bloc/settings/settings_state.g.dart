@@ -194,7 +194,15 @@ class _$SettingsStateConnectionSerializer
       serializers.serialize(object.validateSsl,
           specifiedType: const FullType(bool)),
     ];
-
+    Object? value;
+    value = object.filters;
+    if (value != null) {
+      result
+        ..add('filters')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(BuiltMap,
+                const [const FullType(String), const FullType(bool)])));
+    }
     return result;
   }
 
@@ -233,6 +241,11 @@ class _$SettingsStateConnectionSerializer
         case 'validate_ssl':
           result.validateSsl = serializers.deserialize(value,
               specifiedType: const FullType(bool))! as bool;
+          break;
+        case 'filters':
+          result.filters.replace(serializers.deserialize(value,
+              specifiedType: const FullType(BuiltMap,
+                  const [const FullType(String), const FullType(bool)]))!);
           break;
       }
     }
@@ -420,6 +433,8 @@ class _$SettingsStateConnection extends SettingsStateConnection {
   final bool notifications;
   @override
   final bool validateSsl;
+  @override
+  final BuiltMap<String, bool>? filters;
 
   factory _$SettingsStateConnection(
           [void Function(SettingsStateConnectionBuilder)? updates]) =>
@@ -434,7 +449,8 @@ class _$SettingsStateConnection extends SettingsStateConnection {
       required this.username,
       required this.secret,
       required this.notifications,
-      required this.validateSsl})
+      required this.validateSsl,
+      this.filters})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         baseUrl, r'SettingsStateConnection', 'baseUrl');
@@ -471,7 +487,8 @@ class _$SettingsStateConnection extends SettingsStateConnection {
         username == other.username &&
         secret == other.secret &&
         notifications == other.notifications &&
-        validateSsl == other.validateSsl;
+        validateSsl == other.validateSsl &&
+        filters == other.filters;
   }
 
   @override
@@ -486,6 +503,7 @@ class _$SettingsStateConnection extends SettingsStateConnection {
     _$hash = $jc(_$hash, secret.hashCode);
     _$hash = $jc(_$hash, notifications.hashCode);
     _$hash = $jc(_$hash, validateSsl.hashCode);
+    _$hash = $jc(_$hash, filters.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -501,7 +519,8 @@ class _$SettingsStateConnection extends SettingsStateConnection {
           ..add('username', username)
           ..add('secret', secret)
           ..add('notifications', notifications)
-          ..add('validateSsl', validateSsl))
+          ..add('validateSsl', validateSsl)
+          ..add('filters', filters))
         .toString();
   }
 }
@@ -548,6 +567,11 @@ class SettingsStateConnectionBuilder
   bool? get validateSsl => _$this._validateSsl;
   set validateSsl(bool? validateSsl) => _$this._validateSsl = validateSsl;
 
+  MapBuilder<String, bool>? _filters;
+  MapBuilder<String, bool> get filters =>
+      _$this._filters ??= new MapBuilder<String, bool>();
+  set filters(MapBuilder<String, bool>? filters) => _$this._filters = filters;
+
   SettingsStateConnectionBuilder();
 
   SettingsStateConnectionBuilder get _$this {
@@ -562,6 +586,7 @@ class SettingsStateConnectionBuilder
       _secret = $v.secret;
       _notifications = $v.notifications;
       _validateSsl = $v.validateSsl;
+      _filters = $v.filters?.toBuilder();
       _$v = null;
     }
     return this;
@@ -582,24 +607,38 @@ class SettingsStateConnectionBuilder
   SettingsStateConnection build() => _build();
 
   _$SettingsStateConnection _build() {
-    final _$result = _$v ??
-        new _$SettingsStateConnection._(
-          state: state,
-          client: client,
-          error: error,
-          baseUrl: BuiltValueNullFieldError.checkNotNull(
-              baseUrl, r'SettingsStateConnection', 'baseUrl'),
-          site: BuiltValueNullFieldError.checkNotNull(
-              site, r'SettingsStateConnection', 'site'),
-          username: BuiltValueNullFieldError.checkNotNull(
-              username, r'SettingsStateConnection', 'username'),
-          secret: BuiltValueNullFieldError.checkNotNull(
-              secret, r'SettingsStateConnection', 'secret'),
-          notifications: BuiltValueNullFieldError.checkNotNull(
-              notifications, r'SettingsStateConnection', 'notifications'),
-          validateSsl: BuiltValueNullFieldError.checkNotNull(
-              validateSsl, r'SettingsStateConnection', 'validateSsl'),
-        );
+    _$SettingsStateConnection _$result;
+    try {
+      _$result = _$v ??
+          new _$SettingsStateConnection._(
+            state: state,
+            client: client,
+            error: error,
+            baseUrl: BuiltValueNullFieldError.checkNotNull(
+                baseUrl, r'SettingsStateConnection', 'baseUrl'),
+            site: BuiltValueNullFieldError.checkNotNull(
+                site, r'SettingsStateConnection', 'site'),
+            username: BuiltValueNullFieldError.checkNotNull(
+                username, r'SettingsStateConnection', 'username'),
+            secret: BuiltValueNullFieldError.checkNotNull(
+                secret, r'SettingsStateConnection', 'secret'),
+            notifications: BuiltValueNullFieldError.checkNotNull(
+                notifications, r'SettingsStateConnection', 'notifications'),
+            validateSsl: BuiltValueNullFieldError.checkNotNull(
+                validateSsl, r'SettingsStateConnection', 'validateSsl'),
+            filters: _filters?.build(),
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'filters';
+        _filters?.build();
+      } catch (e) {
+        throw new BuiltValueNestedFieldError(
+            r'SettingsStateConnection', _$failedField, e.toString());
+      }
+      rethrow;
+    }
     replace(_$result);
     return _$result;
   }

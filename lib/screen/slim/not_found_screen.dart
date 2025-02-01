@@ -13,7 +13,8 @@ class NotFoundScreen extends BaseSlimScreen {
 
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
-    return BaseSlimScreenSettings('404 Not found');
+    return BaseSlimScreenSettings('404 Not found',
+        showMenu: false, showSearch: false);
   }
 
   @override

@@ -3,6 +3,7 @@
 ### Added
 - allow multiple search terms seperated by a pipe, refs issue #8
 - rework settings ui
+- work on filters, redesign ui to users copy texts
 
 ### Fixed
 - don't monitor state 0 host/svc

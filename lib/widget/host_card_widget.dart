@@ -6,7 +6,6 @@ import '../global_router.dart';
 class HostCardWidget extends StatelessWidget {
   final String alias;
   final cmk_api.TableHostsDto host;
-  final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 
   HostCardWidget({super.key, required this.alias, required this.host});
 
@@ -30,20 +29,38 @@ class HostCardWidget extends StatelessWidget {
     }
 
     return Card(
-      child: ListTile(
-        leading: icon,
-        visualDensity: minimalVisualDensity,
-        isThreeLine: host.name != host.displayName,
-        title: GestureDetector(
-            child: Text(host.name!),
-            onTap: () {
-              Navigator.of(context).pushNamed(GlobalRouter().buildUri(routeHost,
-                  buildArgs: {'alias': alias, 'hostname': host.name!}));
-            }),
-        subtitle: host.name != host.displayName
-            ? Text('${host.displayName!}\n${host.address!}')
-            : Text(host.address!),
+        child: Padding(
+      padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: icon,
+          ),
+          Expanded(
+            flex: 20,
+            child: SelectableText(host.name!),
+          ),
+          Expanded(
+            flex: 2,
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(
+                  GlobalRouter().buildUri(
+                    routeHost,
+                    buildArgs: {'alias': alias, 'hostname': host.name!},
+                  ),
+                );
+              },
+              tooltip: "Goto host",
+              icon: Icon(
+                Icons.arrow_forward_ios,
+                size: 20,
+              ),
+            ),
+          ),
+        ],
       ),
-    );
+    ));
   }
 }

@@ -426,15 +426,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
-  flutter_slidable:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: a510f1e94d766bc240ea264a350d18a5e60cf0d0
-      url: "https://github.com/letsar/flutter_slidable.git"
-    source: git
-    version: "4.0.0"
   flutter_timezone:
     dependency: "direct main"
     description:

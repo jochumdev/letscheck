@@ -19,7 +19,7 @@ version: 0.0.10+1260
 
 environment:
   sdk: ^3.6.0
-  flutter: "3.27.1" # Workflow "subosito/flutter-action@v2" need exact version here.
+  flutter: "3.27.1" # Workflow "subosito/flutter-action@v2" needs a exact version here.
 
 dependencies:
   flutter:
@@ -44,9 +44,6 @@ dependencies:
     git:
      url: https://github.com/MaikuB/flutter_local_notifications.git
      path: flutter_local_notifications
-  flutter_slidable:
-    git:
-     url: https://github.com/letsar/flutter_slidable.git
   flutter_bloc: ^9.0.0
   intl: ^0.20.0
   timezone: ^0.10.0

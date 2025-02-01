@@ -10,6 +10,12 @@ Get it from [Github Releases](https://github.com/jochumdev/letscheck/releases)
 
 ![image](docs/videos/letscheck_v0.0.1-rc1.webp)
 
+## FAQ
+
+### Is lql-api required for this to work?
+
+No, "only" for notifications you need lql-api installed on the checkmk server.
+
 ## Development
 
 **Commit**:

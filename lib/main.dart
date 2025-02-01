@@ -28,6 +28,8 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:window_manager/window_manager.dart';
 
 import 'package:tray_manager/tray_manager.dart';
+// ignore: implementation_imports
+import 'package:tray_manager/src/helpers/sandbox.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'notifications/android.dart' as notifications_android;
@@ -181,7 +183,7 @@ Future<void> main() async {
     await trayManager.setIcon(
       Platform.isWindows
           ? 'assets/icons/letscheck.ico'
-          : Platform.isLinux
+          : Platform.isLinux && runningInSandbox()
               ? 'dev.jochum.letscheck'
               : 'assets/icons/letscheck.png',
     );

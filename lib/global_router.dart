@@ -5,6 +5,7 @@ const routeHome = 'home';
 const routeSplash = 'splash';
 const routeSettings = 'settings';
 const routeSettingsConnection = 'settings_connection';
+const routeSettingsConnectionFilters = 'settings_connection_filters';
 const routeNotFound = 'not_found';
 const routeHosts = 'hosts';
 const routeServices = 'services';
@@ -217,7 +218,11 @@ class GlobalRouter {
   }
 
   String buildUri(String key, {Map<String, String>? buildArgs}) {
-    return routes[key]!.buildUri(buildArgs: buildArgs);
+    try {
+      return routes[key]!.buildUri(buildArgs: buildArgs);
+    } on TypeError {
+      return routeNotFound;
+    }
   }
 
   Map<String?, String> extractNamedArgs(BuildContext context, String key) {
@@ -258,7 +263,6 @@ class GlobalRouter {
 
     print('... going to 404');
     var route = routes[routeNotFound]!;
-    route.init!(context);
     return route.route!(context);
   }
 }

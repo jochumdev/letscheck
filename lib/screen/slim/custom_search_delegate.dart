@@ -53,7 +53,6 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    print('Query: $query');
     if (query.length < 3) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
