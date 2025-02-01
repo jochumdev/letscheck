@@ -1,5 +1,5 @@
 # LetsCheck
-## Unreleased
+## 0.0.14+1264 - 2025-02-01
 ### Fixed
 - add base href to web/index.html, pt2
 
