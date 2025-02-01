@@ -1,5 +1,5 @@
 # LetsCheck
-## Unreleased
+## 0.0.12+1262 - 2025-02-01
 ### Added
 - github pages pwa
 
