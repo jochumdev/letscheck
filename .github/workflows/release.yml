@@ -308,3 +308,44 @@ jobs:
       #     file: build\windows\x64\runner\Release\letscheck.msix
       #     asset_name: letscheck-windows-x86_64-${{ github.event.release.tag_name }}.msix
       #     tag: ${{ github.ref }}
+
+  build-web:
+    name: "Build Web"
+    runs-on: ubuntu-latest
+    permissions: write-all
+    timeout-minutes: 30
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+          fetch-depth: 0
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+          flutter-version-file: pubspec.yaml
+  
+      - name: Enable desktop
+        run: flutter config --enable-web
+
+      - name: Flutter get packages
+        run: flutter pub get
+
+      - name: Flutter build app
+        run: flutter build web --base-href "/letscheck/pwa/" --release
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          destination_dir: pwa
+          force_orphan: true
+          user_name: 'github-ci[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'Publish to gh-pages'

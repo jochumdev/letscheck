@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_js/flutter_js.dart';
+
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:letscheck/javascript/javascript.dart';
 import '../bloc/comments/comments.dart';
 import '../global_router.dart';
 
@@ -25,7 +26,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
     var cardWidgets = <Widget>[];
 
     final cBloc = BlocProvider.of<CommentsBloc>(context);
-    final jsRuntime = RepositoryProvider.of<JavascriptRuntime>(context);
+    final jsRuntime = RepositoryProvider.of<JavascriptRuntimeWrapper>(context);
 
     if (showGroupHeader) {
       cardWidgets.add(
@@ -136,7 +137,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
                 child: Padding(
                     padding: const EdgeInsets.only(left: 5),
                     child: SelectableText(
-                        '@${comment!.author}\n${jsRuntime.evaluate("DateTime.fromISO('${comment.entryTime.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});").stringResult}',
+                        '@${comment!.author}\n${jsRuntime.evaluate("DateTime.fromISO('${comment.entryTime.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});")}',
                         style: Theme.of(context).textTheme.bodySmall)),
               ),
               Expanded(
@@ -186,10 +187,8 @@ class ServicesGroupedCardWidget extends StatelessWidget {
                                       : service.displayName!.length),
                               style: Theme.of(context).textTheme.bodyMedium),
                           Text(
-                            jsRuntime
-                                .evaluate(
-                                    "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});")
-                                .stringResult,
+                            jsRuntime.evaluate(
+                                "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});"),
                             // jsRuntime.evaluate("console.log('')").stringResult,
                             maxLines: 2,
                             style: Theme.of(context).textTheme.bodySmall,

@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Added
+- github pages pwa
+
 ## 0.0.11+1261 - 2025-02-01
 ### Added
 - allow multiple search terms seperated by a pipe, refs issue #8

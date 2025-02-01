@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'package:letscheck/notifications/plugin.dart';
@@ -108,7 +109,8 @@ class ConnectionDataBloc
     final client = sBloc.state.connections[alias]!.client!;
 
     // Send Notifications if not on mobile. Mobile uses as background service.
-    if (!Platform.isIOS &&
+    if (!kIsWeb &&
+        !Platform.isIOS &&
         !Platform.isAndroid &&
         sBloc.state.connections[alias]!.notifications) {
       await sendNotificationsForConnection(

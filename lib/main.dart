@@ -1,11 +1,10 @@
 import 'dart:ui';
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io' show Platform, Directory;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart'
-    show kDebugMode, kIsWeb, LicenseRegistry, LicenseEntryWithLineBreaks;
+    show kIsWeb, LicenseRegistry, LicenseEntryWithLineBreaks;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:path_provider/path_provider.dart';
@@ -19,7 +18,6 @@ import 'screen/slim/slim_router.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:flutter_js/flutter_js.dart';
 
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -30,6 +28,8 @@ import 'package:window_manager/window_manager.dart';
 import 'package:tray_manager/tray_manager.dart';
 // ignore: implementation_imports
 import 'package:tray_manager/src/helpers/sandbox.dart';
+
+import 'package:letscheck/javascript/javascript.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'notifications/android.dart' as notifications_android;
@@ -66,28 +66,6 @@ Future<void> _configureLocalTimeZone() async {
   tz.setLocalLocation(tz.getLocation(timeZoneName));
 }
 
-Future<JavascriptRuntime> initJavascriptRuntime() async {
-  var javascriptRuntime = getJavascriptRuntime();
-  if (kDebugMode) {
-    javascriptRuntime.onMessage('ConsoleLog2', (args) {
-      print('ConsoleLog2 (Dart Side): $args');
-      return json.encode(args);
-    });
-  }
-
-  try {
-    var luxonJS = await rootBundle.loadString('assets/js/luxon.min.js');
-    javascriptRuntime.evaluate('var window = global = globalThis;');
-
-    await javascriptRuntime.evaluateAsync(luxonJS);
-    javascriptRuntime.evaluate('const DateTime = luxon.DateTime;');
-  } on PlatformException catch (e) {
-    print('Failed to init js engine: ${e.details}');
-  }
-
-  return javascriptRuntime;
-}
-
 Future<String> getAppConfigDirectory() async {
   if (Platform.isLinux) {
     var path = "";
@@ -113,7 +91,7 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks(['google_fonts'], fontsLicense);
   });
 
-  if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+  if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
     await windowManager.ensureInitialized();
   }
 
@@ -127,12 +105,8 @@ Future<void> main() async {
           ),
   );
 
-  final javascriptRuntime = await initJavascriptRuntime();
-
   Intl.defaultLocale = 'de_AT';
   await initializeDateFormatting('de_AT');
-
-  final packageInfo = await PackageInfo.fromPlatform();
 
   var mediaWidth =
       MediaQueryData.fromView(PlatformDispatcher.instance.views.first)
@@ -160,13 +134,15 @@ Future<void> main() async {
     onDidReceiveNotificationResponse: selectNotificationStream.add,
   );
 
-  await grantNotificationPermission();
+  if (!kIsWeb) {
+    await grantNotificationPermission();
+  }
 
-  if (Platform.isAndroid || Platform.isIOS) {
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
     await bg_service.initialize();
   }
 
-  if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+  if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
     WindowOptions windowOptions = WindowOptions(
       size: Size(800, 1000),
       center: false,
@@ -205,9 +181,11 @@ Future<void> main() async {
     await trayManager.setContextMenu(menu);
   }
 
+  final javascriptRuntime = await initJavascriptRuntime();
+
   runApp(MultiRepositoryProvider(
       providers: [
-        RepositoryProvider.value(value: packageInfo),
+        RepositoryProvider.value(value: await PackageInfo.fromPlatform()),
         RepositoryProvider.value(value: javascriptRuntime),
       ],
       child: MultiBlocProvider(providers: [
