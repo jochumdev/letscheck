@@ -4,7 +4,8 @@
 - allow multiple search terms seperated by a pipe, refs issue #8
 - rework settings ui
 - work on filters, redesign ui to users copy texts
-- rename dev.jochum.letscheck -&gt; io.github.jochumdev.letscheck
+- rename dev.jochum.letscheck -> io.github.jochumdev.letscheck
+- move around flatpak files to improve the buildprocess
 
 ### Fixed
 - don't monitor state 0 host/svc

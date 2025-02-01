@@ -76,6 +76,7 @@ flutter:
     - assets/js/
     - assets/sound/
     - assets/fonts/
+    - assets/misc/
     - CHANGELOG.md
 
 flutter_intl:

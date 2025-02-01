@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/flatpak/flatpak-builder/main/data/flatpak-manifest.schema.json
+
+---
+app-id: io.github.jochumdev.letscheck
+runtime: org.freedesktop.Platform
+runtime-version: "24.08"
+sdk: org.freedesktop.Sdk
+command: letscheck
+separate-locales: false
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --share=network
+  - --socket=session-bus
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=com.canonical.AppMenu.Registrar
+modules:
+  - vendor/shared-modules/libayatana-appindicator/libayatana-appindicator-gtk3.json
+  - name: letscheck
+    buildsystem: simple
+    only-arches:
+      - x86_64
+    build-commands:
+      - cp -r ./build/linux/x64/release/bundle /app/letscheck
+      - mkdir -p /app/bin
+      - chmod +x /app/letscheck/letscheck
+      - ln -s /app/letscheck/letscheck /app/bin/letscheck
+      
+      # Install the icon
+      - mkdir -p /app/share/icons/hicolor/{scalable,16x16,64x64}/apps
+      - install -Dm644 /app/letscheck/data/flutter_assets/assets/icons/LetsCheck.svg /app/share/icons/hicolor/scalable/apps/io.github.jochumdev.letscheck.svg
+      - install -Dm644 /app/letscheck/data/flutter_assets/assets/icons/letscheck.png /app/share/icons/hicolor/16x16/apps/letscheck.png
+      - install -Dm644 /app/letscheck/data/flutter_assets/assets/icons/letscheck.png /app/share/icons/hicolor/64x64/apps/letscheck.png
+
+      # Install the desktop file.
+      - mkdir -p /app/share/applications
+      - install -Dm644 /app/letscheck/data/flutter_assets/assets/misc/io.github.jochumdev.letscheck.desktop /app/share/applications/
+
+      # Install the AppStream metadata file.
+      - mkdir -p /app/share/metainfo
+      - install -Dm644 /app/letscheck/data/flutter_assets/assets/misc/io.github.jochumdev.letscheck.metainfo.xml /app/share/metainfo/
+    sources:
+      - type: dir
+        path: .
