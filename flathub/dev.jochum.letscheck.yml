@@ -14,7 +14,12 @@ finish-args:
   - --device=dri
   - --share=network
   - --socket=session-bus
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=com.canonical.AppMenu.Registrar
+  - --env=XCURSOR_PATH=/run/host/user-share/icons:/run/host/share/icons
 modules:
+  - shared-modules/libayatana-appindicator/libayatana-appindicator-gtk3.json
   - name: letscheck
     buildsystem: simple
     only-arches:

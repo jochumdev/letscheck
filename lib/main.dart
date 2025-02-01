@@ -181,8 +181,12 @@ Future<void> main() async {
     await trayManager.setIcon(
       Platform.isWindows
           ? 'assets/icons/letscheck.ico'
-          : 'assets/icons/letscheck.png',
+          : Platform.isLinux
+              ? 'dev.jochum.letscheck'
+              : 'assets/icons/letscheck.png',
     );
+    await trayManager.setTitle("LetsCheck");
+
     Menu menu = Menu(
       items: [
         MenuItem(
@@ -196,7 +200,6 @@ Future<void> main() async {
         ),
       ],
     );
-
     await trayManager.setContextMenu(menu);
   }
 

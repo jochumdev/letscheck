@@ -57,7 +57,7 @@ jobs:
         run: flutter build apk --release
 
       - name: Upload file to the GitHub release
-        uses: svenstaro/upload-release-action@2.2.1
+        uses: svenstaro/upload-release-action@v2
         with:
           # GitHub token.
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -83,7 +83,7 @@ jobs:
       - name: Install Flutter dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libx11-dev pkg-config cmake ninja-build libblkid-dev jq
+          sudo apt-get install -y libgtk-3-dev libx11-dev pkg-config cmake ninja-build libblkid-dev libayatana-appindicator3-dev jq
   
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -94,15 +94,6 @@ jobs:
   
       - name: Enable desktop
         run: flutter config --enable-linux-desktop
-
-      - name: Install Cider
-        run: flutter pub global activate cider
-
-      - name: Set new Flutter version
-        run: cider version ${{ github.event.release.tag_name }}
-
-      - name: Set release changelog
-        run: cider release
 
       - name: Flutter get packages
         run: flutter pub get
@@ -123,7 +114,7 @@ jobs:
           path: letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz
 
       - name: Upload files to a GitHub release
-        uses: svenstaro/upload-release-action@2.2.1
+        uses: svenstaro/upload-release-action@v2
         with:
           # GitHub token.
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -158,21 +149,19 @@ jobs:
         run: mkdir -p ./build/linux/x64/release/bundle && cd ./build/linux/x64/release/bundle && tar -x -f ../../../../../letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz .
 
       - name: Build flatpak
-        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        uses: jochumdev/flatpak-github-actions/flatpak-builder@builder-update-deps
         with:
           bundle: letscheck.flatpak
           manifest-path: ./flathub/dev.jochum.letscheck.yml
           cache-key: flatpak-builder-${{ github.sha }}
+          upload-artifact: "false"
 
-      - name: Upload Flatpak to release
-        uses: svenstaro/upload-release-action@2.2.1
+      - name: Upload artifacts to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          # GitHub token.
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          # Local file to upload.
           file: letscheck.flatpak
           asset_name: letscheck-linux-x86_64-${{ github.event.release.tag_name }}.flatpak
-          # Tag to use as a release.
           tag: ${{ github.ref }}
 
   build-macos:
@@ -205,15 +194,6 @@ jobs:
 
       - name: Enable desktop
         run: flutter config --enable-macos-desktop
-
-      - name: Install Cider
-        run: flutter pub global activate cider
-
-      - name: Set new Flutter version
-        run: cider version ${{ github.event.release.tag_name }}
-
-      - name: Set release changelog
-        run: cider release
 
       - name: Flutter get packages
         run: flutter pub get
@@ -272,15 +252,6 @@ jobs:
 
       - name: Enable desktop
         run: flutter config --enable-windows-desktop
-
-      - name: Install Cider
-        run: flutter pub global activate cider
-
-      - name: Set new Flutter version
-        run: cider version ${{ github.event.release.tag_name }}
-
-      - name: Set release changelog
-        run: cider release
 
       # - name: Generate MSIX-compatible version
       #   uses: ashley-taylor/regex-property-action@v1.4

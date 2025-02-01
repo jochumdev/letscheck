@@ -7,10 +7,10 @@
   <id>dev.jochum.letscheck</id>
   
   <name>LetsCheck</name>
-  <summary>LetsCheck - the check_mk Client for GNU/Linux</summary>
+  <summary>LetsCheck - the checkmk Client for many platforms</summary>
   
   <metadata_license>MIT</metadata_license>
-  <project_license>Artistic-2.0</project_license>
+  <project_license>Apache-2.0</project_license>
   
   <supports>
     <control>pointing</control>
@@ -21,7 +21,7 @@
   
   <description>
     <p>
-      LetsCheck is the check_mk Client for GNU/Linux.
+      LetsCheck is the checkmk Client for many platforms.
     </p>
     <p>
       It features: - View Hosts/Services with comments - Notifications

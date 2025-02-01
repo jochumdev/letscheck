@@ -22,14 +22,16 @@ ln -s /app/${projectName}/${executableName} /app/bin/${executableName}
 # Install the icon.
 iconDir=/app/share/icons/hicolor/scalable/apps
 mkdir -p ${iconDir}
-cp -r ./assets/icons/${projectName}.svg ${iconDir}/${projectId}.svg
+install -Dm644 ./assets/icons/${projectName}.svg ${iconDir}/${projectId}.svg
+install -Dm644 ./assets/icons/${executableName}.png /app/share/icons/hicolor/16x16/apps/${executableName}.png
 
 # Install the desktop file.
 desktopFileDir=/app/share/applications
 mkdir -p ${desktopFileDir}
-cp -r ./flathub/${projectId}.desktop ${desktopFileDir}/
+install -Dm644 ./flathub/${projectId}.desktop ${desktopFileDir}/
 
 # Install the AppStream metadata file.
 metadataDir=/app/share/metainfo
 mkdir -p ${metadataDir}
-cp -r ./flathub/${projectId}.metainfo.xml ${metadataDir}/
+install -Dm644 ./flathub/${projectId}.metainfo.xml ${metadataDir}/
+
