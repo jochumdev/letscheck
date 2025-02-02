@@ -7,9 +7,16 @@
   <id>io.github.jochumdev.letscheck</id>
   
   <name>LetsCheck</name>
-  <summary>LetsCheck - the checkmk Client for many platforms</summary>
+  <summary>The Checkmk Client for many platforms</summary>
   
-  <metadata_license>MIT</metadata_license>
+  <developer_name>René Jochum</developer_name>
+  <url type="homepage">https://github.com/jochumdev/letscheck</url>
+  <url type="faq">https://github.com/jochumdev/letscheck?tab=readme-ov-file#faq</url>
+  <url type="contact">https://github.com/jochumdev/letscheck/issues</url>
+  <url type="bugtracker">https://github.com/jochumdev/letscheck/issues</url>
+  <url type="help">https://github.com/jochumdev/letscheck/wiki</url>
+
+  <metadata_license>CC0</metadata_license>
   <project_license>Apache-2.0</project_license>
   
   <supports>
@@ -20,11 +27,14 @@
   </supports>
   
   <description>
-    <p>
-      LetsCheck is the checkmk Client for many platforms.
-    </p>
-    <p>
-      It features: - View Hosts/Services with comments - Notifications
+    <p>Checkmk is a leading tool for Infrastructure and Application Monitoring. Simple configuration, scalable, flexible. Open Source and Enterprise.</p>
+
+    <p>Features of LetsCheck
+      <ul>
+        <li>View Hosts/Services with comments</li>
+        <li>Notifications if you have lql-api installed on you'r Checkmk server</li>
+        <li>Search Hosts/Services, use the | symbol to seperated multiple searches</li>
+      </ul>
     </p>
   </description>
   

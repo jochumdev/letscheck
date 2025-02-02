@@ -1,6 +1,14 @@
-# Let's Check
+# LetsCheck
 
-Let's check is a CheckMk client for Android, iOS, Linux, Mac OS-X and Windows written with the [Flutter SDK](https://flutter.dev/).
+LetsCheck is a Checkmk client for Android, iOS, Linux, Mac OS-X and Windows written with the [Flutter SDK](https://flutter.dev/).
+
+[Checkmk](https://checkmk.com/) is a leading tool for Infrastructure and Application Monitoring. Simple configuration, scalable, flexible. Open Source and Enterprise.
+
+## Features
+
+- View Hosts/Services with comments
+- Notifications if you have [lql-api](https://github.com/jochumdev/lql-api) installed on you'r Checkmk server
+- Search Hosts/Services, use the | symbol to seperated multiple searches
 
 ## Download
 
@@ -12,13 +20,13 @@ Get it from [Github Releases](https://github.com/jochumdev/letscheck/releases)
 
 ## Preview:
 
-[Available as PWA](https://jochumdev.github.io/letscheck/pwa/) **important** you need proper CORS Headers on you'r CheckMk proxy for a connection to work.
+[Available as PWA](https://jochumdev.github.io/letscheck/pwa/) **important** you need proper CORS Headers on you'r Checkmk proxy for a connection to work.
 
 ## FAQ
 
 ### Is lql-api required for this to work?
 
-No, "only" for notifications you need lql-api installed on the checkmk server.
+No, "only" for notifications you need [lql-api](https://github.com/jochumdev/lql-api) installed on the checkmk server.
 
 ## Development
 
@@ -44,4 +52,4 @@ git add ./file1 ./file2
 
 ## License
 
-Apache 2.0 - Copyright 2024 by [@jochumdev](https://github.com/jochumdev)
+Apache 2.0 - Copyright 2025 by [@jochumdev](https://github.com/jochumdev)
