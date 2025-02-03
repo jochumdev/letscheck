@@ -1,5 +1,5 @@
 # LetsCheck
-## Unreleased
+## 0.0.15+1265 - 2025-02-03
 ### Added
 - update README
 - add web.zip to release
