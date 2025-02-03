@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Added
+- Add notifications info on android to the README
+
 ## 0.0.15+1265 - 2025-02-03
 ### Added
 - update README

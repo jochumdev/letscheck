@@ -24,6 +24,10 @@ Get it from [Github Releases](https://github.com/jochumdev/letscheck/releases)
 
 ## FAQ
 
+### I don't get notifications on Android?
+
+Visit [dontkillmyapp.com](https://dontkillmyapp.com/) and follow the instructions there for the App "LetsCheck".
+
 ### Is lql-api required for this to work?
 
 No, "only" for notifications you need [lql-api](https://github.com/jochumdev/lql-api) installed on the checkmk server.
