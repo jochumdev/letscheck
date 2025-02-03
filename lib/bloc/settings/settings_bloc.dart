@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'package:retry/retry.dart';
@@ -7,7 +9,9 @@ import '../serializers.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
     with HydratedMixin {
-  final Map<String, Future<void>> _failedConnectionPoller = {};
+  final _failedConnections = <String>[];
+
+  StreamSubscription? failedConnectionsTicker;
 
   SettingsBloc() : super(SettingsState.init()) {
     hydrate();
@@ -44,6 +48,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
           }
         }
         _updateConnectionState();
+
+        failedConnectionsTicker ??=
+            Stream.periodic(Duration(seconds: 60)).listen((state) async {
+          await _checkFailedConnections();
+        });
       }
     });
 
@@ -80,7 +89,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
       emit(state.rebuild((b) => b..state = SettingsStateEnum.clientFailed));
       _updateConnectionState();
 
-      _startConnectionPoller(event.alias);
+      _failedConnections.add(event.alias);
     });
 
     on<ConnectionBack>((event, emit) async {
@@ -91,6 +100,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
               ..error = null)));
       emit(state.rebuild((b) => b..state = SettingsStateEnum.clientConnected));
       _updateConnectionState();
+
+      _failedConnections.remove(event.alias);
     });
 
     on<UpdateRefresh>((event, emit) async {
@@ -154,22 +165,32 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
     return state;
   }
 
-  void _startConnectionPoller(String alias) {
-    if (_failedConnectionPoller.containsKey(alias)) {
+  Future<void> _checkFailedConnections() async {
+    if (_failedConnections.isEmpty) {
       return;
     }
 
-    final conn = state.connections[alias]!.client!;
-    _failedConnectionPoller[alias] = () async {
+    for (final alias in _failedConnections) {
+      final conn = state.connections[alias]!.client!;
+
       try {
         await retry(conn.testConnection,
             retryIf: (e) => e is cmk_api.CheckMkBaseError);
-
-        await _failedConnectionPoller.remove(alias);
-        add(ConnectionBack(alias));
+        try {
+          add(ConnectionBack(alias));
+        } on StateError {
+          // Ignore.
+        }
       } on cmk_api.CheckMkBaseError {
         // Ignore.
       }
-    }();
+    }
+  }
+
+  void dispose() {
+    if (failedConnectionsTicker != null) {
+      failedConnectionsTicker!.cancel();
+      failedConnectionsTicker = null;
+    }
   }
 }

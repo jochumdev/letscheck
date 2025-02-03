@@ -6,6 +6,7 @@
 ### Fixed
 - slow dart analyzes
 - smaller fixes
+- issue #14, reconnect when connection is lost
 
 ## 0.0.14+1264 - 2025-02-01
 ### Fixed
