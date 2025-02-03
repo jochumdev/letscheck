@@ -204,6 +204,7 @@ jobs:
       - name: Create dmg
         run: |
           ./scripts/create_mac_dmg.sh
+
       - name: Compress artifacts
         run: cd build/macos/Build/Products/Release && zip -r ../../../../../letscheck-macos-${{ github.event.release.tag_name }}.zip letscheck.app
 
@@ -338,6 +339,19 @@ jobs:
 
       - name: Flutter build app
         run: flutter build web --base-href "/letscheck/pwa/" --release
+
+      - name: Compress artifacts
+        run: cd build/web && zip -r ../../letscheck-web-${{ github.event.release.tag_name }}.zip .
+
+      - name: Upload artifacts to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          # GitHub token.
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          # Local file to upload.
+          file: letscheck-web-${{ github.event.release.tag_name }}.zip
+          # Tag to use as a release.
+          tag: ${{ github.ref }}
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3

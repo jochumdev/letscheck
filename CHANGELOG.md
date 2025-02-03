@@ -2,6 +2,7 @@
 ## Unreleased
 ### Added
 - update README
+- add web.zip to release
 
 ### Fixed
 - slow dart analyzes
