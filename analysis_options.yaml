@@ -30,4 +30,4 @@ linter:
 
 analyzer:
   exclude:
-    - vendor/flutter_form_bloc/**
+    - shared-modules

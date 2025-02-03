@@ -1,5 +1,5 @@
 name: letscheck
-description: LetsCheck a checkmk client for Linux/MacOS/Windows/Android/iOS.
+description: A Checkmk client for many Platforms.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -25,11 +25,14 @@ dependencies:
   flutter:
     sdk: flutter
   check_mk_api:
-    path: ./vendor/check_mk_api
+    git: 
+      url: https://github.com/jochumdev/lql-api_flutter.git
   built_value: ^8.9.3
   built_collection: ^5.1.1
   flutter_form_bloc:
-    path: ./vendor/flutter_form_bloc/packages/flutter_form_bloc
+    git:
+      url: https://github.com/jochumdev/flutter_form_bloc.git
+      path: packages/flutter_form_bloc
   hydrated_bloc: ^10.0.0
   path_provider: ^2.0.13
   equatable: ^2.0.3

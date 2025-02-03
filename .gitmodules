@@ -1,9 +1,3 @@
-[submodule "vendor/check_mk_api"]
-	path = vendor/check_mk_api
-	url = https://github.com/jochumdev/lql-api_flutter.git
-[submodule "vendor/flutter_form_bloc"]
-	path = vendor/flutter_form_bloc
-	url = https://github.com/jochumdev/flutter_form_bloc
-[submodule "vendor/shared-modules"]
-	path = vendor/shared-modules
+[submodule "shared-modules"]
+	path = shared-modules
 	url = https://github.com/flathub/shared-modules.git

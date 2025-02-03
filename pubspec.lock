@@ -145,9 +145,11 @@ packages:
   check_mk_api:
     dependency: "direct main"
     description:
-      path: "vendor/check_mk_api"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "1a2bac4773c14a4020e3bc11e947db220d68411b"
+      url: "https://github.com/jochumdev/lql-api_flutter.git"
+    source: git
     version: "0.0.1"
   checked_yaml:
     dependency: transitive
@@ -233,18 +235,18 @@ packages:
     dependency: transitive
     description:
       name: dio
-      sha256: "5598aa796bbf4699afd5c67c0f5f6e2ed542afc956884b9cd58c306966efc260"
+      sha256: "253a18bbd4851fecba42f7343a1df3a9a4c1d31a2c1b37e221086b4fa8c8dbc9"
       url: "https://pub.dev"
     source: hosted
-    version: "5.7.0"
+    version: "5.8.0+1"
   dio_web_adapter:
     dependency: transitive
     description:
       name: dio_web_adapter
-      sha256: "33259a9276d6cea88774a0000cfae0d861003497755969c92faa223108620dc8"
+      sha256: e485c7a39ff2b384fa1d7e09b4e25f755804de8384358049124830b04fc4f93a
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.1.0"
   equatable:
     dependency: "direct main"
     description:
@@ -325,9 +327,11 @@ packages:
   flutter_form_bloc:
     dependency: "direct main"
     description:
-      path: "vendor/flutter_form_bloc/packages/flutter_form_bloc"
-      relative: true
-    source: path
+      path: "packages/flutter_form_bloc"
+      ref: HEAD
+      resolved-ref: "74fabd7a0ac47bac195e2f590150a14d31f158d5"
+      url: "https://github.com/jochumdev/flutter_form_bloc.git"
+    source: git
     version: "0.31.0"
   flutter_js:
     dependency: "direct main"
@@ -390,10 +394,10 @@ packages:
     description:
       path: flutter_local_notifications
       ref: HEAD
-      resolved-ref: f015afc50e7b9786ac38b1171ec8f058851b38df
+      resolved-ref: c5f7d5177ce8d1007017e2d09fe836a61290a217
       url: "https://github.com/MaikuB/flutter_local_notifications.git"
     source: git
-    version: "19.0.0-dev.4"
+    version: "19.0.0-dev.5"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -430,10 +434,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_timezone
-      sha256: "6e6a0a9d0dfc049b209e01e1dee3efd5ff2ddf2375e9de86589761b244eb5a5f"
+      sha256: bc286cecb0366d88e6c4644e3962ebd1ce1d233abc658eb1e0cd803389f84b64
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "4.1.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -450,9 +454,11 @@ packages:
   form_bloc:
     dependency: transitive
     description:
-      path: "vendor/flutter_form_bloc/packages/form_bloc"
-      relative: true
-    source: path
+      path: "packages/form_bloc"
+      ref: HEAD
+      resolved-ref: "74fabd7a0ac47bac195e2f590150a14d31f158d5"
+      url: "https://github.com/jochumdev/flutter_form_bloc.git"
+    source: git
     version: "0.31.0"
   frontend_server_client:
     dependency: transitive

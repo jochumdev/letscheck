@@ -18,7 +18,7 @@ finish-args:
   - --talk-name=org.kde.StatusNotifierWatcher
   - --talk-name=com.canonical.AppMenu.Registrar
 modules:
-  - vendor/shared-modules/libayatana-appindicator/libayatana-appindicator-gtk3.json
+  - shared-modules/libayatana-appindicator/libayatana-appindicator-gtk3.json
   - name: letscheck
     buildsystem: simple
     only-arches:
