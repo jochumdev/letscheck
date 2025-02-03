@@ -65,17 +65,17 @@ void onStart(ServiceInstance service) async {
           in (settings['clients'] as Map<String, dynamic>).values) {
         enabled[cSettings['site']] = cSettings['enabled'];
 
-        var client = cmk_api.Client(
-          cmk_api.ClientSettings(
-            baseUrl: cSettings['base_url'],
-            site: cSettings['site'],
-            username: cSettings['username'],
-            secret: cSettings['secret'],
-            validateSsl: cSettings['validate_ssl'],
-          ),
-        );
-
         if (enabled[cSettings['site']]!) {
+          var client = cmk_api.Client(
+            cmk_api.ClientSettings(
+              baseUrl: cSettings['base_url'],
+              site: cSettings['site'],
+              username: cSettings['username'],
+              secret: cSettings['secret'],
+              validateSsl: cSettings['validate_ssl'],
+            ),
+          );
+
           try {
             await client.testConnection();
             clients[cSettings['site']] = client;

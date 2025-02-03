@@ -182,7 +182,7 @@ Future<void> sendNotificationsForConnection(
       'time'
     ]);
 
-    // print("Found ${events.length} notifications logs for $conn within $refreshSeconds seconds");
+    // print("Found ${events.length} notifications for $conn within $refreshSeconds seconds");
 
     for (var event in events) {
       if (event.displayName.isNotEmpty) {

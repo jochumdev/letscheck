@@ -67,7 +67,7 @@ class ConnectionDataBloc
 
   Future<void> _startFetching() async {
     // Update the background service.
-    if (Platform.isIOS || Platform.isAndroid) {
+    if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
       bg_service.sendSettings(sBloc.state);
     }
 
