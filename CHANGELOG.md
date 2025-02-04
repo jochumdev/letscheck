@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Fixed
+- README, no need for lql-api
+
 ## 0.1.0+1266 - 2025-02-04
 ### Added
 - Add notifications info on android to the README

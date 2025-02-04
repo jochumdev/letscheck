@@ -7,7 +7,7 @@ LetsCheck is a Checkmk client for Android, iOS, Linux, Mac OS-X and Windows writ
 ## Features
 
 - View Hosts/Services with comments
-- Notifications if you have [lql-api](https://github.com/jochumdev/lql-api) installed on you'r Checkmk server
+- Notifications
 - Search Hosts/Services, use the | symbol to seperated multiple searches
 
 ## Download
