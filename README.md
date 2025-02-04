@@ -32,6 +32,14 @@ Visit [dontkillmyapp.com](https://dontkillmyapp.com/) and follow the instruction
 
 No, lql-api is now a complete seperate utility.
 
+### Is there a release for iPhone(iOS)?
+
+Not yet, while it would work I need a Apple Developer license.
+
+### I need a feature or have ideas, where to post them?
+
+Either here on Github issues or in the [forums](https://forum.checkmk.com/t/letscheck-a-checkmk-client-for-many-platforms/52088)
+
 ## Development
 
 **Commit**:
