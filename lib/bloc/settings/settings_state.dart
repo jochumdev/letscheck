@@ -30,7 +30,7 @@ abstract class SettingsState
   factory SettingsState.init() => SettingsState((b) => b
     ..currentAlias = ""
     ..isLightMode = false // Dark mode by default
-    ..refreshSeconds = 300 // 5 minutes
+    ..refreshSeconds = 60 // 1 minute
     ..state = SettingsStateEnum.uninitialized);
 }
 

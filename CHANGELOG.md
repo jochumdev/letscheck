@@ -2,6 +2,7 @@
 ## Unreleased
 ### Added
 - Add notifications info on android to the README
+- set default refresh time to 60 seconds
 
 ## 0.0.15+1265 - 2025-02-03
 ### Added
