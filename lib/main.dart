@@ -27,7 +27,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'package:tray_manager/tray_manager.dart';
 // ignore: implementation_imports
-import 'package:tray_manager/src/helpers/sandbox.dart';
+import 'package:tray_manager/src/helpers/sandbox.dart' show runningInSandbox;
 
 import 'package:letscheck/javascript/javascript.dart';
 

@@ -4,6 +4,9 @@
 - Add notifications info on android to the README
 - set default refresh time to 60 seconds
 
+### Fixed
+- flatpak notification icon
+
 ## 0.0.15+1265 - 2025-02-03
 ### Added
 - update README
