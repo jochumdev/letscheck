@@ -24,21 +24,7 @@ Get it from [Github Releases](https://github.com/jochumdev/letscheck/releases)
 
 ## FAQ
 
-### I don't get notifications on Android?
-
-Visit [dontkillmyapp.com](https://dontkillmyapp.com/) and follow the instructions there for the App "LetsCheck".
-
-### Is lql-api required for this to work?
-
-No, lql-api is now a complete seperate utility.
-
-### Is there a release for iPhone(iOS)?
-
-Not yet, while it would work I need a Apple Developer license.
-
-### I need a feature or have ideas, where to post them?
-
-Either here on Github issues or in the [forums](https://forum.checkmk.com/t/letscheck-a-checkmk-client-for-many-platforms/52088)
+The “Frequently asked questions” page is available on the [Github WIKI](https://github.com/jochumdev/letscheck/wiki/FAQ).
 
 ## Development
 

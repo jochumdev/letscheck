@@ -3,6 +3,10 @@
 ### Added
 - fix to portrait mode
 
+### Fixed
+- move the README FAQ to the WIKI
+- move the README FAQ to the WIKI
+
 ## 0.1.1+1267 - 2025-02-04
 ### Fixed
 - README, no need for lql-api
