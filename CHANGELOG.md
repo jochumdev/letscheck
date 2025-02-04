@@ -1,5 +1,5 @@
 # LetsCheck
-## Unreleased
+## 0.1.0+1266 - 2025-02-04
 ### Added
 - Add notifications info on android to the README
 - set default refresh time to 60 seconds
