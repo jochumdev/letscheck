@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Added
+- fix to portrait mode
+
 ## 0.1.1+1267 - 2025-02-04
 ### Fixed
 - README, no need for lql-api

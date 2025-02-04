@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/connection_data/connection_data.dart';
 import '../../bloc/settings/settings.dart';
@@ -36,6 +37,12 @@ abstract class BaseSlimScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Fix portrait mode.
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     final settings = setup(context);
 
     var drawer = Drawer(
