@@ -33,6 +33,8 @@ Future<bool> onIosBackground(ServiceInstance service) async {
   return true;
 }
 
+Timer? timer;
+
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   // https://github.com/ekasetiawans/flutter_background_service/issues/375#issuecomment-1874879210
@@ -41,8 +43,6 @@ void onStart(ServiceInstance service) async {
   var refreshSeconds = 300;
   Map<String, cmk_api.Client> clients = {};
   Map<String, bool> enabled = {};
-
-  Timer? timer;
 
   service.on('settings').listen((settings) async {
     // Ignore invalid settings.
@@ -96,6 +96,8 @@ void onStart(ServiceInstance service) async {
     }
 
     timer = Timer.periodic(Duration(seconds: refreshSeconds), (timer) async {
+      print("bg_service: Timer run");
+
       // In timer.
       for (var alias in clients.keys) {
         if (enabled[alias]!) {

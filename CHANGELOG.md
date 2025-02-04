@@ -2,6 +2,7 @@
 ## Unreleased
 ### Fixed
 - README, no need for lql-api
+- notifications when the timestamp is under a minute
 
 ## 0.1.0+1266 - 2025-02-04
 ### Added

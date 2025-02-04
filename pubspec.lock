@@ -147,7 +147,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: a912697031c267d77ec6593c8ae8c3c67013402b
+      resolved-ref: "238e9cac4bfefaa6f34479cad913a1333fad9a87"
       url: "https://github.com/jochumdev/check_mk_api-flutter.git"
     source: git
     version: "0.0.1"
