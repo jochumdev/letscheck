@@ -6,6 +6,7 @@
 
 ### Fixed
 - flatpak notification icon
+- always query all connections, don't test them in front
 
 ## 0.0.15+1265 - 2025-02-03
 ### Added

@@ -76,12 +76,7 @@ void onStart(ServiceInstance service) async {
             ),
           );
 
-          try {
-            await client.testConnection();
-            clients[cSettings['site']] = client;
-          } on cmk_api.CheckMkBaseError {
-            // Ignore.
-          }
+          clients[cSettings['site']] = client;
         }
       }
     }
