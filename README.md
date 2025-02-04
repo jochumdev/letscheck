@@ -30,7 +30,7 @@ Visit [dontkillmyapp.com](https://dontkillmyapp.com/) and follow the instruction
 
 ### Is lql-api required for this to work?
 
-No, "only" for notifications you need [lql-api](https://github.com/jochumdev/lql-api) installed on the checkmk server.
+No, lql-api is now a complete seperate utility.
 
 ## Development
 

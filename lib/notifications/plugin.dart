@@ -65,9 +65,9 @@ Future<bool> grantNotificationPermission() async {
     }
 
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'io.github.jochumdev.letscheck.high', // id
-      'Letscheck high', // title
-      description: 'CheckMK notifications over letscheck.', // description
+      android.notificationChannelId,
+      'LetsCheck high', // title
+      description: 'Checkmk notifications over LetsCheck.', // description
       importance: Importance.high, // importance must be at low or higher level
     );
 
@@ -101,7 +101,7 @@ Future<bool> grantNotificationPermission() async {
 
 Future<void> sendLogNotification({
   required String conn,
-  required cmk_api.LqlTableLogDto log,
+  required cmk_api.TableLogDto log,
 }) async {
   var title = '${log.hostName} : ${log.displayName}';
   var body = log.pluginOutput;
@@ -137,14 +137,10 @@ Future<void> sendLogNotification({
     categoryIdentifier: darwinNotificationCategoryPlain,
   );
 
-  const LinuxNotificationDetails linuxNotificationDetails =
-      LinuxNotificationDetails();
-
   const notificationDetails = NotificationDetails(
     android: androidNotificationDetails,
     macOS: macOSNotificationDetails,
     iOS: iosNotificationDetails,
-    linux: linuxNotificationDetails,
   );
 
   await flutterLocalNotificationsPlugin.show(
@@ -171,27 +167,18 @@ Future<void> sendNotificationsForConnection(
     }
     var aliasKnown = knownNotifications[conn]!;
 
-    final events = await client.lqlGetTableLogs(filter: [
-      'Filter: time > ${((DateTime.now().millisecondsSinceEpoch / 1000).round() - refreshSeconds)}',
-      'Filter: state > 0',
-    ], columns: [
-      'current_host_name',
-      'current_service_display_name',
-      'state',
-      'plugin_output',
-      'time'
-    ]);
+    final events = await client.getViewEvents(fromSecs: refreshSeconds);
 
-    // print("Found ${events.length} notifications for $conn within $refreshSeconds seconds");
+    print(
+        "Found ${events.length} notifications for $conn within $refreshSeconds seconds");
 
     for (var event in events) {
-      if (event.displayName.isNotEmpty) {
-        final key =
-            '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
-        if (!aliasKnown.containsKey(key)) {
-          sendLogNotification(conn: conn, log: event);
-          aliasKnown[key] = event.time;
-        }
+      final key =
+          '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
+      print(key);
+      if (!aliasKnown.containsKey(key)) {
+        sendLogNotification(conn: conn, log: event);
+        aliasKnown[key] = event.time;
       }
     }
 

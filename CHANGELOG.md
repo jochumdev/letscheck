@@ -3,6 +3,7 @@
 ### Added
 - Add notifications info on android to the README
 - set default refresh time to 60 seconds
+- use views.py instead of lql-api for notifications
 
 ### Fixed
 - flatpak notification icon

@@ -25,8 +25,9 @@ dependencies:
   flutter:
     sdk: flutter
   check_mk_api:
+    # path: ../check_mk_api-flutter/
     git: 
-      url: https://github.com/jochumdev/lql-api_flutter.git
+      url: https://github.com/jochumdev/check_mk_api-flutter.git
   built_value: ^8.9.3
   built_collection: ^5.1.1
   flutter_form_bloc:

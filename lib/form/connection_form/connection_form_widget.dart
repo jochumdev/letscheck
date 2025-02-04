@@ -160,8 +160,7 @@ class ConnectionFormWidget extends StatelessWidget {
                           booleanFieldBloc: formBloc.notifications,
                           body: Container(
                             alignment: Alignment.centerLeft,
-                            child: Text(
-                                'Enable Notifications? (this requires lql-api on the server!)'),
+                            child: Text('Enable Notifications?'),
                           ),
                         ),
                         SwitchFieldBlocBuilder(
