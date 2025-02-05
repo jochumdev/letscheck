@@ -3,12 +3,12 @@ package io.github.jochumdev.letscheck
 import android.content.ContentResolver
 import android.content.Context
 import android.media.RingtoneManager
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.util.*
 
-class MainActivity: FlutterActivity() {
+class MainActivity: FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "jochum.dev/letscheck").setMethodCallHandler { call, result ->
