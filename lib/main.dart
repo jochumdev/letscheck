@@ -105,8 +105,7 @@ Future<void> main() async {
           ),
   );
 
-  Intl.defaultLocale = 'de_AT';
-  await initializeDateFormatting('de_AT');
+  await initializeDateFormatting(Intl.defaultLocale);
 
   var mediaWidth =
       MediaQueryData.fromView(PlatformDispatcher.instance.views.first)

@@ -5,6 +5,7 @@
 
 ### Fixed
 - run notifications once on load
+- use systemlocale
 
 ## 0.1.2+1268 - 2025-02-05
 ### Added
