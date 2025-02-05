@@ -82,9 +82,6 @@ jobs:
       - name: Enable desktop
         run: fvm flutter config --enable-linux-desktop
 
-      - name: Flutter get packages
-        run: fvm flutter pub get
-
       - name: Some wired mkdir
         run: mkdir -p build/linux/x64/release/bundle/lib 
 
@@ -105,7 +102,7 @@ jobs:
 
 
   build-linux-arm64:
-    name: "Build Linux ARM64"
+    name: "Build Linux arm64"
     runs-on: ubuntu-22.04-arm
     permissions: write-all
     timeout-minutes: 30
@@ -130,9 +127,6 @@ jobs:
 
       - name: Enable desktop
         run: fvm flutter config --enable-linux-desktop
-
-      - name: Flutter get packages
-        run: fvm flutter pub get
 
       - name: Some wired mkdir
         run: mkdir -p build/linux/arm64/release/bundle/lib 
@@ -172,7 +166,7 @@ jobs:
       - name: Download binary from build-linux
         uses: actions/download-artifact@v4
         with:
-          name: linux-x64_binary
+          name: linux-x64-binary
 
       - name: Extract x64 binary
         run: mkdir -p ./build/linux/x64/release/bundle && tar -x -f letscheck-linux-x64.tar.xz -C ./build/linux/x64/release/bundle
@@ -180,7 +174,7 @@ jobs:
       - name: Download binary from build-linux-arm64
         uses: actions/download-artifact@v4
         with:
-          name: linux-arm64_binary
+          name: linux-arm64-binary
 
       - name: Extract arm64 binary
         run: mkdir -p ./build/linux/arm64/release/bundle && tar -x -f letscheck-linux-arm64.tar.xz -C ./build/linux/arm64/release/bundle
@@ -225,9 +219,6 @@ jobs:
 
       - name: Enable desktop
         run: fvm flutter config --enable-macos-desktop
-
-      - name: Flutter get packages
-        run: fvm flutter pub get
 
       - name: Flutter build app
         run: fvm flutter build macos
@@ -304,9 +295,6 @@ jobs:
       #         build_windows: false
       #         install_certificate: false
       #     write-mode: append
-
-      - name: Flutter get packages
-        run: flutter pub get
 
       - name: Flutter build app
         run: flutter build windows
