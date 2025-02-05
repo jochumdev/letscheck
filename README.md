@@ -1,3 +1,5 @@
+[![Tag build](https://github.com/jochumdev/letscheck/actions/workflows/tag.yml/badge.svg)](https://github.com/jochumdev/letscheck/actions/workflows/tag.yml)
+
 # LetsCheck
 
 LetsCheck is a Checkmk client for Android, iOS, Linux, Mac OS-X and Windows written with the [Flutter SDK](https://flutter.dev/).

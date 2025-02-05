@@ -32,8 +32,8 @@ case "$ARCH" in
   *)       error "Unsupported architecture" ;;
 esac
 
-if ! check_command wget; then
-    error "wget not found"
+if ! check_command curl; then
+    error "curl not found"
 fi
 
 if ! check_command jq; then
@@ -47,8 +47,8 @@ fi
 # Download fvm
 if [[ ! -x ~/.fvm_flutter/bin/fvm ]]; then
         tar_out="/tmp/fvm.tar.gz"
-        fvm_url=$(wget --timeout 60 https://api.github.com/repos/leoafarias/fvm/releases/latest -qO - | jq -r '.assets[] | select((.version = "'${FVM_VERSION}'") and (.name | contains ("'${OS}'-'${ARCH}'.tar.gz"))) | .browser_download_url')
-        wget --timeout 60 "${fvm_url}" -O "${tar_out}"
+        fvm_url=$(curl -sSfL -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/leoafarias/fvm/releases/latest | jq -r '.assets[] | select((.version = "'${FVM_VERSION}'") and (.name | contains ("'${OS}'-'${ARCH}'.tar.gz"))) | .browser_download_url')
+        curl -sSLf "${fvm_url}" -o "${tar_out}"
 
         tmp_dir=$(mktemp -d)
         tar xf "${tar_out}" -C ${tmp_dir}

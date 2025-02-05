@@ -1,13 +1,4 @@
 # LetsCheck
-## Unreleased
-### Fixed
-- redirect to homepage when a connection has been successfuly saved
-- typo in workflow
-
-## 0.1.4+1271 - 2025-02-05
-### Fixed
-- macosx curl error
-
 ## 0.1.4+1270 - 2025-02-05
 ### Added
 - upgrade flutter 3.27.1 -> 3.27.3
@@ -19,6 +10,9 @@
 ### Fixed
 - an unknown number of redirects after implementing redirects
 - github workflow
+- redirect to homepage when a connection has been successfuly saved
+- typo in workflow
+- macosx curl error
 
 ## 0.1.3+1269 - 2025-02-05
 ### Added

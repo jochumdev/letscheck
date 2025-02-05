@@ -374,6 +374,11 @@ jobs:
 
       - name: Download binaries
         uses: actions/download-artifact@v4
+        with:
+            merge-multiple: true
+
+      - name: ls downloads
+        run: ls -la
 
       - name: Rename files
         run: |
