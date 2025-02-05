@@ -42,6 +42,14 @@ class HomeScreenState extends State<HomeScreen> with BaseSlimScreenState {
   Widget content(BuildContext context) {
     final sBloc = BlocProvider.of<SettingsBloc>(context);
 
+    if (sBloc.state.connections.isEmpty) {
+      Future.microtask(() {
+        Navigator.of(context)
+            .pushNamed(GlobalRouter().buildUri(routeSettingsConnection));
+      });
+      return Container();
+    }
+
     return BlocBuilder<ConnectionDataBloc, ConnectionDataState>(
         builder: (context, state) {
       return BlocBuilder<CommentsBloc, CommentsState>(

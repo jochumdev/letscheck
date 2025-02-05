@@ -32,6 +32,7 @@ class SettingsConnectionScreenState extends State<SettingsConnectionScreen>
 
     return BaseSlimScreenSettings(
       title,
+      showLeading: groups.containsKey('name'),
       showRefresh: false,
       showMenu: false,
       showSettings: false,

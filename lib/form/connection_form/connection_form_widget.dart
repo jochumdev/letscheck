@@ -13,6 +13,7 @@ class ConnectionFormWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sBloc = BlocProvider.of<SettingsBloc>(context);
     final formBloc = BlocProvider.of<ConnectionFormBloc>(context);
     var isNew = alias == null;
 
@@ -76,14 +77,26 @@ class ConnectionFormWidget extends StatelessWidget {
 
                 if (dialogResult!) {
                   Navigator.of(context).pop();
-                  final sBloc = BlocProvider.of<SettingsBloc>(context);
                   sBloc.add(DeleteConnection(formBloc.alias.value));
                 }
               },
               child: Text('Delete'),
             ));
           } else {
-            buttons.add(Container());
+            if (isNew && sBloc.state.connections.isNotEmpty) {
+              buttons.add(
+                ElevatedButton(
+                  child: Text('Cancel'),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.error),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              );
+            } else {
+              buttons.add(Container());
+            }
           }
           buttons.add(ElevatedButton(
             onPressed: formBloc.submit,
