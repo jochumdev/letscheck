@@ -1,56 +1,61 @@
 import 'dart:async';
 import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'package:letscheck/notifications/plugin.dart';
 import 'connection_data_state.dart';
 import 'connection_data_event.dart';
 import '../settings/settings.dart';
 
-import 'package:letscheck/bg_service.dart' as bg_service;
-
 class ConnectionDataBloc
     extends Bloc<ConnectionDataEvent, ConnectionDataState> {
   final SettingsBloc sBloc;
+  final Set<String> aliases = {};
 
   late StreamSubscription sBlocSubscription;
   StreamSubscription? tickerSubscription;
 
   ConnectionDataBloc({required this.sBloc})
       : super(ConnectionDataState.init()) {
+    for (final alias in sBloc.state.connections.keys) {
+      aliases.add(alias);
+    }
+
     sBlocSubscription = sBloc.stream.listen((state) async {
-      switch (state.state!) {
-        case SettingsStateEnum.clientConnected:
-        case SettingsStateEnum.clientUpdated:
-        case SettingsStateEnum.clientDeleted:
-        case SettingsStateEnum.clientFailed:
-          try {
-            add(UpdateClient(action: state.state!, alias: state.currentAlias));
-          } on StateError {
-            // Ignore.
-          }
-          break;
-        case SettingsStateEnum.updatedRefreshSeconds:
-          if (tickerSubscription != null) {
-            await tickerSubscription!.cancel();
-            tickerSubscription = null;
-          }
-          await _startFetching();
-          break;
-        default:
+      for (final alias in sBloc.state.connections.keys) {
+        switch (state.state!) {
+          case SettingsStateEnum.clientConnected:
+          case SettingsStateEnum.clientFailed:
+            try {
+              add(UpdateClient(action: state.state!, alias: alias));
+            } on StateError {
+              // Ignore.
+            }
+            break;
+          case SettingsStateEnum.updatedRefreshSeconds:
+            await _startFetching();
+            break;
+          case SettingsStateEnum.clientDeleted:
+            aliases.remove(alias);
+            tickerSubscription?.cancel();
+            break;
+          default:
+        }
       }
     });
 
     on<StartFetching>((event, emit) async {
+      await _fetchData();
       await _startFetching();
     });
 
     on<UpdateClient>((event, emit) async {
       switch (event.action) {
         case SettingsStateEnum.clientConnected:
-        case SettingsStateEnum.clientUpdated:
-          await _fetchData(event.alias);
+          await _fetchDataForAlias(event.alias);
         case SettingsStateEnum.clientFailed:
         case SettingsStateEnum.clientDeleted:
           emit(state.rebuild((b) => b..stats.remove(event.alias)));
@@ -66,37 +71,22 @@ class ConnectionDataBloc
   }
 
   Future<void> _startFetching() async {
-    // Update the background service.
-    if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
-      bg_service.sendSettings(sBloc.state);
-    }
-
-    // Initial fetch
-    for (var alias in sBloc.state.connections.keys) {
-      try {
-        add(UpdateClient(
-            action: SettingsStateEnum.clientUpdated, alias: alias));
-      } on StateError {
-        // Ignore.
-      }
-    }
-
-    tickerSubscription ??=
+    tickerSubscription?.cancel();
+    tickerSubscription =
         Stream.periodic(Duration(seconds: sBloc.state.refreshSeconds))
             .listen((state) async {
       // Ticker fetch
-      for (var alias in sBloc.state.connections.keys) {
-        try {
-          add(UpdateClient(
-              action: SettingsStateEnum.clientUpdated, alias: alias));
-        } on StateError {
-          // Ignore.
-        }
-      }
+      await _fetchData();
     });
   }
 
-  Future<void> _fetchData(String alias) async {
+  Future<void> _fetchData() async {
+    for (final alias in aliases) {
+      await _fetchDataForAlias(alias);
+    }
+  }
+
+  Future<void> _fetchDataForAlias(String alias) async {
     if (!sBloc.state.connections.containsKey(alias)) {
       return;
     }
@@ -138,10 +128,7 @@ class ConnectionDataBloc
   }
 
   void dispose() {
-    if (tickerSubscription != null) {
-      tickerSubscription!.cancel();
-      tickerSubscription = null;
-    }
+    tickerSubscription?.cancel();
     sBlocSubscription.cancel();
   }
 }

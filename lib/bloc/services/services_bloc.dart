@@ -18,8 +18,6 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
     sBlocSubscription = sBloc.stream.listen((state) async {
       switch (state.state) {
         case SettingsStateEnum.clientConnected:
-        case SettingsStateEnum.clientDeleted:
-        case SettingsStateEnum.clientUpdated:
         case SettingsStateEnum.clientFailed:
           if (state.currentAlias == alias) {
             try {
@@ -30,32 +28,28 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
           }
           break;
         case SettingsStateEnum.updatedRefreshSeconds:
-          if (tickerSubscription != null) {
-            await tickerSubscription!.cancel();
-            tickerSubscription = null;
-          }
           await _startFetching();
+          break;
+        case SettingsStateEnum.clientDeleted:
+          await tickerSubscription?.cancel();
           break;
         default:
       }
     });
 
     on<ServicesStartFetching>((event, emit) async {
+      await _fetchData();
       await _startFetching();
     });
 
     on<ServicesUpdate>((event, emit) async {
       switch (event.action) {
         case SettingsStateEnum.clientConnected:
-        case SettingsStateEnum.clientUpdated:
           await _fetchData();
           break;
         case SettingsStateEnum.clientFailed:
         case SettingsStateEnum.clientDeleted:
-          if (tickerSubscription != null) {
-            await tickerSubscription!.cancel();
-            tickerSubscription = null;
-          }
+          await tickerSubscription?.cancel();
           break;
         default:
       }
@@ -67,21 +61,12 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
   }
 
   Future<void> _startFetching() async {
-    try {
-      add(ServicesUpdate(action: sBloc.state.state!));
-    } on StateError {
-      // Ignore.
-    }
-
-    tickerSubscription ??=
+    await tickerSubscription?.cancel();
+    tickerSubscription =
         Stream.periodic(Duration(seconds: sBloc.state.refreshSeconds))
             .listen((state) async {
       // Ticker fetch
-      try {
-        add(ServicesUpdate(action: sBloc.state.state!));
-      } on StateError {
-        // Ignore.
-      }
+      await _fetchData();
     });
   }
 

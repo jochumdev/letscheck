@@ -133,9 +133,9 @@ class SettingsScreen extends BaseSlimScreen {
                     builder: (BuildContext context) {
                       var numPicker = NumberPicker(
                         value: sBloc.state.refreshSeconds,
-                        minValue: kDebugMode ? 10 : 60,
+                        minValue: 10,
                         maxValue: 3600,
-                        step: kDebugMode ? 10 : 60,
+                        step: 10,
                         onChanged: (value) {
                           sBloc.add(UpdateRefresh(value));
                         },

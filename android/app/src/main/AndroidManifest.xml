@@ -45,10 +45,10 @@
 
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
-            android:foregroundServiceType="remoteMessaging"
+            android:foregroundServiceType="specialUse"
         />
     </application>
-
+    
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

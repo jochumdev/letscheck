@@ -25,7 +25,7 @@ dependencies:
   flutter:
     sdk: flutter
   check_mk_api:
-    # path: ../check_mk_api-flutter/
+#    path: ../check_mk_api-flutter/
     git: 
       url: https://github.com/jochumdev/check_mk_api-flutter.git
   built_value: ^8.9.3

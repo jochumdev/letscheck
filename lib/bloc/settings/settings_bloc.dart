@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:mutex/mutex.dart';
 import 'package:retry/retry.dart';
+
+import 'package:letscheck/bg_service.dart' as bg_service;
 import 'settings_state.dart';
 import 'settings_event.dart';
 import '../serializers.dart';
@@ -11,10 +16,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
     with HydratedMixin {
   final _failedConnections = <String>[];
 
+  late Mutex mutex;
   StreamSubscription? failedConnectionsTicker;
 
   SettingsBloc() : super(SettingsState.init()) {
     hydrate();
+
+    mutex = Mutex();
 
     on<AppStarted>((event, emit) async {
       if (state.state == SettingsStateEnum.uninitialized) {
@@ -47,13 +55,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
                 .rebuild((b) => b..state = SettingsStateEnum.clientFailed));
           }
         }
-        _updateConnectionState();
-
-        failedConnectionsTicker ??=
-            Stream.periodic(Duration(seconds: 60)).listen((state) async {
-          await _checkFailedConnections();
-        });
+        await _updateConnectionState(emit);
       }
+
+      failedConnectionsTicker ??=
+          Stream.periodic(Duration(seconds: 10)).listen((state) async {
+        await _checkFailedConnections();
+      });
     });
 
     on<ThemeChanged>((event, emit) async {
@@ -71,13 +79,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
       emit(state.rebuild((b) => b
         ..connections[event.alias] = event.connectionSettings
         ..state = SettingsStateEnum.clientUpdated));
-      _updateConnectionState();
+      await _updateConnectionState(emit);
     });
 
     on<DeleteConnection>((event, emit) async {
       emit(state.rebuild((b) => b..connections.remove(event.alias)));
       emit(state.rebuild((b) => b..state = SettingsStateEnum.clientDeleted));
-      _updateConnectionState();
+      await _updateConnectionState(emit);
     });
 
     on<ConnectionFailed>((event, emit) async {
@@ -87,7 +95,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
               ..state = SettingsConnectionStateEnum.failed
               ..error = event.error)));
       emit(state.rebuild((b) => b..state = SettingsStateEnum.clientFailed));
-      _updateConnectionState();
+      await _updateConnectionState(emit);
 
       _failedConnections.add(event.alias);
     });
@@ -99,7 +107,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
               ..state = SettingsConnectionStateEnum.connected
               ..error = null)));
       emit(state.rebuild((b) => b..state = SettingsStateEnum.clientConnected));
-      _updateConnectionState();
+      await _updateConnectionState(emit);
 
       _failedConnections.remove(event.alias);
     });
@@ -110,6 +118,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
         ..state = SettingsStateEnum.updatedRefreshSeconds
         ..refreshSeconds = event.refreshSeconds));
       emit(state.rebuild((b) => b..state = myState));
+
+      // Update the background service.
+      if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+        bg_service.sendSettings(state);
+      }
     });
 
     on<SettingsSetCurrentAlias>((event, emit) async {
@@ -139,9 +152,14 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
         as Map<String, dynamic>;
   }
 
-  SettingsState _updateConnectionState() {
+  Future<void> _updateConnectionState(Emitter<SettingsState> emit) async {
     if (state.connections.length == 0) {
-      return state.rebuild((b) => b..state = SettingsStateEnum.noConnection);
+      // Update the background service.
+      if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+        bg_service.sendSettings(state);
+      }
+
+      emit(state.rebuild((b) => b..state = SettingsStateEnum.noConnection));
     }
 
     var cState = SettingsConnectionStateEnum.uninitialized;
@@ -155,42 +173,54 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
 
     switch (cState) {
       case SettingsConnectionStateEnum.uninitialized:
-        return state.rebuild((b) => b..state = SettingsStateEnum.uninitialized);
+        emit(state.rebuild((b) => b..state = SettingsStateEnum.uninitialized));
       case SettingsConnectionStateEnum.connected:
-        return state.rebuild((b) => b..state = SettingsStateEnum.connected);
+        emit(state.rebuild((b) => b..state = SettingsStateEnum.connected));
       case SettingsConnectionStateEnum.failed:
-        return state.rebuild((b) => b..state = SettingsStateEnum.failed);
+        emit(state.rebuild((b) => b..state = SettingsStateEnum.failed));
     }
 
-    return state;
+    // Update the background service.
+    if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+      bg_service.sendSettings(state);
+    }
   }
 
   Future<void> _checkFailedConnections() async {
-    if (_failedConnections.isEmpty) {
-      return;
-    }
+    try {
+      await mutex.acquire();
 
-    for (final alias in _failedConnections) {
-      final conn = state.connections[alias]!.client!;
+      if (_failedConnections.isEmpty) {
+        return;
+      }
 
-      try {
-        await retry(conn.testConnection,
-            retryIf: (e) => e is cmk_api.CheckMkBaseError);
+      for (final alias in _failedConnections) {
+        final conn = state.connections[alias]!.client!;
+
         try {
-          add(ConnectionBack(alias));
-        } on StateError {
+          await retry(conn.testConnection, retryIf: (e) {
+            if (e is cmk_api.CheckMkBaseError) {
+              return true;
+            }
+
+            print("Other error in _checkFailedConnections");
+            return false;
+          });
+          try {
+            add(ConnectionBack(alias));
+          } on StateError {
+            // Ignore.
+          }
+        } finally {
           // Ignore.
         }
-      } on cmk_api.CheckMkBaseError {
-        // Ignore.
       }
+    } finally {
+      mutex.release();
     }
   }
 
   void dispose() {
-    if (failedConnectionsTicker != null) {
-      failedConnectionsTicker!.cancel();
-      failedConnectionsTicker = null;
-    }
+    failedConnectionsTicker?.cancel();
   }
 }

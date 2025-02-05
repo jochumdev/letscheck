@@ -18,8 +18,6 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
     sBlocSubscription = sBloc.stream.listen((state) async {
       switch (state.state!) {
         case SettingsStateEnum.clientConnected:
-        case SettingsStateEnum.clientDeleted:
-        case SettingsStateEnum.clientUpdated:
         case SettingsStateEnum.clientFailed:
           if (state.currentAlias == alias) {
             try {
@@ -30,32 +28,28 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
           }
           break;
         case SettingsStateEnum.updatedRefreshSeconds:
-          if (tickerSubscription != null) {
-            await tickerSubscription!.cancel();
-            tickerSubscription = null;
-          }
           await _startFetching();
+          break;
+        case SettingsStateEnum.clientDeleted:
+          await tickerSubscription?.cancel();
           break;
         default:
       }
     });
 
     on<HostsStartFetching>((event, emit) async {
+      await _fetchData();
       await _startFetching();
     });
 
     on<HostsUpdate>((event, emit) async {
       switch (event.action) {
         case SettingsStateEnum.clientConnected:
-        case SettingsStateEnum.clientUpdated:
           await _fetchData();
           break;
         case SettingsStateEnum.clientFailed:
         case SettingsStateEnum.clientDeleted:
-          if (tickerSubscription != null) {
-            await tickerSubscription!.cancel();
-            tickerSubscription = null;
-          }
+          await tickerSubscription?.cancel();
           break;
         default:
       }
@@ -67,21 +61,12 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
   }
 
   Future<void> _startFetching() async {
-    try {
-      add(HostsUpdate(action: sBloc.state.state!));
-    } on StateError {
-      // Ignore.
-    }
-
-    tickerSubscription ??=
+    await tickerSubscription?.cancel();
+    tickerSubscription =
         Stream.periodic(Duration(seconds: sBloc.state.refreshSeconds))
             .listen((state) async {
       // Ticker fetch
-      try {
-        add(HostsUpdate(action: sBloc.state.state!));
-      } on StateError {
-        // Ignore.
-      }
+      await _fetchData();
     });
   }
 
@@ -110,10 +95,7 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
   }
 
   void dispose() {
-    if (tickerSubscription != null) {
-      tickerSubscription!.cancel();
-      tickerSubscription = null;
-    }
+    tickerSubscription?.cancel();
     sBlocSubscription.cancel();
   }
 }

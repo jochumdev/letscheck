@@ -48,12 +48,13 @@ class ConnectionFormBloc extends FormBloc<String, String> {
       this.connection,
       super.isEditing = false}) {
     alias.updateInitialValue(connectionAlias != null ? connectionAlias! : '');
-    baseUrl.updateInitialValue(connection != null ? connection!.baseUrl : '');
+    baseUrl.updateInitialValue(
+        connection != null ? connection!.baseUrl : 'https://');
     site.updateInitialValue(connection != null ? connection!.site : '');
     username.updateInitialValue(connection != null ? connection!.username : '');
     secret.updateInitialValue(connection != null ? connection!.secret : '');
     notifications.updateInitialValue(
-        connection != null ? connection!.notifications : false);
+        connection != null ? connection!.notifications : true);
     validateSsl.updateInitialValue(
         connection != null ? connection!.validateSsl : true);
 
@@ -88,6 +89,11 @@ class ConnectionFormBloc extends FormBloc<String, String> {
       emitFailure(
           failureResponse:
               "Failed StatusCode was: '${e.response!.statusCode}'");
+      return;
+    } catch (e) {
+      settingsBloc
+          .add(ConnectionFailed(alias.value, cmk_api.CheckMkBaseError.of(e)));
+      emitFailure(failureResponse: "Failed error: $e");
       return;
     }
 

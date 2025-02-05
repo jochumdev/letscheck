@@ -121,25 +121,20 @@ Future<void> main() async {
   final sBloc = SettingsBloc();
   final hdBloc = ConnectionDataBloc(sBloc: sBloc);
 
-  final initializationSettings = InitializationSettings(
-    android: notifications_android.initializationSettings,
-    iOS: notifications_darwin.initializationSettings,
-    macOS: notifications_darwin.initializationSettings,
-    linux: notifications_linux.initializationSettings,
-    windows: notifications_windows.initializationSettings,
-  );
-
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onDidReceiveNotificationResponse: selectNotificationStream.add,
-  );
-
   if (!kIsWeb) {
-    await grantNotificationPermission();
-  }
+    final initializationSettings = InitializationSettings(
+      android: notifications_android.initializationSettings,
+      iOS: notifications_darwin.initializationSettings,
+      macOS: notifications_darwin.initializationSettings,
+      linux: notifications_linux.initializationSettings,
+      windows: notifications_windows.initializationSettings,
+    );
 
-  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-    await bg_service.initialize();
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: selectNotificationStream.add,
+    );
+    await grantNotificationPermission();
   }
 
   if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
@@ -179,6 +174,11 @@ Future<void> main() async {
       ],
     );
     await trayManager.setContextMenu(menu);
+  }
+
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    await bg_service.initialize();
+    bg_service.start();
   }
 
   final javascriptRuntime = await initJavascriptRuntime();

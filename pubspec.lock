@@ -147,7 +147,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "238e9cac4bfefaa6f34479cad913a1333fad9a87"
+      resolved-ref: d7ebeec266a3126faeff6bea8c1bd08ada8a20ac
       url: "https://github.com/jochumdev/check_mk_api-flutter.git"
     source: git
     version: "0.0.1"
@@ -512,10 +512,10 @@ packages:
     dependency: transitive
     description:
       name: hive_ce
-      sha256: "918d3379fafea06d501a161805965f04d0ff164aa3948daeb746b31ed936a51b"
+      sha256: "34ac3a7700364f888ea398fbeac133ffe3908d11aa5f9bc7d7e092a5dac61390"
       url: "https://pub.dev"
     source: hosted
-    version: "2.9.0"
+    version: "2.10.0"
   http:
     dependency: transitive
     description:

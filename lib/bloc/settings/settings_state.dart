@@ -96,8 +96,8 @@ abstract class SettingsStateConnection
           required String site,
           required String username,
           required String secret,
-          bool notifications = false,
-          bool validateSsl = false,
+          bool notifications = true,
+          bool validateSsl = true,
           String currentAlias = "",
           Map<String, bool> filters = const {},
           cmk_api.Client? client}) =>
