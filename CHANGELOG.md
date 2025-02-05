@@ -1,5 +1,8 @@
 # LetsCheck
 ## Unreleased
+### Added
+- replace all screens with StateFull ones, closes #18
+
 ### Fixed
 - run notifications once on load
 

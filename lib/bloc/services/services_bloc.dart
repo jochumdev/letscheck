@@ -18,6 +18,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
     sBlocSubscription = sBloc.stream.listen((state) async {
       switch (state.state) {
         case SettingsStateEnum.clientConnected:
+        case SettingsStateEnum.clientUpdated:
         case SettingsStateEnum.clientFailed:
           if (state.currentAlias == alias) {
             try {

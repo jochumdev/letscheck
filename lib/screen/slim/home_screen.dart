@@ -10,7 +10,7 @@ import '../../bloc/connection_data/connection_data.dart';
 import '../../bloc/comments/comments.dart';
 import '../../global_router.dart';
 
-class HomeScreen extends BaseSlimScreen {
+class HomeScreen extends StatefulWidget {
   static final route = buildRoute(
       key: routeHome,
       uri: '/',
@@ -19,6 +19,11 @@ class HomeScreen extends BaseSlimScreen {
             builder: (context) => HomeScreen(),
           ));
 
+  @override
+  HomeScreenState createState() => HomeScreenState();
+}
+
+class HomeScreenState extends State<HomeScreen> with BaseSlimScreenState {
   @override
   Future<void> refreshAction(context) async {
     final sBloc = BlocProvider.of<SettingsBloc>(context);

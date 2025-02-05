@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/connection_data/connection_data.dart';
 import '../../bloc/settings/settings.dart';
 import '../../widget/site_stats_widget.dart';
-import 'custom_search_delegate.dart';
+import '../../widget/custom_search_delegate.dart';
 
 class BaseSlimScreenSettings {
   final String title;
@@ -22,7 +22,7 @@ class BaseSlimScreenSettings {
       this.showSearch = true});
 }
 
-abstract class BaseSlimScreen extends StatelessWidget {
+mixin class BaseSlimScreenState {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   Future<void> leadingButtonAction(context) async {
@@ -31,11 +31,14 @@ abstract class BaseSlimScreen extends StatelessWidget {
 
   Future<void> refreshAction(context) async {}
 
-  Widget content(BuildContext context);
+  Widget content(BuildContext context) {
+    return Container();
+  }
 
-  BaseSlimScreenSettings setup(BuildContext context);
+  BaseSlimScreenSettings setup(BuildContext context) {
+    return BaseSlimScreenSettings("invalid");
+  }
 
-  @override
   Widget build(BuildContext context) {
     // Fix portrait mode.
     SystemChrome.setPreferredOrientations([

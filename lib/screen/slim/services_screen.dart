@@ -11,7 +11,7 @@ import '../../bloc/services/services.dart';
 import '../../widget/services_list_widget.dart';
 import '../../widget/center_loading_widget.dart';
 
-class ServicesScreen extends BaseSlimScreen {
+class ServicesScreen extends StatefulWidget {
   static final route = buildRoute(
       key: routeServices,
       uri: '/conn/{alias}/services/{filter}',
@@ -21,6 +21,12 @@ class ServicesScreen extends BaseSlimScreen {
             builder: (context) => ServicesScreen(),
           ));
 
+  @override
+  ServicesScreenState createState() => ServicesScreenState();
+}
+
+class ServicesScreenState extends State<ServicesScreen>
+    with BaseSlimScreenState {
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
     final groups = ServicesScreen.route.extractNamedArgs(context);

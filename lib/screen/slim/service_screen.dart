@@ -5,7 +5,7 @@ import 'package:letscheck/widget/site_stats_widget.dart';
 import 'base_slim_screen.dart';
 import '../../global_router.dart';
 
-class ServiceScreen extends BaseSlimScreen {
+class ServiceScreen extends StatefulWidget {
   static final route = buildRoute(
       key: routeService,
       uri: '/conn/{alias}/host/{hostname}/services/{service}',
@@ -15,6 +15,11 @@ class ServiceScreen extends BaseSlimScreen {
             builder: (context) => ServiceScreen(),
           ));
 
+  @override
+  ServiceScreenState createState() => ServiceScreenState();
+}
+
+class ServiceScreenState extends State<ServiceScreen> with BaseSlimScreenState {
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
     final groups = ServiceScreen.route.extractNamedArgs(context);

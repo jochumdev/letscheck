@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'base_slim_screen.dart';
 import '../../global_router.dart';
 
-class NotFoundScreen extends BaseSlimScreen {
+class NotFoundScreen extends StatefulWidget {
   static final route = buildRoute(
       key: routeNotFound,
       uri: '/pages/not_found',
@@ -11,6 +11,12 @@ class NotFoundScreen extends BaseSlimScreen {
             builder: (context) => NotFoundScreen(),
           ));
 
+  @override
+  NotFoundScreenState createState() => NotFoundScreenState();
+}
+
+class NotFoundScreenState extends State<NotFoundScreen>
+    with BaseSlimScreenState {
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
     return BaseSlimScreenSettings('404 Not found',

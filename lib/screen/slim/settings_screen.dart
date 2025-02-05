@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
@@ -10,7 +9,7 @@ import 'settings_languages_screen.dart';
 import '../../global_router.dart';
 import 'slim_router.dart';
 
-class SettingsScreen extends BaseSlimScreen {
+class SettingsScreen extends StatefulWidget {
   static final route = buildRoute(
       key: routeSettings,
       uri: '/settings',
@@ -19,6 +18,12 @@ class SettingsScreen extends BaseSlimScreen {
             builder: (context) => SettingsScreen(),
           ));
 
+  @override
+  SettingsScreenState createState() => SettingsScreenState();
+}
+
+class SettingsScreenState extends State<SettingsScreen>
+    with BaseSlimScreenState {
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
     return BaseSlimScreenSettings(

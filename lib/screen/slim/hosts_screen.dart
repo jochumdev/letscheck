@@ -10,7 +10,7 @@ import '../../bloc/hosts/hosts.dart';
 import '../../widget/hosts_list_widget.dart';
 import '../../widget/center_loading_widget.dart';
 
-class HostsScreen extends BaseSlimScreen {
+class HostsScreen extends StatefulWidget {
   static final route = buildRoute(
       key: routeHosts,
       uri: '/conn/{alias}/hosts/{filter}',
@@ -20,6 +20,11 @@ class HostsScreen extends BaseSlimScreen {
             builder: (context) => HostsScreen(),
           ));
 
+  @override
+  HostsScreenState createState() => HostsScreenState();
+}
+
+class HostsScreenState extends State<HostsScreen> with BaseSlimScreenState {
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
     final groups = HostsScreen.route.extractNamedArgs(context);

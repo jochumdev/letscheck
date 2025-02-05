@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grouped_list/grouped_list.dart';
-import 'package:letscheck/bloc/services/services.dart';
-import '../../bloc/search/search.dart';
-import '../../widget/center_loading_widget.dart';
-import '../../widget/host_card_widget.dart';
-import '../../widget/services_grouped_card_widget.dart';
+
+import '../bloc/services/services.dart';
+import '../bloc/search/search.dart';
+import 'center_loading_widget.dart';
+import 'host_card_widget.dart';
+import 'services_grouped_card_widget.dart';
 
 class CustomSearchDelegate extends SearchDelegate {
   CustomSearchDelegate()

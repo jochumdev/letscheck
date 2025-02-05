@@ -11,7 +11,7 @@ import '../../widget/services_grouped_card_widget.dart';
 import '../../widget/center_loading_widget.dart';
 import '../../widget/host_card_widget.dart';
 
-class HostScreen extends BaseSlimScreen {
+class HostScreen extends StatefulWidget {
   static final route = buildRoute(
       key: routeHost,
       uri: '/conn/{alias}/host/{hostname}',
@@ -21,6 +21,11 @@ class HostScreen extends BaseSlimScreen {
             builder: (context) => HostScreen(),
           ));
 
+  @override
+  HostScreenState createState() => HostScreenState();
+}
+
+class HostScreenState extends State<HostScreen> with BaseSlimScreenState {
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
     final groups = HostScreen.route.extractNamedArgs(context);

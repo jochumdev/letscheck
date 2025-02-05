@@ -5,7 +5,7 @@ import '../../bloc/settings/settings.dart';
 import 'base_slim_screen.dart';
 import '../../global_router.dart';
 
-class SettingsConnectionScreen extends BaseSlimScreen {
+class SettingsConnectionScreen extends StatefulWidget {
   static final route = buildRoute(
       key: routeSettingsConnection,
       uri: '/settings/connection/{name}',
@@ -15,6 +15,13 @@ class SettingsConnectionScreen extends BaseSlimScreen {
             builder: (context) => SettingsConnectionScreen(),
           ));
 
+  @override
+  SettingsConnectionScreenState createState() =>
+      SettingsConnectionScreenState();
+}
+
+class SettingsConnectionScreenState extends State<SettingsConnectionScreen>
+    with BaseSlimScreenState {
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
     final groups = SettingsConnectionScreen.route.extractNamedArgs(context);
