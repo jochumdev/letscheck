@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import 'base_slim_screen.dart';
 import '../../widget/center_loading_widget.dart';
@@ -34,13 +33,6 @@ class HomeScreenState extends State<HomeScreen> with BaseSlimScreenState {
   @override
   Widget content(BuildContext context) {
     final sBloc = BlocProvider.of<SettingsBloc>(context);
-
-    if (sBloc.state.connections.isEmpty) {
-      Future.microtask(() {
-        context.push('/settings/connection/+');
-      });
-      return Container();
-    }
 
     return BlocBuilder<ConnectionDataBloc, ConnectionDataState>(
         builder: (context, state) {

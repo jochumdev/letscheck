@@ -31,7 +31,7 @@ class SettingsConnectionScreenState extends State<SettingsConnectionScreen>
 
     return BaseSlimScreenSettings(
       title,
-      showLeading: alias.isNotEmpty,
+      showLeading: alias != '+',
       showRefresh: false,
       showMenu: false,
       showSettings: false,

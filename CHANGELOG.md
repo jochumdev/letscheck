@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Fixed
+- an unknown number of redirects after implementing redirects
+
 ## 0.1.4+1273 - 2025-02-05
 ### Fixed
 - github workflow, pt3

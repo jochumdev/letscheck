@@ -217,6 +217,12 @@ class AppState extends State<App> with TrayListener {
     final router = GoRouter(
       routes: routes,
       debugLogDiagnostics: true,
+      redirect: (context, state) async {
+        if (context.read<SettingsBloc>().state.connections.isEmpty) {
+          return '/settings/connection/+';
+        }
+        return null;
+      },
     );
 
     return BlocBuilder<SettingsBloc, SettingsState>(builder: (context, state) {
