@@ -1,4 +1,8 @@
 # LetsCheck
+## 0.1.4+1271 - 2025-02-05
+### Fixed
+- macosx curl error
+
 ## 0.1.4+1270 - 2025-02-05
 ### Added
 - upgrade flutter 3.27.1 -> 3.27.3
