@@ -47,7 +47,7 @@ var refreshSeconds = 60;
 var clients = <String, cmk_api.Client>{};
 var enabled = <String, bool>{};
 
-void _fetchAndRunNotificiations(timer) async {
+void _fetchAndRunNotificiations(Timer? timer) async {
   try {
     mutex!.acquire();
 
@@ -139,6 +139,9 @@ void onStart(ServiceInstance service) async {
       if (recreate) {
         // Cancel old timer.
         timer?.cancel();
+
+        // Fetch now, the timer fetches then again later.
+        _fetchAndRunNotificiations(timer);
 
         // Create new timer.
         timer = Timer.periodic(

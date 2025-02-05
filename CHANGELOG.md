@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Fixed
+- run notifications once on load
+
 ## 0.1.2+1268 - 2025-02-05
 ### Added
 - fix to portrait mode
