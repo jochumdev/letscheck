@@ -1,9 +1,10 @@
-on:
-  release:
-    types:
-      - created
+name: Testing Tag build
 
-name: Release Artifacts
+on:
+  push:
+#    # Pattern matched against refs/tags
+#    tags:        
+#      - '**'  
 
 jobs:
   build-android-apk:
@@ -26,19 +27,11 @@ jobs:
           java-version: "21.x"
           cache: "gradle"
   
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-          flutter-version-file: pubspec.yaml
+      - name: Set up fvm
+        run: ./scripts/setup_fvm.sh
   
       - name: Enable android
-        run: flutter config --enable-android
-
-      - name: Show flutter version
-        run: flutter doctor --verbose
-
+        run: fvm flutter config --enable-android
 
       - name: Decode keystore and create jks and properties file for signing the app
         shell: bash
@@ -54,18 +47,13 @@ jobs:
         working-directory: ./android
 
       - name: Build
-        run: flutter build apk --release
+        run: fvm flutter build apk --release
 
-      - name: Upload file to the GitHub release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload artifcats
+        uses: actions/upload-artifact@v4
         with:
-          # GitHub token.
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          # Local file to upload.
-          file: build/app/outputs/flutter-apk/app-release.apk
-          asset_name: letscheck-${{ github.event.release.tag_name }}-android.apk
-          # Tag to use as a release.
-          tag: ${{ github.ref }}
+          name: android-binary
+          path: build/app/outputs/flutter-apk/app-release.apk
 
   build-linux:
     name: "Build Linux x64"
@@ -79,47 +67,42 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: 'true'
-
+      
       - name: Install Flutter dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libx11-dev pkg-config cmake ninja-build libblkid-dev libayatana-appindicator3-dev jq
+          sudo apt-get install -qy libgtk-3-dev libx11-dev pkg-config cmake ninja-build libblkid-dev clang unzip libayatana-appindicator3-dev
   
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-          flutter-version-file: pubspec.yaml
+      - name: Set up fvm
+        run: ./scripts/setup_fvm.sh
   
+      - name: Build quickjs-c-bridge
+        run: pushd quickjs-c-bridge; cmake -S ./linux -B ./build/linux; cmake --build build/linux; popd
+
       - name: Enable desktop
-        run: flutter config --enable-linux-desktop
+        run: fvm flutter config --enable-linux-desktop
 
       - name: Flutter get packages
-        run: flutter pub get
+        run: fvm flutter pub get
+
+      - name: Some wired mkdir
+        run: mkdir -p build/linux/x64/release/bundle/lib 
 
       - name: Flutter build app
-        run: flutter build linux
+        run: fvm flutter build linux --release
 
       - name: Copy libquickjs
-        run: cp ./build/linux/x64/release/plugins/flutter_js/bundle/lib/libquickjs_c_bridge_plugin.so ./build/linux/x64/release/bundle/lib || exit 0
+        run: cp quickjs-c-bridge/build/linux/libquickjs_c_bridge_plugin.so build/linux/x64/release/bundle/lib/ || exit 0
 
       - name: Compress artifacts
         run: tar -a -c -f letscheck-linux-x64.tar.xz -C ./build/linux/x64/release/bundle .
 
-      - name: Upload artifcats for flatpak job
+      - name: Upload artifcats
         uses: actions/upload-artifact@v4
         with:
-          name: linux-x64_binary
+          name: linux-x64-binary
           path: letscheck-linux-x64.tar.xz
 
-      - name: Upload files to a GitHub release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: letscheck-linux-x64.tar.xz
-          asset_name: letscheck-${{ github.event.release.tag_name }}-linux-x64.tar.xz
-          tag: ${{ github.ref }}
 
   build-linux-arm64:
     name: "Build Linux ARM64"
@@ -163,22 +146,11 @@ jobs:
       - name: Compress artifacts
         run: tar -a -c -f letscheck-linux-arm64.tar.xz -C ./build/linux/arm64/release/bundle .
 
-      - name: Upload artifcats for flatpak job
+      - name: Upload artifcats
         uses: actions/upload-artifact@v4
         with:
-          name: linux-arm64_binary
+          name: linux-arm64-binary
           path: letscheck-linux-arm64.tar.xz
-
-      - name: Upload files to a GitHub release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          # GitHub token.
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          # Local file to upload.
-          file: letscheck-linux-arm64.tar.xz
-          asset_name: letscheck-${{ github.event.release.tag_name }}-linux-arm64.tar.xz
-          # Tag to use as a release.
-          tag: ${{ github.ref }}
 
   build-linux-flatpak:
     needs: [build-linux, build-linux-arm64]
@@ -221,13 +193,11 @@ jobs:
           cache-key: flatpak-builder-${{ github.sha }}
           upload-artifact: "false"
 
-      - name: Upload artifacts to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload artifcats
+        uses: actions/upload-artifact@v4
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: letscheck.flatpak
-          asset_name: letscheck-${{ github.event.release.tag_name }}-linux.flatpak
-          tag: ${{ github.ref }}
+          name: linux-arm64-binary
+          path: letscheck.flatpak
 
   build-macos:
     name: "Build MacOS"
@@ -242,29 +212,25 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-          flutter-version-file: pubspec.yaml
-
       - name: "Select the latest stable Xcode 12"
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable    
+          xcode-version: latest-stable
+
+      - name: Set up fvm
+        run: ./scripts/setup_fvm.sh
 
       - name: Install create-dmg
         run: brew install create-dmg
 
       - name: Enable desktop
-        run: flutter config --enable-macos-desktop
+        run: fvm flutter config --enable-macos-desktop
 
       - name: Flutter get packages
-        run: flutter pub get
+        run: fvm flutter pub get
 
       - name: Flutter build app
-        run: flutter build macos
+        run: fvm flutter build macos
 
       - name: Create dmg
         run: |
@@ -273,21 +239,17 @@ jobs:
       - name: Compress artifacts
         run: cd build/macos/Build/Products/Release && zip -r ../../../../../letscheck-macos.zip letscheck.app
 
-      - name: Upload artifacts to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload zip
+        uses: actions/upload-artifact@v4
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: letscheck-macos.zip
-          asset_name: letscheck-${{ github.event.release.tag_name }}-macos.zip
-          tag: ${{ github.ref }}
+          name: macos-zip
+          path: letscheck-macos.zip
 
-      - name: Upload DMG to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload dmg
+        uses: actions/upload-artifact@v4
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/macos/Build/Products/Release/letscheck.dmg
-          asset_name: letscheck-${{ github.event.release.tag_name }}-macos.dmg
-          tag: ${{ github.ref }}
+            name: macos-dmg
+            path: build/macos/Build/Products/Release/letscheck.dmg
 
   build-windows:
     name: "Build Windows"
@@ -352,14 +314,13 @@ jobs:
       - name: Compress artifacts
         run: cd build/windows/x64/runner/Release && C:/ProgramData/Chocolatey/bin/7z.exe a ../../../../../letscheck-windows-x64.zip .
 
-      - name: Upload artifacts to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload zip
+        uses: actions/upload-artifact@v4
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: letscheck-windows-x64.zip
-          asset_name: letscheck-${{ github.event.release.tag_name }}-windows-x64.zip
-          tag: ${{ github.ref }}
+          name: windows-x64-zip
+          path: letscheck-windows-x64.zip
 
+        
       # - name: Create MSIX
       #   run: flutter pub run msix:create
 
@@ -370,58 +331,3 @@ jobs:
       #     file: build\windows\x64\runner\Release\letscheck.msix
       #     asset_name: letscheck-windows-x64-${{ github.event.release.tag_name }}.msix
       #     tag: ${{ github.ref }}
-
-  build-web:
-    name: "Build Web"
-    runs-on: ubuntu-22.04
-    permissions: write-all
-    timeout-minutes: 30
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: 'true'
-          fetch-depth: 0
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-          flutter-version-file: pubspec.yaml
-  
-      - name: Enable desktop
-        run: flutter config --enable-web
-
-      - name: Flutter get packages
-        run: flutter pub get
-
-      - name: Flutter build app
-        run: flutter build web --base-href "/letscheck/pwa/" --release
-
-      - name: Compress artifacts
-        run: cd build/web && zip -r ../../letscheck-web.zip .
-
-      - name: Upload artifacts to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          # GitHub token.
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          # Local file to upload.
-          file: letscheck-web.zip
-          asset_name: letscheck-${{ github.event.release.tag_name }}-web.zip
-          # Tag to use as a release.
-          tag: ${{ github.ref }}
-
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
-          destination_dir: pwa
-          force_orphan: true
-          user_name: 'github-ci[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
-          commit_message: 'Publish to gh-pages'
