@@ -1,5 +1,5 @@
 # LetsCheck
-## Unreleased
+## 0.1.3+1269 - 2025-02-05
 ### Added
 - replace all screens with StateFull ones, closes #18
 - add arm64 builder, pt1
