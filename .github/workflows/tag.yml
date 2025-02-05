@@ -377,7 +377,7 @@ jobs:
 
       - name: Rename files
         run: |
-          mv android.apk letscheck-${{ github.ref_name }}-android.apk
+          mv app-release.apk letscheck-${{ github.ref_name }}-android.apk
           mv letscheck-linux-x64.tar.xz letscheck-${{ github.ref_name }}-linux-x64.tar.xz
           mv letscheck-linux-arm64.tar.xz letscheck-${{ github.ref_name }}-linux-arm64.tar.xz
           mv letscheck.flatpak letscheck-${{ github.ref_name }}-linux.flatpak
