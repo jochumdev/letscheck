@@ -123,6 +123,47 @@ jobs:
           # Tag to use as a release.
           tag: ${{ github.ref }}
 
+  build-linux-flatpak:
+    needs: build-linux
+    name: "Build Linux flatpak"
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-22.08
+      options: --privileged
+    permissions: write-all
+    timeout-minutes: 10
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Download binary from build-linux
+        uses: actions/download-artifact@v4
+        with:
+          name: linux_x86_64_binary
+
+      - name: Extract binary
+        run: mkdir -p ./build/linux/x64/release/bundle && cd ./build/linux/x64/release/bundle && tar -x -f ../../../../../letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz .
+
+      - name: Build flatpak
+        uses: jochumdev/flatpak-github-actions/flatpak-builder@builder-update-deps
+        with:
+          bundle: letscheck.flatpak
+          manifest-path: ./io.github.jochumdev.letscheck.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+          upload-artifact: "false"
+
+      - name: Upload artifacts to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: letscheck.flatpak
+          asset_name: letscheck-linux-x86_64-${{ github.event.release.tag_name }}.flatpak
+          tag: ${{ github.ref }}
+
   # build-linux-arm64:
   #   name: "Build Linux ARM64"
   #   runs-on: ubuntu-24.04-arm
