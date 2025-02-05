@@ -1,10 +1,9 @@
 # LetsCheck
-## Unreleased
+## 0.1.2+1268 - 2025-02-05
 ### Added
 - fix to portrait mode
 
 ### Fixed
-- move the README FAQ to the WIKI
 - move the README FAQ to the WIKI
 - reconnection issues when loosing internet, fixes issue #15
 - its Checkmk not ChecMk
