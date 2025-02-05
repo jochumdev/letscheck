@@ -124,6 +124,7 @@ jobs:
   build-linux-arm64:
     name: "test build Linux ARM64"
     runs-on: ubuntu-22.04-arm
+    permissions: write-all
     timeout-minutes: 30
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -401,7 +402,7 @@ jobs:
         run: flutter build web --base-href "/letscheck/pwa/" --release
 
       - name: Compress artifacts
-        run: cd build/web && zip -r ../../letscheck-web-${{ github.event.release.tag_name }}.zip .
+        run: cd build/web && zip -r ../../letscheck-web.zip .
 
       - name: Upload artifacts to release
         uses: svenstaro/upload-release-action@v2
@@ -409,7 +410,8 @@ jobs:
           # GitHub token.
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           # Local file to upload.
-          file: letscheck-${{ github.event.release.tag_name }}-web.zip
+          file: letscheck-web.zip
+          asset_name: letscheck-${{ github.event.release.tag_name }}-web.zip
           # Tag to use as a release.
           tag: ${{ github.ref }}
 
