@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Fixed
+- redirect to homepage when a connection has been successfuly saved
+
 ## 0.1.4+1271 - 2025-02-05
 ### Fixed
 - macosx curl error

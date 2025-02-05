@@ -27,7 +27,11 @@ class ConnectionFormWidget extends StatelessWidget {
       onSuccess: (context, state) {
         LoadingDialog.hide(context);
 
-        context.pop();
+        if (isNew) {
+          context.go('/');
+        } else {
+          context.pop();
+        }
       },
       onFailure: (context, state) {
         LoadingDialog.hide(context);
