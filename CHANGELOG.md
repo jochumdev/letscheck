@@ -7,6 +7,7 @@
 - move the README FAQ to the WIKI
 - move the README FAQ to the WIKI
 - reconnection issues when loosing internet, fixes issue #15
+- its Checkmk not ChecMk
 
 ## 0.1.1+1267 - 2025-02-04
 ### Fixed
