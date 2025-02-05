@@ -1,23 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
+
+import 'package:go_router/go_router.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+
 import '../../bloc/settings/settings.dart';
 import 'base_slim_screen.dart';
-import 'settings_languages_screen.dart';
-import '../../global_router.dart';
-import 'slim_router.dart';
 
 class SettingsScreen extends StatefulWidget {
-  static final route = buildRoute(
-      key: routeSettings,
-      uri: '/settings',
-      route: (context) => MaterialPageRoute(
-            settings: context,
-            builder: (context) => SettingsScreen(),
-          ));
-
   @override
   SettingsScreenState createState() => SettingsScreenState();
 }
@@ -53,9 +45,7 @@ class SettingsScreenState extends State<SettingsScreen>
                   ? Colors.green
                   : Colors.red),
           onTap: () {
-            Navigator.of(context).pushNamed(GlobalRouter().buildUri(
-                routeSettingsConnection,
-                buildArgs: {'name': connName}));
+            context.push('/settings/connection/$connName');
           },
         ));
       }
@@ -101,8 +91,7 @@ class SettingsScreenState extends State<SettingsScreen>
                   icon: Icon(Icons.add_circle_outline),
                   color: titleColor,
                   iconSize: 32,
-                  onPressed: () => Navigator.of(context).pushNamed(
-                      GlobalRouter().buildUri(routeSettingsConnection)),
+                  onPressed: () => context.push('/settings/connection/+'),
                 ),
               ],
             ),
@@ -115,9 +104,7 @@ class SettingsScreenState extends State<SettingsScreen>
                 trailing: Text('English'),
                 leading: Icon(Icons.language),
                 onPressed: (ctx) {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          SettingsLanguagesScreen()));
+                  context.push('/settings/language');
                 },
               ),
               SettingsTile.switchTile(

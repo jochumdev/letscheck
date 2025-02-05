@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+
+import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../global_router.dart';
+
+import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 
 class HostCardWidget extends StatelessWidget {
   final String alias;
@@ -45,12 +47,7 @@ class HostCardWidget extends StatelessWidget {
             flex: 2,
             child: IconButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(
-                  GlobalRouter().buildUri(
-                    routeHost,
-                    buildArgs: {'alias': alias, 'hostname': host.name!},
-                  ),
-                );
+                context.push('/conn/$alias/host/${host.name!}');
               },
               tooltip: "Goto host",
               icon: Icon(

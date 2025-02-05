@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'package:letscheck/javascript/javascript.dart';
 import '../bloc/comments/comments.dart';
-import '../global_router.dart';
 
 class ServicesGroupedCardWidget extends StatelessWidget {
   final String alias;
@@ -46,15 +47,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
                 flex: 2,
                 child: IconButton(
                   onPressed: () {
-                    Navigator.of(context).pushNamed(
-                      GlobalRouter().buildUri(
-                        routeHost,
-                        buildArgs: {
-                          'alias': alias,
-                          'hostname': services[0].hostName!
-                        },
-                      ),
-                    );
+                    context.push('/conn/$alias/host/${services[0].hostName!}');
                   },
                   tooltip: "Goto host",
                   icon: Icon(
@@ -71,12 +64,8 @@ class ServicesGroupedCardWidget extends StatelessWidget {
 
     for (var service in services) {
       gotoService() async {
-        await Navigator.of(context).pushNamed(GlobalRouter()
-            .buildUri(routeService, buildArgs: {
-          'alias': alias,
-          'hostname': service.hostName!,
-          'service': service.displayName!
-        }));
+        context.push(
+            '/conn/$alias/host/${service.hostName!}/services/${service.displayName!}');
       }
 
       Widget stateIcon = IconButton(

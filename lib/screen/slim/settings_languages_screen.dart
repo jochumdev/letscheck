@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'package:go_router/go_router.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 
 class SettingsLanguagesScreen extends StatefulWidget {
@@ -39,5 +41,6 @@ class SettingsLanguagesScreenState extends State<SettingsLanguagesScreen> {
     setState(() {
       languageIndex = index;
     });
+    context.pop();
   }
 }

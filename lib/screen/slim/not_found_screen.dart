@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import 'base_slim_screen.dart';
-import '../../global_router.dart';
 
 class NotFoundScreen extends StatefulWidget {
-  static final route = buildRoute(
-      key: routeNotFound,
-      uri: '/pages/not_found',
-      route: (context) => MaterialPageRoute(
-            settings: context,
-            builder: (context) => NotFoundScreen(),
-          ));
+  static final route = GoRoute(
+    path: '/error/404',
+    builder: (context, state) => NotFoundScreen(),
+  );
 
   @override
   NotFoundScreenState createState() => NotFoundScreenState();

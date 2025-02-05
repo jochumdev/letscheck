@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
+
+import 'package:go_router/go_router.dart';
+
 import '../bloc/connection_data/connection_data.dart';
 import '../bloc/settings/settings.dart';
-import '../global_router.dart';
 import 'site_stats_number_widget.dart';
 
 class SiteStatsWidget extends StatelessWidget {
@@ -40,9 +42,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.hosts.all,
               valueColor: Colors.white,
               onTap: () {
-                Navigator.of(context).pushNamed(GlobalRouter().buildUri(
-                    routeHosts,
-                    buildArgs: {'alias': alias, 'filter': 'all'}));
+                context.push('/conn/$alias/hosts/all');
               },
             ),
             SiteStatsNumberWidget(
@@ -50,9 +50,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.hosts.warn,
               valueColor: Colors.yellow,
               onTap: () {
-                Navigator.of(context).pushNamed(GlobalRouter().buildUri(
-                    routeHosts,
-                    buildArgs: {'alias': alias, 'filter': 'problems'}));
+                context.push('/conn/$alias/hosts/problems');
               },
             ),
             SiteStatsNumberWidget(
@@ -60,9 +58,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.hosts.crit,
               valueColor: Colors.red,
               onTap: () {
-                Navigator.of(context).pushNamed(GlobalRouter().buildUri(
-                    routeHosts,
-                    buildArgs: {'alias': alias, 'filter': 'unhandled'}));
+                context.push('/conn/$alias/hosts/unhandled');
               },
             ),
             SizedBox(
@@ -76,9 +72,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.services.all,
               valueColor: Colors.white,
               onTap: () {
-                Navigator.of(context).pushNamed(GlobalRouter().buildUri(
-                    routeServices,
-                    buildArgs: {'alias': alias, 'filter': 'all'}));
+                context.push('/conn/$alias/services/all');
               },
             ),
             SiteStatsNumberWidget(
@@ -86,9 +80,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.services.warn,
               valueColor: Colors.yellow,
               onTap: () {
-                Navigator.of(context).pushNamed(GlobalRouter().buildUri(
-                    routeServices,
-                    buildArgs: {'alias': alias, 'filter': 'problems'}));
+                context.push('/conn/$alias/services/problems');
               },
             ),
             SiteStatsNumberWidget(
@@ -96,9 +88,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.services.crit,
               valueColor: Colors.red,
               onTap: () {
-                Navigator.of(context).pushNamed(GlobalRouter().buildUri(
-                    routeServices,
-                    buildArgs: {'alias': alias, 'filter': 'unhandled'}));
+                context.push('/conn/$alias/services/unhandled');
               },
             ),
             SiteStatsNumberWidget(
@@ -106,9 +96,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.services.unkn,
               valueColor: Colors.yellow,
               onTap: () {
-                Navigator.of(context).pushNamed(GlobalRouter().buildUri(
-                    routeServices,
-                    buildArgs: {'alias': alias, 'filter': 'stale'}));
+                context.push('/conn/$alias/services/stale');
               },
             ),
           ]),
@@ -133,10 +121,7 @@ class SiteStatsWidget extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pushNamed(GlobalRouter()
-                        .buildUri(routeSettingsConnection, buildArgs: {
-                      'name': alias,
-                    }));
+                    context.push('/settings/connection/$alias');
                   },
                   child: Padding(
                     padding: EdgeInsets.all(5.0),
@@ -150,11 +135,7 @@ class SiteStatsWidget extends StatelessWidget {
                   children: [
                     IconButton(
                       onPressed: () {
-                        Navigator.of(context).pushNamed(GlobalRouter().buildUri(
-                            routeSettingsConnectionFilters,
-                            buildArgs: {
-                              'conn': alias,
-                            }));
+                        context.push('/error/404');
                       },
                       tooltip: hasFilters ? 'Edit' : 'Edit, no filters yet',
                       icon: Icon(Icons.filter_list,
@@ -163,10 +144,7 @@ class SiteStatsWidget extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () {
-                        Navigator.of(context).pushNamed(GlobalRouter()
-                            .buildUri(routeSettingsConnection, buildArgs: {
-                          'name': alias,
-                        }));
+                        context.push('/settings/connection/$alias');
                       },
                       tooltip: 'Edit connection Details',
                       icon: Icon(Icons.settings_input_component,

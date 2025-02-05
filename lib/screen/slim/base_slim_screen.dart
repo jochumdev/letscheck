@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../bloc/connection_data/connection_data.dart';
 import '../../bloc/settings/settings.dart';
 import '../../widget/site_stats_widget.dart';
@@ -25,8 +28,8 @@ class BaseSlimScreenSettings {
 mixin class BaseSlimScreenState {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
-  Future<void> leadingButtonAction(context) async {
-    Navigator.of(context).pop();
+  Future<void> leadingButtonAction(BuildContext context) async {
+    context.pop();
   }
 
   Future<void> refreshAction(context) async {}
@@ -105,7 +108,7 @@ mixin class BaseSlimScreenState {
         icon: Icon(Icons.settings),
         tooltip: "Settings",
         onPressed: () {
-          Navigator.of(context).pushNamed('/settings');
+          context.push('/settings');
         },
       ));
     }

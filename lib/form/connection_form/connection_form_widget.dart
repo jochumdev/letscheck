@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
+import 'package:go_router/go_router.dart';
+
 import 'connection_form_bloc.dart';
 import '../../bloc/settings/settings.dart';
 import '../../dialog/loading_dialog.dart';
@@ -24,7 +27,7 @@ class ConnectionFormWidget extends StatelessWidget {
       onSuccess: (context, state) {
         LoadingDialog.hide(context);
 
-        Navigator.of(context).pop();
+        context.pop();
       },
       onFailure: (context, state) {
         LoadingDialog.hide(context);

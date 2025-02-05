@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
 import 'base_slim_screen.dart';
 import '../../widget/center_loading_widget.dart';
 import '../../widget/site_stats_widget.dart';
@@ -8,17 +10,8 @@ import '../../widget/tab_controller_listener.dart';
 import '../../bloc/settings/settings.dart';
 import '../../bloc/connection_data/connection_data.dart';
 import '../../bloc/comments/comments.dart';
-import '../../global_router.dart';
 
 class HomeScreen extends StatefulWidget {
-  static final route = buildRoute(
-      key: routeHome,
-      uri: '/',
-      route: (context) => MaterialPageRoute(
-            settings: context,
-            builder: (context) => HomeScreen(),
-          ));
-
   @override
   HomeScreenState createState() => HomeScreenState();
 }
@@ -44,8 +37,7 @@ class HomeScreenState extends State<HomeScreen> with BaseSlimScreenState {
 
     if (sBloc.state.connections.isEmpty) {
       Future.microtask(() {
-        Navigator.of(context)
-            .pushNamed(GlobalRouter().buildUri(routeSettingsConnection));
+        context.push('/settings/connection/+');
       });
       return Container();
     }

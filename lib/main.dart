@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart'
     show kIsWeb, LicenseRegistry, LicenseEntryWithLineBreaks;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'bloc/settings/settings.dart';
@@ -107,16 +108,6 @@ Future<void> main() async {
 
   await initializeDateFormatting(Intl.defaultLocale);
 
-  var mediaWidth =
-      MediaQueryData.fromView(PlatformDispatcher.instance.views.first)
-          .size
-          .width;
-  mediaWidth >= ultraWideLayoutThreshold
-      ? registerSlimRoutes() // UltraWide
-      : mediaWidth > wideLayoutThreshold
-          ? registerSlimRoutes() // Wide
-          : registerSlimRoutes(); // Slim
-
   final sBloc = SettingsBloc();
   final hdBloc = ConnectionDataBloc(sBloc: sBloc);
 
@@ -213,17 +204,30 @@ class AppState extends State<App> with TrayListener {
 
   @override
   Widget build(BuildContext context) {
+    var mediaWidth =
+        MediaQueryData.fromView(PlatformDispatcher.instance.views.first)
+            .size
+            .width;
+    final routes = mediaWidth >= ultraWideLayoutThreshold
+        ? slimRoutes() // UltraWide
+        : mediaWidth > wideLayoutThreshold
+            ? slimRoutes() // Wide
+            : slimRoutes(); // Slim
+
+    final router = GoRouter(
+      routes: routes,
+      debugLogDiagnostics: true,
+    );
+
     return BlocBuilder<SettingsBloc, SettingsState>(builder: (context, state) {
       BlocProvider.of<ConnectionDataBloc>(context);
 
-      return MaterialApp(
-        navigatorKey: navigatorKey,
+      return MaterialApp.router(
+        routerConfig: router,
         // navigatorObservers: <NavigatorObserver>[observer],
         debugShowCheckedModeBanner: false,
         title: 'LetsCheck',
         theme: state.isLightMode ? buildLightTheme() : buildDarkTheme(),
-        onGenerateRoute: (routeContext) =>
-            GlobalRouter().generateRoute(routeContext),
       );
     });
   }

@@ -1,48 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:letscheck/bloc/connection_data/connection_data.dart';
-import 'package:letscheck/widget/site_stats_widget.dart';
-import 'base_slim_screen.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
-import '../../global_router.dart';
+
+import 'base_slim_screen.dart';
+import '../../bloc/connection_data/connection_data.dart';
 import '../../bloc/comments/comments.dart';
 import '../../bloc/settings/settings.dart';
 import '../../bloc/services/services.dart';
 import '../../widget/services_list_widget.dart';
 import '../../widget/center_loading_widget.dart';
+import '../../widget/site_stats_widget.dart';
 
 class ServicesScreen extends StatefulWidget {
-  static final route = buildRoute(
-      key: routeServices,
-      uri: '/conn/{alias}/services/{filter}',
-      lastArgOptional: true,
-      route: (context) => MaterialPageRoute(
-            settings: context,
-            builder: (context) => ServicesScreen(),
-          ));
+  final String alias;
+  final String filter;
+
+  ServicesScreen({required this.alias, required this.filter});
 
   @override
-  ServicesScreenState createState() => ServicesScreenState();
+  ServicesScreenState createState() => ServicesScreenState(
+        alias: alias,
+        filter: filter,
+      );
 }
 
 class ServicesScreenState extends State<ServicesScreen>
     with BaseSlimScreenState {
+  final String alias;
+  final String filter;
+
+  ServicesScreenState({required this.alias, required this.filter});
+
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
-    final groups = ServicesScreen.route.extractNamedArgs(context);
     var title = 'Services';
-    if (groups.containsKey('alias')) {
-      if (groups.containsKey('filter')) {
-        switch (groups['filter']) {
-          case 'all':
-            title = "Services";
-            break;
-          default:
-            title = "Services ${groups["filter"]}";
-        }
-      } else {
+    switch (filter) {
+      case 'all':
         title = "Services";
-      }
+        break;
+      default:
+        title = "Services $filter";
     }
 
     return BaseSlimScreenSettings(title, showMenu: false);
@@ -50,34 +48,33 @@ class ServicesScreenState extends State<ServicesScreen>
 
   @override
   Widget content(BuildContext context) {
-    final groups = ServicesScreen.route.extractNamedArgs(context);
     final sBloc = BlocProvider.of<SettingsBloc>(context);
 
-    var filter = <String>[];
-    switch (groups['filter']) {
+    var myFilters = <String>[];
+    switch (filter) {
       case 'problems':
-        filter.add(
+        myFilters.add(
             '{"op": "=", "left": "state", "right": "${cmk_api.svcStateWarn}"}');
         break;
       case 'unhandled':
-        filter.add(
+        myFilters.add(
             '{"op": "=", "left": "state", "right": "${cmk_api.svcStateCritical}"}');
         break;
       case 'stale':
-        filter.add(
+        myFilters.add(
             '{"op": "=", "left": "state", "right": "${cmk_api.svcStateUnknown}"}');
         break;
       case 'all':
         break;
       default:
-        if (groups['filter'] != null) {
-          filter.add(groups['filter']!);
+        if (filter.isNotEmpty) {
+          myFilters.add(filter);
         }
     }
 
     return BlocProvider<ServicesBloc>(
       create: (context) =>
-          ServicesBloc(alias: groups['alias']!, filter: filter, sBloc: sBloc)
+          ServicesBloc(alias: alias, filter: myFilters, sBloc: sBloc)
             ..add(ServicesStartFetching()),
       child: BlocBuilder<ServicesBloc, ServicesState>(
         builder: (context, state) {
@@ -86,24 +83,20 @@ class ServicesScreenState extends State<ServicesScreen>
               final cBloc = BlocProvider.of<ConnectionDataBloc>(context);
               if (state is ServicesStateFetched) {
                 commentsFetchForServices(
-                    context: context,
-                    alias: groups['alias']!,
-                    services: state.services);
+                    context: context, alias: alias, services: state.services);
                 return Column(
                   children: [
-                    SiteStatsWidget(
-                        alias: groups['alias']!, state: cBloc.state),
+                    SiteStatsWidget(alias: alias, state: cBloc.state),
                     Expanded(
                       child: ServicesListWidget(
-                          alias: groups['alias']!, services: state.services),
+                          alias: alias, services: state.services),
                     ),
                   ],
                 );
               } else {
                 return Column(
                   children: [
-                    SiteStatsWidget(
-                        alias: groups['alias']!, state: cBloc.state),
+                    SiteStatsWidget(alias: alias, state: cBloc.state),
                     Expanded(child: CenterLoadingWidget()),
                   ],
                 );
