@@ -4,6 +4,7 @@
 - upgrade flutter 3.27.1 -> 3.27.3
 - redirect home screen to add connection when theres no connection yet
 - replace howmegrown router with go\_router
+- linux-arm64 builder
 
 ## 0.1.3+1269 - 2025-02-05
 ### Added

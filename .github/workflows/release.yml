@@ -8,7 +8,7 @@ name: Release Artifacts
 jobs:
   build-android-apk:
     name: "Build Android APK"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     permissions: write-all
     timeout-minutes: 30
     env:
@@ -63,13 +63,13 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           # Local file to upload.
           file: build/app/outputs/flutter-apk/app-release.apk
-          asset_name: letscheck-android-${{ github.event.release.tag_name }}.apk
+          asset_name: letscheck-${{ github.event.release.tag_name }}-android.apk
           # Tag to use as a release.
           tag: ${{ github.ref }}
 
   build-linux:
-    name: "Build Linux x86_64"
-    runs-on: ubuntu-24.04
+    name: "Build Linux x64"
+    runs-on: ubuntu-22.04
     permissions: write-all
     timeout-minutes: 30
     env:
@@ -105,13 +105,68 @@ jobs:
         run: cp ./build/linux/x64/release/plugins/flutter_js/bundle/lib/libquickjs_c_bridge_plugin.so ./build/linux/x64/release/bundle/lib || exit 0
 
       - name: Compress artifacts
-        run: tar -a -c -f letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz -C ./build/linux/x64/release/bundle .
+        run: tar -a -c -f letscheck-linux-x64.tar.xz -C ./build/linux/x64/release/bundle .
 
       - name: Upload artifcats for flatpak job
         uses: actions/upload-artifact@v4
         with:
-          name: linux_x86_64_binary
-          path: letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz
+          name: linux-x64_binary
+          path: letscheck-linux-x64.tar.xz
+
+      - name: Upload files to a GitHub release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: letscheck-linux-x64.tar.xz
+          asset_name: letscheck-${{ github.event.release.tag_name }}-linux-x64.tar.xz
+          tag: ${{ github.ref }}
+
+  build-linux-arm64:
+    name: "test build Linux ARM64"
+    runs-on: ubuntu-22.04-arm
+    timeout-minutes: 30
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Install Flutter dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qy libgtk-3-dev libx11-dev pkg-config cmake ninja-build libblkid-dev clang unzip libayatana-appindicator3-dev
+  
+      - name: Set up fvm
+        run: ./scripts/setup_fvm.sh
+  
+      - name: Build quickjs-c-bridge
+        run: pushd quickjs-c-bridge; cmake -S ./linux -B ./build/linux; cmake --build build/linux; popd
+
+      - name: Enable desktop
+        run: fvm flutter config --enable-linux-desktop
+
+      - name: Flutter get packages
+        run: fvm flutter pub get
+
+      - name: Some wired mkdir
+        run: mkdir -p build/linux/arm64/release/bundle/lib 
+
+      - name: Flutter build app
+        run: fvm flutter build linux --release
+
+      - name: Copy libquickjs
+        run: cp quickjs-c-bridge/build/linux/libquickjs_c_bridge_plugin.so build/linux/arm64/release/bundle/lib/ || exit 0
+
+      - name: Compress artifacts
+        run: tar -a -c -f letscheck-linux-arm64.tar.xz -C ./build/linux/arm64/release/bundle .
+
+      - name: Upload artifcats for flatpak job
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64_binary
+          path: letscheck-linux-arm64.tar.xz
 
       - name: Upload files to a GitHub release
         uses: svenstaro/upload-release-action@v2
@@ -119,14 +174,15 @@ jobs:
           # GitHub token.
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           # Local file to upload.
-          file: letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz
+          file: letscheck-linux-arm64.tar.xz
+          asset_name: letscheck-${{ github.event.release.tag_name }}-linux-arm64.tar.xz
           # Tag to use as a release.
           tag: ${{ github.ref }}
 
   build-linux-flatpak:
-    needs: build-linux
+    needs: [build-linux, build-linux-arm64]
     name: "Build Linux flatpak"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
       image: bilelmoussaoui/flatpak-github-actions:freedesktop-22.08
       options: --privileged
@@ -143,10 +199,18 @@ jobs:
       - name: Download binary from build-linux
         uses: actions/download-artifact@v4
         with:
-          name: linux_x86_64_binary
+          name: linux-x64_binary
 
-      - name: Extract binary
-        run: mkdir -p ./build/linux/x64/release/bundle && cd ./build/linux/x64/release/bundle && tar -x -f ../../../../../letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz .
+      - name: Extract x64 binary
+        run: mkdir -p ./build/linux/x64/release/bundle && tar -x -f letscheck-linux-x64.tar.xz ./build/linux/x64/release/bundle/
+
+      - name: Download binary from build-linux-arm64
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-arm64_binary
+
+      - name: Extract arm64 binary
+        run: mkdir -p ./build/linux/arm64/release/bundle && tar -x -f letscheck-linux-arm64.tar.xz ./build/linux/arm64/release/bundle/
 
       - name: Build flatpak
         uses: jochumdev/flatpak-github-actions/flatpak-builder@builder-update-deps
@@ -161,64 +225,8 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: letscheck.flatpak
-          asset_name: letscheck-linux-x86_64-${{ github.event.release.tag_name }}.flatpak
+          asset_name: letscheck-${{ github.event.release.tag_name }}-linux.flatpak
           tag: ${{ github.ref }}
-
-  # build-linux-arm64:
-  #   name: "Build Linux ARM64"
-  #   runs-on: ubuntu-24.04-arm
-  #   permissions: write-all
-  #   timeout-minutes: 30
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         submodules: 'true'
-
-  #     - name: Install Flutter dependencies
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install -y libgtk-3-dev libx11-dev pkg-config cmake ninja-build libblkid-dev libayatana-appindicator3-dev jq
-  
-  #     - name: Set up Flutter
-  #       uses: subosito/flutter-action@v2
-  #       with:
-  #         channel: stable
-  #         cache: true
-  #         flutter-version-file: pubspec.yaml
-  
-  #     - name: Enable desktop
-  #       run: flutter config --enable-linux-desktop
-
-  #     - name: Flutter get packages
-  #       run: flutter pub get
-
-  #     - name: Flutter build app
-  #       run: flutter build linux --release
-
-  #     - name: Copy libquickjs
-  #       run: cp ./build/linux/arm64/release/plugins/flutter_js/bundle/lib/libquickjs_c_bridge_plugin.so ./build/linux/arm64/release/bundle/lib || exit 0
-
-  #     - name: Compress artifacts
-  #       run: tar -a -c -f letscheck-linux-arm64-${{ github.event.release.tag_name }}.tar.xz -C ./build/linux/arm64/release/bundle .
-
-  #     - name: Upload artifcats for flatpak job
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: linux_arm64_binary
-  #         path: letscheck-linux-arm64-${{ github.event.release.tag_name }}.tar.xz
-
-  #     - name: Upload files to a GitHub release
-  #       uses: svenstaro/upload-release-action@v2
-  #       with:
-  #         # GitHub token.
-  #         repo_token: ${{ secrets.GITHUB_TOKEN }}
-  #         # Local file to upload.
-  #         file: letscheck-linux-arm64-${{ github.event.release.tag_name }}.tar.xz
-  #         # Tag to use as a release.
-  #         tag: ${{ github.ref }}
 
   build-macos:
     name: "Build MacOS"
@@ -262,27 +270,22 @@ jobs:
           ./scripts/create_mac_dmg.sh
 
       - name: Compress artifacts
-        run: cd build/macos/Build/Products/Release && zip -r ../../../../../letscheck-macos-${{ github.event.release.tag_name }}.zip letscheck.app
+        run: cd build/macos/Build/Products/Release && zip -r ../../../../../letscheck-macos.zip letscheck.app
 
       - name: Upload artifacts to release
         uses: svenstaro/upload-release-action@v2
         with:
-          # GitHub token.
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          # Local file to upload.
-          file: letscheck-macos-${{ github.event.release.tag_name }}.zip
-          # Tag to use as a release.
+          file: letscheck-macos.zip
+          asset_name: letscheck-macos-${{ github.event.release.tag_name }}.zip
           tag: ${{ github.ref }}
 
       - name: Upload DMG to release
         uses: svenstaro/upload-release-action@v2
         with:
-          # GitHub token.
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          # Local file to upload.
           file: build/macos/Build/Products/Release/letscheck.dmg
           asset_name: letscheck-macos-${{ github.event.release.tag_name }}.dmg
-          # Tag to use as a release.
           tag: ${{ github.ref }}
 
   build-windows:
@@ -346,13 +349,14 @@ jobs:
         run: flutter build windows
 
       - name: Compress artifacts
-        run: cd build/windows/x64/runner/Release && C:/ProgramData/Chocolatey/bin/7z.exe a ../../../../../letscheck-windows-x86_64-${{ github.event.release.tag_name }}.zip .
+        run: cd build/windows/x64/runner/Release && C:/ProgramData/Chocolatey/bin/7z.exe a ../../../../../letscheck-windows-x64.zip .
 
       - name: Upload artifacts to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: letscheck-windows-x86_64-${{ github.event.release.tag_name }}.zip
+          file: letscheck-windows-x64.zip
+          asset_name: letscheck-${{ github.event.release.tag_name }}-windows-x64.zip
           tag: ${{ github.ref }}
 
       # - name: Create MSIX
@@ -363,12 +367,12 @@ jobs:
       #   with:
       #     repo_token: ${{ secrets.GITHUB_TOKEN }}
       #     file: build\windows\x64\runner\Release\letscheck.msix
-      #     asset_name: letscheck-windows-x86_64-${{ github.event.release.tag_name }}.msix
+      #     asset_name: letscheck-windows-x64-${{ github.event.release.tag_name }}.msix
       #     tag: ${{ github.ref }}
 
   build-web:
     name: "Build Web"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     permissions: write-all
     timeout-minutes: 30
     env:
@@ -405,7 +409,7 @@ jobs:
           # GitHub token.
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           # Local file to upload.
-          file: letscheck-web-${{ github.event.release.tag_name }}.zip
+          file: letscheck-${{ github.event.release.tag_name }}-web.zip
           # Tag to use as a release.
           tag: ${{ github.ref }}
 
