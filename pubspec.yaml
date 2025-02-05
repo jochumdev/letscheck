@@ -19,7 +19,7 @@ version: 0.1.3+1269
 
 environment:
   sdk: ^3.6.0
-  flutter: "3.27.1" # Workflow "subosito/flutter-action@v2" needs a exact version here.
+  flutter: "3.27.3" # Workflow "subosito/flutter-action@v2" needs a exact version here.
 
 dependencies:
   flutter:

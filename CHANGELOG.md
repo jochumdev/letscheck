@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Added
+- upgrade flutter 3.27.1 -&gt; 3.27.3
+
 ## 0.1.3+1269 - 2025-02-05
 ### Added
 - replace all screens with StateFull ones, closes #18
