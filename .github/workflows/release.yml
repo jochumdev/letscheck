@@ -8,7 +8,7 @@ name: Release Artifacts
 jobs:
   build-android-apk:
     name: "Build Android APK"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions: write-all
     timeout-minutes: 30
     env:
@@ -68,8 +68,8 @@ jobs:
           tag: ${{ github.ref }}
 
   build-linux:
-    name: "Build Linux"
-    runs-on: ubuntu-latest
+    name: "Build Linux x86_64"
+    runs-on: ubuntu-24.04
     permissions: write-all
     timeout-minutes: 30
     env:
@@ -102,7 +102,7 @@ jobs:
         run: flutter build linux
 
       - name: Copy libquickjs
-        run: cp ./package/linux/x64/libquickjs_c_bridge_plugin.so ./build/linux/x64/release/bundle/lib || exit 0
+        run: cp ./build/linux/x64/release/plugins/flutter_js/bundle/lib/libquickjs_c_bridge_plugin.so ./build/linux/x64/release/bundle/lib || exit 0
 
       - name: Compress artifacts
         run: tar -a -c -f letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz -C ./build/linux/x64/release/bundle .
@@ -123,15 +123,11 @@ jobs:
           # Tag to use as a release.
           tag: ${{ github.ref }}
 
-  build-linux-flatpak:
-    needs: build-linux
-    name: "Build Linux flatpak"
-    runs-on: ubuntu-latest
-    container:
-      image: bilelmoussaoui/flatpak-github-actions:freedesktop-22.08
-      options: --privileged
+  build-linux-arm64:
+    name: "Build Linux ARM64"
+    runs-on: ubuntu-24.04-arm
     permissions: write-all
-    timeout-minutes: 10
+    timeout-minutes: 30
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -140,28 +136,47 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Download binary from build-linux
-        uses: actions/download-artifact@v4
+      - name: Install Flutter dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libx11-dev pkg-config cmake ninja-build libblkid-dev libayatana-appindicator3-dev jq
+  
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          name: linux_x86_64_binary
+          channel: stable
+          cache: true
+          flutter-version-file: pubspec.yaml
+  
+      - name: Enable desktop
+        run: flutter config --enable-linux-desktop
 
-      - name: Extract binary
-        run: mkdir -p ./build/linux/x64/release/bundle && cd ./build/linux/x64/release/bundle && tar -x -f ../../../../../letscheck-linux-x86_64-${{ github.event.release.tag_name }}.tar.xz .
+      - name: Flutter get packages
+        run: flutter pub get
 
-      - name: Build flatpak
-        uses: jochumdev/flatpak-github-actions/flatpak-builder@builder-update-deps
+      - name: Flutter build app
+        run: flutter build linux --release
+
+      - name: Copy libquickjs
+        run: cp ./build/linux/arm64/release/plugins/flutter_js/bundle/lib/libquickjs_c_bridge_plugin.so ./build/linux/arm64/release/bundle/lib || exit 0
+
+      - name: Compress artifacts
+        run: tar -a -c -f letscheck-linux-arm64-${{ github.event.release.tag_name }}.tar.xz -C ./build/linux/arm64/release/bundle .
+
+      - name: Upload artifcats for flatpak job
+        uses: actions/upload-artifact@v4
         with:
-          bundle: letscheck.flatpak
-          manifest-path: ./io.github.jochumdev.letscheck.yml
-          cache-key: flatpak-builder-${{ github.sha }}
-          upload-artifact: "false"
+          name: linux_arm64_binary
+          path: letscheck-linux-arm64-${{ github.event.release.tag_name }}.tar.xz
 
-      - name: Upload artifacts to release
+      - name: Upload files to a GitHub release
         uses: svenstaro/upload-release-action@v2
         with:
+          # GitHub token.
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: letscheck.flatpak
-          asset_name: letscheck-linux-x86_64-${{ github.event.release.tag_name }}.flatpak
+          # Local file to upload.
+          file: letscheck-linux-arm64-${{ github.event.release.tag_name }}.tar.xz
+          # Tag to use as a release.
           tag: ${{ github.ref }}
 
   build-macos:
@@ -312,7 +327,7 @@ jobs:
 
   build-web:
     name: "Build Web"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions: write-all
     timeout-minutes: 30
     env:

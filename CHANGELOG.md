@@ -2,6 +2,7 @@
 ## Unreleased
 ### Added
 - replace all screens with StateFull ones, closes #18
+- add arm64 builder, pt1
 
 ### Fixed
 - run notifications once on load
