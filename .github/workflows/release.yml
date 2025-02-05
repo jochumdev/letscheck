@@ -122,7 +122,7 @@ jobs:
           tag: ${{ github.ref }}
 
   build-linux-arm64:
-    name: "test build Linux ARM64"
+    name: "Build Linux ARM64"
     runs-on: ubuntu-22.04-arm
     permissions: write-all
     timeout-minutes: 30
@@ -203,7 +203,7 @@ jobs:
           name: linux-x64_binary
 
       - name: Extract x64 binary
-        run: mkdir -p ./build/linux/x64/release/bundle && tar -x -f letscheck-linux-x64.tar.xz ./build/linux/x64/release/bundle/
+        run: mkdir -p ./build/linux/x64/release/bundle && tar -x -f letscheck-linux-x64.tar.xz -C ./build/linux/x64/release/bundle
 
       - name: Download binary from build-linux-arm64
         uses: actions/download-artifact@v4
@@ -211,7 +211,7 @@ jobs:
           name: linux-arm64_binary
 
       - name: Extract arm64 binary
-        run: mkdir -p ./build/linux/arm64/release/bundle && tar -x -f letscheck-linux-arm64.tar.xz ./build/linux/arm64/release/bundle/
+        run: mkdir -p ./build/linux/arm64/release/bundle && tar -x -f letscheck-linux-arm64.tar.xz -C ./build/linux/arm64/release/bundle
 
       - name: Build flatpak
         uses: jochumdev/flatpak-github-actions/flatpak-builder@builder-update-deps
