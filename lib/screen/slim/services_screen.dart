@@ -83,7 +83,9 @@ class ServicesScreenState extends State<ServicesScreen>
               final cBloc = BlocProvider.of<ConnectionDataBloc>(context);
               if (state is ServicesStateFetched) {
                 commentsFetchForServices(
-                    context: context, alias: alias, services: state.services);
+                    context: context,
+                    alias: alias,
+                    services: state.services.toList());
                 return Column(
                   children: [
                     SiteStatsWidget(alias: alias, state: cBloc.state),

@@ -1,4 +1,3 @@
-import 'package:built_collection/built_collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import '../settings/settings.dart';
@@ -30,7 +29,7 @@ class ConnectionData extends ConnectionDataEvent {
   final String alias;
   final cmk_api.StatsTacticalOverviewDto stats;
 
-  final BuiltList<cmk_api.TableServicesDto> unhServices;
+  final List<cmk_api.TableServicesDto> unhServices;
 
   ConnectionData(
       {required this.alias, required this.stats, required this.unhServices});

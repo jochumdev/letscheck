@@ -79,7 +79,7 @@ class CustomSearchDelegate extends SearchDelegate {
           }
         });
         state.services.forEach((alias, services) {
-          final groupedServices = servicesGroupByHostname(services: services);
+          final groupedServices = servicesGroupByHostname(services: services.toList());
 
           groupedServices.forEach((_, hServices) {
             groupItems.add({

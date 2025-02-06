@@ -420,7 +420,7 @@ class _$SettingsStateConnection extends SettingsStateConnection {
   @override
   final cmk_api.Client? client;
   @override
-  final cmk_api.CheckMkBaseError? error;
+  final cmk_api.NetworkError? error;
   @override
   final String baseUrl;
   @override
@@ -538,9 +538,9 @@ class SettingsStateConnectionBuilder
   cmk_api.Client? get client => _$this._client;
   set client(cmk_api.Client? client) => _$this._client = client;
 
-  cmk_api.CheckMkBaseError? _error;
-  cmk_api.CheckMkBaseError? get error => _$this._error;
-  set error(cmk_api.CheckMkBaseError? error) => _$this._error = error;
+  cmk_api.NetworkError? _error;
+  cmk_api.NetworkError? get error => _$this._error;
+  set error(cmk_api.NetworkError? error) => _$this._error = error;
 
   String? _baseUrl;
   String? get baseUrl => _$this._baseUrl;

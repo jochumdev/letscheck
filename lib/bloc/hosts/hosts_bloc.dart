@@ -87,7 +87,7 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
       try {
         final hosts = await client.getApiTableHost(filter: filter);
         add(HostsEventFetched(alias: alias, hosts: hosts));
-      } on cmk_api.CheckMkBaseError catch (e) {
+      } on cmk_api.NetworkError catch (e) {
         sBloc.add(ConnectionFailed(alias, e));
       }
     } on StateError {

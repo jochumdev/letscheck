@@ -192,7 +192,7 @@ Future<void> sendNotificationsForConnection(
       }
     }
     aliasKnown.removeWhere((key, item) => toRemove.contains(key));
-  } on cmk_api.CheckMkBaseError {
+  } on cmk_api.NetworkError {
     // Ignore.
   } finally {
     _notificationsLock.release();

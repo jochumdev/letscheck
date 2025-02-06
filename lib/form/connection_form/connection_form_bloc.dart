@@ -80,7 +80,7 @@ class ConnectionFormBloc extends FormBloc<String, String> {
 
     try {
       await client.testConnection();
-    } on cmk_api.CheckMkBaseError catch (e) {
+    } on cmk_api.NetworkError catch (e) {
       if (e.response!.statusCode == 401) {
         emitFailure(failureResponse: 'Authentication failed');
         return;
@@ -92,7 +92,7 @@ class ConnectionFormBloc extends FormBloc<String, String> {
       return;
     } catch (e) {
       settingsBloc
-          .add(ConnectionFailed(alias.value, cmk_api.CheckMkBaseError.of(e)));
+          .add(ConnectionFailed(alias.value, cmk_api.NetworkError.of(e)));
       emitFailure(failureResponse: "Failed error: $e");
       return;
     }

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:built_collection/built_collection.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'host_card_widget.dart';
 
 class HostsListWidget extends StatelessWidget {
   final String alias;
-  final BuiltList<cmk_api.TableHostsDto> hosts;
+  final List<cmk_api.TableHostsDto> hosts;
 
   HostsListWidget({required this.alias, required this.hosts});
 

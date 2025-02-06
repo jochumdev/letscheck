@@ -1,4 +1,3 @@
-import 'package:built_collection/built_collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 
@@ -30,7 +29,7 @@ class CommentsFetchIds extends CommentsEvent {
 
 class CommentsGotIds extends CommentsEvent {
   final String alias;
-  final BuiltMap<num, cmk_api.TableCommentsDto> comments;
+  final Map<num, cmk_api.TableCommentsDto> comments;
 
   CommentsGotIds({required this.alias, required this.comments});
 

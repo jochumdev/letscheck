@@ -54,7 +54,7 @@ class HomeScreenState extends State<HomeScreen> with BaseSlimScreenState {
                       commentsFetchForServices(
                           context: context,
                           alias: alias,
-                          services: state.unhServices[alias]!);
+                          services: state.unhServices[alias]!.toList());
                     }
 
                     return Column(
@@ -64,7 +64,7 @@ class HomeScreenState extends State<HomeScreen> with BaseSlimScreenState {
                             ? Expanded(
                                 child: ServicesListWidget(
                                     alias: alias,
-                                    services: state.unhServices[alias]!))
+                                    services: state.unhServices[alias]!.toList()))
                             : Expanded(child: CenterLoadingWidget()),
                         TabPageSelector(),
                       ],
@@ -85,7 +85,7 @@ class HomeScreenState extends State<HomeScreen> with BaseSlimScreenState {
               state.unhServices.containsKey(alias)
                   ? Expanded(
                       child: ServicesListWidget(
-                          alias: alias, services: state.unhServices[alias]!))
+                          alias: alias, services: state.unhServices[alias]!.toList()))
                   : Expanded(child: CenterLoadingWidget()),
             ],
           );

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -66,7 +67,7 @@ class ConnectionDataBloc
     on<ConnectionData>((event, emit) async {
       emit(state.rebuild((b) => b
         ..stats[event.alias] = event.stats
-        ..unhServices[event.alias] = event.unhServices));
+        ..unhServices[event.alias] = BuiltList<cmk_api.TableServicesDto>.from(event.unhServices)));
     });
   }
 
@@ -119,7 +120,7 @@ class ConnectionDataBloc
 
         add(ConnectionData(
             alias: alias, stats: stats, unhServices: unhServices));
-      } on cmk_api.CheckMkBaseError catch (e) {
+      } on cmk_api.NetworkError catch (e) {
         sBloc.add(ConnectionFailed(alias, e));
       }
     } on StateError {

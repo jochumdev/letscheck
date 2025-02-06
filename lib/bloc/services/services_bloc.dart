@@ -87,7 +87,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       try {
         final services = await client.getApiTableService(filter: filter);
         add(ServicesEventFetched(alias: alias, services: services));
-      } on cmk_api.CheckMkBaseError catch (e) {
+      } on cmk_api.NetworkError catch (e) {
         sBloc.add(ConnectionFailed(alias, e));
       }
     } on StateError {

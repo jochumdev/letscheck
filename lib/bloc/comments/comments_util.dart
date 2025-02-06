@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:built_collection/built_collection.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'comments_bloc.dart';
 import 'comments_event.dart';
@@ -8,7 +7,7 @@ import 'comments_event.dart';
 void commentsFetchForServices(
     {required BuildContext context,
     required String alias,
-    required BuiltList<cmk_api.TableServicesDto> services}) {
+    required List<cmk_api.TableServicesDto> services}) {
   final cBloc = BlocProvider.of<CommentsBloc>(context);
 
   var ids = <num>[];

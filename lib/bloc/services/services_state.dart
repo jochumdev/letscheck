@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:built_collection/built_collection.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 
 abstract class ServicesState extends Equatable {}
@@ -11,7 +10,7 @@ class ServicesStateUninitialized extends ServicesState {
 
 class ServicesStateFetched extends ServicesState {
   final String alias;
-  final BuiltList<cmk_api.TableServicesDto> services;
+  final List<cmk_api.TableServicesDto> services;
 
   ServicesStateFetched({required this.alias, required this.services});
 

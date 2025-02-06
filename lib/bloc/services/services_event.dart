@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:built_collection/built_collection.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import '../settings/settings.dart';
 
@@ -15,7 +14,7 @@ class ServicesStartFetching extends ServicesEvent {
 
 class ServicesEventFetched extends ServicesEvent {
   final String alias;
-  final BuiltList<cmk_api.TableServicesDto> services;
+  final List<cmk_api.TableServicesDto> services;
 
   ServicesEventFetched({required this.alias, required this.services});
 

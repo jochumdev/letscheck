@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:built_collection/built_collection.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 import 'package:letscheck/bloc/services/services.dart';
 import 'services_grouped_card_widget.dart';
 
 class ServicesListWidget extends StatelessWidget {
   final String alias;
-  final BuiltList<cmk_api.TableServicesDto> services;
+  final List<cmk_api.TableServicesDto> services;
 
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 

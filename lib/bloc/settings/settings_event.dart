@@ -91,7 +91,7 @@ class ConnectionBack extends SettingsEvent {
 
 class ConnectionFailed extends SettingsEvent {
   final String alias;
-  final cmk_api.CheckMkBaseError error;
+  final cmk_api.NetworkError error;
 
   ConnectionFailed(this.alias, this.error);
 

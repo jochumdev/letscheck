@@ -19,9 +19,9 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
       if (state.comments.containsKey(event.alias)) {
         emit(state.rebuild((b) => b
           ..comments[event.alias]!
-              .rebuild((b) => b.addAll(event.comments.toMap()))));
+              .rebuild((b) => b.addAll(event.comments))));
       } else {
-        emit(state.rebuild((b) => b..comments[event.alias] = event.comments));
+        emit(state.rebuild((b) => b..comments[event.alias] = BuiltMap.from(event.comments)));
       }
     });
   }
@@ -56,8 +56,8 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
       for (var comment in comments) {
         result[comment.id!] = comment;
       }
-      add(CommentsGotIds(alias: alias, comments: BuiltMap(result)));
-    } on cmk_api.CheckMkBaseError {
+      add(CommentsGotIds(alias: alias, comments: result));
+    } on cmk_api.NetworkError {
       // Ignore.
     }
   }

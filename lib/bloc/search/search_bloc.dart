@@ -11,8 +11,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   SearchBloc({required this.sBloc}) : super(SearchStateUninitialized()) {
     on<SearchTerm>((event, emit) async {
-      var hosts = <String, BuiltList<cmk_api.TableHostsDto>>{};
-      var services = <String, BuiltList<cmk_api.TableServicesDto>>{};
+      var hosts = <String, List<cmk_api.TableHostsDto>>{};
+      var services = <String, List<cmk_api.TableServicesDto>>{};
 
       for (var alias in sBloc.state.connections.keys) {
         final connSettings = sBloc.state.connections[alias];
@@ -46,7 +46,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
             '{"op": "or", "expr": [${f2.join(', ')}]}',
           ]);
           services[alias] = connServices;
-        } on cmk_api.CheckMkBaseError catch (e) {
+        } on cmk_api.NetworkError catch (e) {
           // Silently ignore these errors
           if (kDebugMode) {
             print(e);

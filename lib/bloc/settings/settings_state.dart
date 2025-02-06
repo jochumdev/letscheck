@@ -66,7 +66,7 @@ abstract class SettingsStateConnection
   cmk_api.Client? get client;
 
   @BuiltValueField(serialize: false)
-  cmk_api.CheckMkBaseError? get error;
+  cmk_api.NetworkError? get error;
 
   @BuiltValueField(wireName: 'base_url')
   String get baseUrl;

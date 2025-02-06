@@ -46,7 +46,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
                 ..error = null)));
             emit(state
                 .rebuild((b) => b..state = SettingsStateEnum.clientConnected));
-          } on cmk_api.CheckMkBaseError catch (e) {
+          } on cmk_api.NetworkError catch (e) {
             emit(state.rebuild((b) => b
               ..connections[alias] = b.connections[alias]!.rebuild((b) => b
                 ..state = SettingsConnectionStateEnum.failed
@@ -199,7 +199,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
 
         try {
           await retry(conn.testConnection, retryIf: (e) {
-            if (e is cmk_api.CheckMkBaseError) {
+            if (e is cmk_api.NetworkError) {
               return true;
             }
 
