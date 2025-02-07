@@ -1,126 +1,187 @@
-import 'package:built_value/built_value.dart';
-import 'package:built_value/serializer.dart';
-import 'package:built_collection/built_collection.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 
-part 'settings_state.g.dart';
-
-abstract class SettingsState
-    implements Built<SettingsState, SettingsStateBuilder> {
-  static Serializer<SettingsState> get serializer => _$settingsStateSerializer;
-
-  SettingsState._();
-  factory SettingsState([void Function(SettingsStateBuilder) updates]) =
-      _$SettingsState;
-
-  @BuiltValueField(serialize: false)
-  SettingsStateEnum? get state;
-
-  @BuiltValueField(wireName: 'current_alias')
-  String get currentAlias;
-
-  @BuiltValueField(wireName: 'is_light_mode')
-  bool get isLightMode;
-
-  @BuiltValueField(wireName: 'refresh_seconds')
-  int get refreshSeconds;
-
-  BuiltMap<String, SettingsStateConnection> get connections;
-
-  factory SettingsState.init() => SettingsState((b) => b
-    ..currentAlias = ""
-    ..isLightMode = false // Dark mode by default
-    ..refreshSeconds = 60 // 1 minute
-    ..state = SettingsStateEnum.uninitialized);
+enum SettingsStateEnum {
+  uninitialized,
+  noConnection,
+  clientConnected,
+  clientFailed,
+  clientDeleted,
+  clientUpdated,
+  connected,
+  failed,
+  updatedRefreshSeconds,
 }
 
-class SettingsStateEnum extends EnumClass {
-  static const SettingsStateEnum uninitialized = _$uninitialized;
-  static const SettingsStateEnum noConnection = _$noConnection;
-  static const SettingsStateEnum clientConnected = _$clientConnected;
-  static const SettingsStateEnum clientUpdated = _$clientUpdated;
-  static const SettingsStateEnum clientFailed = _$clientFailed;
-  static const SettingsStateEnum clientDeleted = _$clientDeleted;
-  static const SettingsStateEnum connected = _$connected;
-  static const SettingsStateEnum failed = _$failed;
-  static const SettingsStateEnum updatedRefreshSeconds =
-      _$updatedRefreshSeconds;
-
-  const SettingsStateEnum._(super.name);
-
-  static BuiltSet<SettingsStateEnum> get values => _$values;
-  static SettingsStateEnum valueOf(String name) => _$valueOf(name);
+enum SettingsConnectionStateEnum {
+  uninitialized,
+  connecting,
+  connected,
+  failed,
 }
 
-abstract class SettingsStateConnection
-    implements Built<SettingsStateConnection, SettingsStateConnectionBuilder> {
-  static Serializer<SettingsStateConnection> get serializer =>
-      _$settingsStateConnectionSerializer;
+sealed class SettingsStateConnection {
+  final String baseUrl;
+  final String site;
+  final String username;
+  final String secret;
+  final bool notifications;
+  final bool validateSsl;
+  final SettingsConnectionStateEnum state;
+  final cmk_api.Client? client;
+  final Map<String, bool> filters;
 
-  @BuiltValueField(
-    serialize: false,
-  )
-  SettingsConnectionStateEnum? get state;
+  const SettingsStateConnection({
+    required this.baseUrl,
+    required this.site,
+    required this.username,
+    required this.secret,
+    required this.notifications,
+    required this.validateSsl,
+    required this.state,
+    this.client,
+    required this.filters,
+  });
 
-  @BuiltValueField(serialize: false)
-  cmk_api.Client? get client;
+  Map<String, dynamic> toJson() => {
+        'base_url': baseUrl,
+        'site': site,
+        'username': username,
+        'secret': secret,
+        'notifications': notifications,
+        'validate_ssl': validateSsl,
+        'filters': filters,
+      };
 
-  @BuiltValueField(serialize: false)
-  cmk_api.NetworkError? get error;
+  factory SettingsStateConnection.fromJson(Map<String, dynamic> json) {
+    return SettingsStateConnectionImpl(
+      baseUrl: json['base_url'] as String,
+      site: json['site'] as String,
+      username: json['username'] as String,
+      secret: json['secret'] as String,
+      notifications: json['notifications'] as bool,
+      validateSsl: json['validate_ssl'] as bool,
+      state: SettingsConnectionStateEnum.uninitialized,
+      filters: Map<String, bool>.from(json['filters'] as Map),
+    );
+  }
 
-  @BuiltValueField(wireName: 'base_url')
-  String get baseUrl;
-
-  String get site;
-
-  String get username;
-
-  String get secret;
-
-  bool get notifications;
-
-  @BuiltValueField(wireName: 'validate_ssl')
-  bool get validateSsl;
-
-  BuiltMap<String, bool>? get filters;
-
-  factory SettingsStateConnection(
-          [void Function(SettingsStateConnectionBuilder) updates]) =
-      _$SettingsStateConnection;
-
-  SettingsStateConnection._();
-
-  factory SettingsStateConnection.init(
-          {required SettingsConnectionStateEnum state,
-          required String baseUrl,
-          required String site,
-          required String username,
-          required String secret,
-          bool notifications = true,
-          bool validateSsl = true,
-          String currentAlias = "",
-          Map<String, bool> filters = const {},
-          cmk_api.Client? client}) =>
-      SettingsStateConnection((b) => b
-        ..state = state
-        ..baseUrl = baseUrl
-        ..site = site
-        ..username = username
-        ..secret = secret
-        ..notifications = notifications
-        ..validateSsl = validateSsl
-        ..filters = BuiltMap<String, bool>.from(filters).toBuilder()
-        ..client = client);
+  SettingsStateConnection copyWith({
+    String? baseUrl,
+    String? site,
+    String? username,
+    String? secret,
+    bool? notifications,
+    bool? validateSsl,
+    SettingsConnectionStateEnum? state,
+    cmk_api.Client? client,
+    Map<String, bool>? filters,
+  });
 }
 
-class SettingsConnectionStateEnum extends EnumClass {
-  static const SettingsConnectionStateEnum uninitialized = _$connUninitialized;
-  static const SettingsConnectionStateEnum connected = _$connConnected;
-  static const SettingsConnectionStateEnum failed = _$connFailed;
+final class SettingsStateConnectionImpl extends SettingsStateConnection {
+  const SettingsStateConnectionImpl({
+    required super.baseUrl,
+    required super.site,
+    required super.username,
+    required super.secret,
+    required super.notifications,
+    required super.validateSsl,
+    required super.state,
+    super.client,
+    required super.filters,
+  });
 
-  const SettingsConnectionStateEnum._(super.name);
+  @override
+  SettingsStateConnection copyWith({
+    String? baseUrl,
+    String? site,
+    String? username,
+    String? secret,
+    bool? notifications,
+    bool? validateSsl,
+    SettingsConnectionStateEnum? state,
+    cmk_api.Client? client,
+    Map<String, bool>? filters,
+  }) {
+    return SettingsStateConnectionImpl(
+      baseUrl: baseUrl ?? this.baseUrl,
+      site: site ?? this.site,
+      username: username ?? this.username,
+      secret: secret ?? this.secret,
+      notifications: notifications ?? this.notifications,
+      validateSsl: validateSsl ?? this.validateSsl,
+      state: state ?? this.state,
+      client: client ?? this.client,
+      filters: filters ?? this.filters,
+    );
+  }
+}
 
-  static BuiltSet<SettingsConnectionStateEnum> get values => _$connValues;
-  static SettingsConnectionStateEnum valueOf(String name) =>
-      _$connValueOf(name);
+sealed class SettingsState {
+  final SettingsStateEnum state;
+  final Map<String, SettingsStateConnection> connections;
+  final String currentAlias;
+  final bool isLightMode;
+  final int refreshSeconds;
+
+  const SettingsState({
+    required this.state,
+    required this.connections,
+    required this.currentAlias,
+    required this.isLightMode,
+    required this.refreshSeconds,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'state': state.name,
+    'current_alias': currentAlias,
+    'is_light_mode': isLightMode,
+    'refresh_seconds': refreshSeconds,
+    'connections': connections.map(
+      (key, value) => MapEntry(key, value.toJson()),
+    ),
+  };
+}
+
+final class SettingsStateImpl extends SettingsState {
+  const SettingsStateImpl({
+    required super.state,
+    required super.connections,
+    required super.currentAlias,
+    required super.isLightMode,
+    required super.refreshSeconds,
+  });
+
+  SettingsStateImpl copyWith({
+    SettingsStateEnum? state,
+    Map<String, SettingsStateConnection>? connections,
+    String? currentAlias,
+    bool? isLightMode,
+    int? refreshSeconds,
+  }) {
+    return SettingsStateImpl(
+      state: state ?? this.state,
+      connections: connections ?? this.connections,
+      currentAlias: currentAlias ?? this.currentAlias,
+      isLightMode: isLightMode ?? this.isLightMode,
+      refreshSeconds: refreshSeconds ?? this.refreshSeconds,
+    );
+  }
+
+  factory SettingsStateImpl.fromJson(Map<String, dynamic> json) {
+    final connections = <String, SettingsStateConnection>{};
+    final jsonConnections = json['connections'] as Map<String, dynamic>;
+    
+    jsonConnections.forEach((key, value) {
+      connections[key] = SettingsStateConnection.fromJson(value as Map<String, dynamic>);
+    });
+
+    return SettingsStateImpl(
+      state: SettingsStateEnum.uninitialized,
+      connections: connections,
+      currentAlias: json['current_alias'] as String,
+      isLightMode: json['is_light_mode'] as bool,
+      refreshSeconds: json['refresh_seconds'] as int,
+    );
+  }
 }

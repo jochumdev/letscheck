@@ -4,7 +4,19 @@ import '../settings/settings.dart';
 
 abstract class HostsEvent extends Equatable {}
 
+class HostsEventFetch extends HostsEvent {
+  HostsEventFetch();
+
+  @override
+  List<Object> get props => [];
+
+  @override
+  String toString() => 'Fetch';
+}
+
 class HostsStartFetching extends HostsEvent {
+  HostsStartFetching();
+
   @override
   List<Object> get props => [];
 
@@ -13,16 +25,15 @@ class HostsStartFetching extends HostsEvent {
 }
 
 class HostsEventFetched extends HostsEvent {
-  final String alias;
-  final List<cmk_api.TableHostsDto> hosts;
+  final List<cmk_api.Host> hosts;
 
-  HostsEventFetched({required this.alias, required this.hosts});
-
-  @override
-  List<Object> get props => [alias, hosts];
+  HostsEventFetched({required this.hosts});
 
   @override
-  String toString() => "Hosts Fetched for '$alias'";
+  List<Object> get props => [hosts];
+
+  @override
+  String toString() => "Hosts Fetched";
 }
 
 class HostsUpdate extends HostsEvent {

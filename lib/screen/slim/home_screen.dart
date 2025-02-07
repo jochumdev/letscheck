@@ -20,7 +20,7 @@ class HomeScreenState extends State<HomeScreen> with BaseSlimScreenState {
   Future<void> refreshAction(context) async {
     final sBloc = BlocProvider.of<SettingsBloc>(context);
     final cBloc = BlocProvider.of<ConnectionDataBloc>(context);
-    cBloc.add(UpdateClient(
+    cBloc.add(ConnectionDataUpdate(
         action: SettingsStateEnum.clientUpdated,
         alias: sBloc.state.currentAlias));
   }

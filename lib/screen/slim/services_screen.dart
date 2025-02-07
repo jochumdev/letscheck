@@ -75,7 +75,7 @@ class ServicesScreenState extends State<ServicesScreen>
     return BlocProvider<ServicesBloc>(
       create: (context) =>
           ServicesBloc(alias: alias, filter: myFilters, sBloc: sBloc)
-            ..add(ServicesStartFetching()),
+            ..add(ServicesEventStartFetching()),
       child: BlocBuilder<ServicesBloc, ServicesState>(
         builder: (context, state) {
           return BlocBuilder<CommentsBloc, CommentsState>(

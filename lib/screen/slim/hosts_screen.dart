@@ -73,7 +73,7 @@ class HostsScreenState extends State<HostsScreen> with BaseSlimScreenState {
     return BlocProvider<HostsBloc>(
       create: (context) =>
           HostsBloc(alias: alias, filter: myFilters, sBloc: sBloc)
-            ..add(HostsStartFetching()),
+            ..add(HostsEventFetch()),
       child: BlocBuilder<HostsBloc, HostsState>(
         builder: (context, state) {
           final cBloc = BlocProvider.of<ConnectionDataBloc>(context);

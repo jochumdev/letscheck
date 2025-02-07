@@ -70,7 +70,7 @@ class CustomSearchDelegate extends SearchDelegate {
     BlocProvider.of<SearchBloc>(context).add(SearchTerm(term: query));
 
     return BlocBuilder<SearchBloc, SearchState>(builder: (context, state) {
-      if (state is SearchStateFetched) {
+      if (state is SearchStateLoaded) {
         var groupItems = <dynamic>[];
         state.hosts.forEach((alias, hosts) {
           for (var host in hosts) {

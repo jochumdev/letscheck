@@ -1,35 +1,30 @@
-import 'dart:async';
-import 'package:built_collection/built_collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
-import 'comments_state.dart';
-import 'comments_event.dart';
 import '../settings/settings.dart';
+import 'comments_event.dart';
+import 'comments_state.dart';
 
 class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
   final SettingsBloc sBloc;
 
-  CommentsBloc({required this.sBloc}) : super(CommentsState.init()) {
+  CommentsBloc({required this.sBloc}) : super(const CommentsStateImpl(comments: {})) {
     on<CommentsFetchIds>((event, emit) async {
-      await _fetchIds(
-          alias: event.alias, ids: event.ids, columns: event.columns);
+      await _fetchIds(event.alias, event.ids);
     });
 
     on<CommentsGotIds>((event, emit) async {
-      if (state.comments.containsKey(event.alias)) {
-        emit(state.rebuild((b) => b
-          ..comments[event.alias]!
-              .rebuild((b) => b.addAll(event.comments))));
+      if (state is! CommentsStateImpl) {
+        emit(CommentsStateImpl(comments: {event.alias: event.comments}));
       } else {
-        emit(state.rebuild((b) => b..comments[event.alias] = BuiltMap.from(event.comments)));
+        final currentState = state as CommentsStateImpl;
+        final comments = Map<String, Map<num, cmk_api.Comment>>.from(currentState.comments);
+        comments[event.alias] = event.comments;
+        emit(CommentsStateImpl(comments: comments));
       }
     });
   }
 
-  Future<void> _fetchIds(
-      {required String alias,
-      required List<num> ids,
-      required List<String> columns}) async {
+  Future<void> _fetchIds(String alias, List<num> ids) async {
     if (!sBloc.state.connections.containsKey(alias)) {
       return;
     }
@@ -40,25 +35,17 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     }
 
     final client = sBloc.state.connections[alias]!.client!;
-
-    var filter = <String>[];
-    if (ids.isNotEmpty) {
-      var idsStr = [];
-      for (var id in ids) {
-        idsStr.add('{"op": "=", "left": "id", "right": "$id"}');
-      }
-      filter.add('{"op": "or", "expr": [${idsStr.join(",")}]}');
-    }
+    final filter = ids.map((id) => '{"op": "=", "left": "id", "right": "$id"}').toList();
 
     try {
-      final comments = await client.getApiTableComment(filter: filter);
-      var result = <num, cmk_api.TableCommentsDto>{};
+      final comments = await client.getApiComments(filter: filter);
+      var result = <num, cmk_api.Comment>{};
       for (var comment in comments) {
-        result[comment.id!] = comment;
+        result[comment.id] = comment;
       }
       add(CommentsGotIds(alias: alias, comments: result));
-    } on cmk_api.NetworkError {
-      // Ignore.
+    } on cmk_api.NetworkError catch (e) {
+      sBloc.add(ConnectionFailed(alias, e));
     }
   }
 }

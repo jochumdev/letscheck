@@ -19,12 +19,10 @@ class SiteStatsWidget extends StatelessWidget {
     final conn = sBloc.state.connections[alias]!;
 
     var hasFilters = false;
-    if (conn.filters != null) {
-      for (var f in conn.filters!.values) {
-        if (f) {
-          hasFilters = true;
-          break;
-        }
+    for (var f in conn.filters.values) {
+      if (f) {
+        hasFilters = true;
+        break;
       }
     }
 

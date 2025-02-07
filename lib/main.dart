@@ -181,7 +181,7 @@ Future<void> main() async {
       child: MultiBlocProvider(providers: [
         BlocProvider<SettingsBloc>.value(value: sBloc..add(AppStarted())),
         BlocProvider<ConnectionDataBloc>.value(
-            value: hdBloc..add(StartFetching())),
+            value: hdBloc..add(ConnectionDataStartFetching())),
         BlocProvider<SearchBloc>(create: (context) => SearchBloc(sBloc: sBloc)),
         BlocProvider<CommentsBloc>(
             create: (context) => CommentsBloc(sBloc: sBloc)),

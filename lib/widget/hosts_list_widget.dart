@@ -4,15 +4,15 @@ import 'host_card_widget.dart';
 
 class HostsListWidget extends StatelessWidget {
   final String alias;
-  final List<cmk_api.TableHostsDto> hosts;
+  final List<cmk_api.Host> hosts;
 
   HostsListWidget({required this.alias, required this.hosts});
 
   @override
   Widget build(BuildContext context) {
-    var mapHosts = <String, cmk_api.TableHostsDto>{};
+    var mapHosts = <String, cmk_api.Host>{};
     for (var host in hosts) {
-      mapHosts[host.name!] = host;
+      mapHosts[host.hostName!] = host;
     }
 
     var sortedHostNames = mapHosts.keys.toList();

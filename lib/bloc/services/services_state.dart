@@ -10,7 +10,7 @@ class ServicesStateUninitialized extends ServicesState {
 
 class ServicesStateFetched extends ServicesState {
   final String alias;
-  final List<cmk_api.TableServicesDto> services;
+  final List<cmk_api.Service> services;
 
   ServicesStateFetched({required this.alias, required this.services});
 

@@ -22,7 +22,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
         case SettingsStateEnum.clientFailed:
           if (state.currentAlias == alias) {
             try {
-              add(ServicesUpdate(action: state.state!));
+              add(ServicesEventStartFetching());
             } on StateError {
               // Ignore.
             }
@@ -38,15 +38,52 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       }
     });
 
-    on<ServicesStartFetching>((event, emit) async {
-      await _fetchData();
+    on<ServicesEventFetch>((event, emit) async {
+      if (!sBloc.state.connections.containsKey(alias)) {
+        return;
+      }
+
+      if (sBloc.state.connections[alias]!.state !=
+          SettingsConnectionStateEnum.connected) {
+        return;
+      }
+
+      try {
+        final client = sBloc.state.connections[alias]!.client!;
+        final services = await client.getApiServices(filter: filter);
+        try {
+          add(ServicesEventFetched(services: services));
+        } on StateError {
+          // Ignore.
+        }
+      } on cmk_api.NetworkError {
+        // Ignore network errors
+      }
+    });
+
+    on<ServicesEventFetched>((event, emit) async {
+      emit(ServicesStateFetched(alias: alias, services: event.services));
+    });
+
+    on<ServicesEventStartFetching>((event, emit) async {
+      // Ticker fetch
+      try {
+        add(ServicesEventFetch());
+      } on StateError {
+        // Ignore.
+      }
       await _startFetching();
     });
 
     on<ServicesUpdate>((event, emit) async {
       switch (event.action) {
         case SettingsStateEnum.clientConnected:
-          await _fetchData();
+      // Ticker fetch
+      try {
+        add(ServicesEventFetch());
+      } on StateError {
+        // Ignore.
+      }
           break;
         case SettingsStateEnum.clientFailed:
         case SettingsStateEnum.clientDeleted:
@@ -54,10 +91,6 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
           break;
         default:
       }
-    });
-
-    on<ServicesEventFetched>((event, emit) async {
-      emit(ServicesStateFetched(alias: event.alias, services: event.services));
     });
   }
 
@@ -67,32 +100,12 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
         Stream.periodic(Duration(seconds: sBloc.state.refreshSeconds))
             .listen((state) async {
       // Ticker fetch
-      await _fetchData();
-    });
-  }
-
-  Future<void> _fetchData() async {
-    if (!sBloc.state.connections.containsKey(alias)) {
-      return;
-    }
-
-    if (sBloc.state.connections[alias]!.state !=
-        SettingsConnectionStateEnum.connected) {
-      return;
-    }
-
-    final client = sBloc.state.connections[alias]!.client!;
-
-    try {
       try {
-        final services = await client.getApiTableService(filter: filter);
-        add(ServicesEventFetched(alias: alias, services: services));
-      } on cmk_api.NetworkError catch (e) {
-        sBloc.add(ConnectionFailed(alias, e));
+        add(ServicesEventFetch());
+      } on StateError {
+        // Ignore.
       }
-    } on StateError {
-      // Ignore
-    }
+    });
   }
 
   void dispose() {

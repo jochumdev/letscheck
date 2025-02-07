@@ -101,7 +101,7 @@ Future<bool> grantNotificationPermission() async {
 
 Future<void> sendLogNotification({
   required String conn,
-  required cmk_api.TableLogDto log,
+  required cmk_api.Log log,
 }) async {
   var title = '${log.hostName} : ${log.displayName}';
   var body = log.pluginOutput;

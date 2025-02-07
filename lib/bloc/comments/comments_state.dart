@@ -1,16 +1,11 @@
-import 'package:built_collection/built_collection.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
-import 'package:built_value/built_value.dart';
 
-part 'comments_state.g.dart';
+sealed class CommentsState {
+  final Map<String, Map<num, cmk_api.Comment>> comments;
 
-abstract class CommentsState
-    implements Built<CommentsState, CommentsStateBuilder> {
-  CommentsState._();
-  factory CommentsState([void Function(CommentsStateBuilder) updates]) =
-      _$CommentsState;
+  const CommentsState({required this.comments});
+}
 
-  BuiltMap<String, BuiltMap<num, cmk_api.TableCommentsDto>> get comments;
-
-  factory CommentsState.init() => CommentsState((b) => b);
+final class CommentsStateImpl extends CommentsState {
+  const CommentsStateImpl({required super.comments});
 }

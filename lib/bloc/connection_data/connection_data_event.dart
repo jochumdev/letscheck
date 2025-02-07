@@ -4,7 +4,7 @@ import '../settings/settings.dart';
 
 abstract class ConnectionDataEvent extends Equatable {}
 
-class StartFetching extends ConnectionDataEvent {
+class ConnectionDataStartFetching extends ConnectionDataEvent {
   @override
   List<Object> get props => [];
 
@@ -12,11 +12,11 @@ class StartFetching extends ConnectionDataEvent {
   String toString() => 'Start fetching';
 }
 
-class UpdateClient extends ConnectionDataEvent {
+class ConnectionDataUpdate extends ConnectionDataEvent {
   final SettingsStateEnum action;
   final String alias;
 
-  UpdateClient({required this.action, required this.alias});
+  ConnectionDataUpdate({required this.action, required this.alias});
 
   @override
   List<Object> get props => [action, alias];
@@ -27,9 +27,9 @@ class UpdateClient extends ConnectionDataEvent {
 
 class ConnectionData extends ConnectionDataEvent {
   final String alias;
-  final cmk_api.StatsTacticalOverviewDto stats;
+  final cmk_api.StatsTacticalOverview stats;
 
-  final List<cmk_api.TableServicesDto> unhServices;
+  final List<cmk_api.Service> unhServices;
 
   ConnectionData(
       {required this.alias, required this.stats, required this.unhServices});

@@ -10,16 +10,14 @@ import 'package:retry/retry.dart';
 import 'package:letscheck/bg_service.dart' as bg_service;
 import 'settings_state.dart';
 import 'settings_event.dart';
-import '../serializers.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
     with HydratedMixin {
   final _failedConnections = <String>[];
-
   late Mutex mutex;
   StreamSubscription? failedConnectionsTicker;
 
-  SettingsBloc() : super(SettingsState.init()) {
+  SettingsBloc() : super(const SettingsStateImpl(connections: {}, state: SettingsStateEnum.uninitialized, currentAlias: '', isLightMode: false, refreshSeconds: 60)) {
     hydrate();
 
     mutex = Mutex();
@@ -29,159 +27,175 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
         var keys = state.connections.keys.toList();
         for (var i = 0; i < keys.length; i++) {
           final alias = keys[i];
-          var s = state.connections[alias]!;
-          var client = cmk_api.Client(cmk_api.ClientSettings(
-              baseUrl: s.baseUrl,
-              site: s.site,
-              username: s.username,
-              secret: s.secret,
-              validateSsl: s.validateSsl));
+          final connSettings = state.connections[alias]!;
+
+          final client = cmk_api.Client(
+              cmk_api.ClientSettings(baseUrl: connSettings.baseUrl, site: connSettings.site,
+                  username: connSettings.username, secret: connSettings.secret,
+                  validateSsl: connSettings.validateSsl));
 
           try {
             await client.testConnection();
-            emit(state.rebuild((b) => b
-              ..connections[alias] = b.connections[alias]!.rebuild((b) => b
-                ..state = SettingsConnectionStateEnum.connected
-                ..client = client
-                ..error = null)));
-            emit(state
-                .rebuild((b) => b..state = SettingsStateEnum.clientConnected));
-          } on cmk_api.NetworkError catch (e) {
-            emit(state.rebuild((b) => b
-              ..connections[alias] = b.connections[alias]!.rebuild((b) => b
-                ..state = SettingsConnectionStateEnum.failed
-                ..error = e)));
-            emit(state
-                .rebuild((b) => b..state = SettingsStateEnum.clientFailed));
+            emit((state as SettingsStateImpl).copyWith(
+              state: SettingsStateEnum.clientConnected,
+              connections: Map.from(state.connections)
+                ..update(alias, (conn) => conn.copyWith(
+                    client: client, state: SettingsConnectionStateEnum.connected)),
+            ));
+          } on cmk_api.NetworkError {
+            emit((state as SettingsStateImpl).copyWith(
+              state: SettingsStateEnum.clientFailed,
+              connections: Map.from(state.connections)
+                ..update(alias, (conn) => conn.copyWith(
+                    state: SettingsConnectionStateEnum.failed)),
+            ));
           }
         }
-        await _updateConnectionState(emit);
-      }
 
-      failedConnectionsTicker ??=
-          Stream.periodic(Duration(seconds: 10)).listen((state) async {
-        await _checkFailedConnections();
-      });
+        await _updateConnectionState(emit);
+
+        failedConnectionsTicker ??=
+            Stream.periodic(const Duration(seconds: 10)).listen((state) async {
+          await _checkFailedConnections();
+        });
+      }
     });
 
     on<ThemeChanged>((event, emit) async {
-      emit(state.rebuild((b) => b..isLightMode = event.lightMode));
+      emit((state as SettingsStateImpl).copyWith(
+        state: state.state,
+        isLightMode: event.lightMode,
+      ));
     });
 
     on<NewConnection>((event, emit) async {
-      emit(state.rebuild((b) => b
-        ..connections[event.alias] = event.connectionSettings
-        ..state = SettingsStateEnum.clientConnected));
-      emit(state.rebuild((b) => b..state = SettingsStateEnum.connected));
+      emit((state as SettingsStateImpl).copyWith(
+        state: SettingsStateEnum.clientConnected,
+        connections: Map.from(state.connections)
+          ..[event.alias] = event.connectionSettings,
+        currentAlias: event.alias,
+      ));
+      emit((state as SettingsStateImpl).copyWith(
+        state: SettingsStateEnum.connected,
+      ));
     });
 
     on<UpdateConnection>((event, emit) async {
-      emit(state.rebuild((b) => b
-        ..connections[event.alias] = event.connectionSettings
-        ..state = SettingsStateEnum.clientUpdated));
-      await _updateConnectionState(emit);
+      emit((state as SettingsStateImpl).copyWith(
+        state: SettingsStateEnum.clientUpdated,
+        connections: Map.from(state.connections)
+          ..[event.alias] = event.connectionSettings,
+      ));
     });
 
     on<DeleteConnection>((event, emit) async {
-      emit(state.rebuild((b) => b..connections.remove(event.alias)));
-      emit(state.rebuild((b) => b..state = SettingsStateEnum.clientDeleted));
-      await _updateConnectionState(emit);
+      final connections = Map<String, SettingsStateConnection>.from(state.connections)..remove(event.alias);
+      emit((state as SettingsStateImpl).copyWith(
+        state: SettingsStateEnum.clientDeleted,
+        connections: connections,
+      ));
     });
 
     on<ConnectionFailed>((event, emit) async {
-      emit(state.rebuild((b) => b
-        ..connections[event.alias] =
-            b.connections[event.alias]!.rebuild((b) => b
-              ..state = SettingsConnectionStateEnum.failed
-              ..error = event.error)));
-      emit(state.rebuild((b) => b..state = SettingsStateEnum.clientFailed));
-      await _updateConnectionState(emit);
+      emit((state as SettingsStateImpl).copyWith(
+        state: SettingsStateEnum.clientFailed,
+        connections: Map.from(state.connections)
+          ..update(event.alias, (conn) => conn.copyWith(
+              state: SettingsConnectionStateEnum.failed)),
+      ));
 
+      await _updateConnectionState(emit);
       _failedConnections.add(event.alias);
     });
 
     on<ConnectionBack>((event, emit) async {
-      emit(state.rebuild((b) => b
-        ..connections[event.alias] =
-            b.connections[event.alias]!.rebuild((b) => b
-              ..state = SettingsConnectionStateEnum.connected
-              ..error = null)));
-      emit(state.rebuild((b) => b..state = SettingsStateEnum.clientConnected));
-      await _updateConnectionState(emit);
-
+      emit((state as SettingsStateImpl).copyWith(
+        state: SettingsStateEnum.clientConnected,
+      ));
       _failedConnections.remove(event.alias);
     });
 
     on<UpdateRefresh>((event, emit) async {
       final myState = state.state;
-      emit(state.rebuild((b) => b
-        ..state = SettingsStateEnum.updatedRefreshSeconds
-        ..refreshSeconds = event.refreshSeconds));
-      emit(state.rebuild((b) => b..state = myState));
+      emit((state as SettingsStateImpl).copyWith(
+        state: SettingsStateEnum.updatedRefreshSeconds,
+        refreshSeconds: event.refreshSeconds,
+      ));
+      emit((state as SettingsStateImpl).copyWith(
+        state: myState,
+      ));
 
       // Update the background service.
-      if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         bg_service.sendSettings(state);
       }
     });
 
     on<SettingsSetCurrentAlias>((event, emit) async {
-      emit(state.rebuild((b) => b..currentAlias = event.alias));
+      emit((state as SettingsStateImpl).copyWith(
+        state: state.state,
+        currentAlias: event.alias,
+      ));
     });
   }
 
   @override
   SettingsState fromJson(Map<String, dynamic> json) {
-    var state = serializers.deserializeWith(SettingsState.serializer, json)!;
-    state = state.rebuild((b) {
-      b
-        ..state = SettingsStateEnum.uninitialized
-        ..refreshSeconds = b.refreshSeconds;
-      state.connections.forEach((k, v) {
-        b.connections[k] = v.rebuild(
-            (c) => c.state = SettingsConnectionStateEnum.uninitialized);
-      });
-    });
+    final state = SettingsStateImpl.fromJson(json);
 
-    return state;
+    final stateConns = state.connections;
+    var conns = <String, SettingsStateConnection>{};
+
+    stateConns.forEach((k, conn) => conns[k] = conn.copyWith(state: SettingsConnectionStateEnum.uninitialized));
+    return state.copyWith(state: SettingsStateEnum.uninitialized, connections: conns);
   }
 
   @override
   Map<String, dynamic> toJson(SettingsState state) {
-    return serializers.serializeWith(SettingsState.serializer, state)
-        as Map<String, dynamic>;
+    return state.toJson();
   }
 
   Future<void> _updateConnectionState(Emitter<SettingsState> emit) async {
-    if (state.connections.length == 0) {
-      // Update the background service.
-      if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
-        bg_service.sendSettings(state);
-      }
+    await failedConnectionsTicker?.cancel();
 
-      emit(state.rebuild((b) => b..state = SettingsStateEnum.noConnection));
+    // If we have no connections, set the state to noConnection.
+    if (state.connections.isEmpty) {
+      emit((state as SettingsStateImpl).copyWith(
+        state: SettingsStateEnum.noConnection,
+      ));
+      return;
     }
 
     var cState = SettingsConnectionStateEnum.uninitialized;
-    state.connections.forEach((alias, conn) {
-      // Don't set uninitialized and don't reset connected back
-      if (conn.state != SettingsConnectionStateEnum.uninitialized &&
-          cState != SettingsConnectionStateEnum.connected) {
-        cState = conn.state!;
+    for (var alias in state.connections.keys) {
+      var conn = state.connections[alias]!;
+      if (conn.state == SettingsConnectionStateEnum.connected) {
+        cState = SettingsConnectionStateEnum.connected;
+        break;
       }
-    });
+      if (conn.state == SettingsConnectionStateEnum.failed) {
+        cState = SettingsConnectionStateEnum.failed;
+      }
+    }
 
     switch (cState) {
       case SettingsConnectionStateEnum.uninitialized:
-        emit(state.rebuild((b) => b..state = SettingsStateEnum.uninitialized));
+        emit((state as SettingsStateImpl).copyWith(
+          state: SettingsStateEnum.uninitialized,
+        ));
       case SettingsConnectionStateEnum.connected:
-        emit(state.rebuild((b) => b..state = SettingsStateEnum.connected));
+        emit((state as SettingsStateImpl).copyWith(
+          state: SettingsStateEnum.connected,
+        ));
       case SettingsConnectionStateEnum.failed:
-        emit(state.rebuild((b) => b..state = SettingsStateEnum.failed));
+        emit((state as SettingsStateImpl).copyWith(
+          state: SettingsStateEnum.failed,
+        ));
+      default:
     }
 
     // Update the background service.
-    if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       bg_service.sendSettings(state);
     }
   }
@@ -198,14 +212,16 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState>
         final conn = state.connections[alias]!.client!;
 
         try {
-          await retry(conn.testConnection, retryIf: (e) {
-            if (e is cmk_api.NetworkError) {
-              return true;
-            }
-
-            print("Other error in _checkFailedConnections");
-            return false;
-          });
+          await retry(
+            () => conn.testConnection(),
+            retryIf: (e) {
+              if (e is cmk_api.NetworkError) {
+                return true;
+              }
+              print("Other error in _checkFailedConnections");
+              return false;
+            },
+          );
           try {
             add(ConnectionBack(alias));
           } on StateError {

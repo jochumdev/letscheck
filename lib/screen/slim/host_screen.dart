@@ -55,14 +55,14 @@ class HostScreenState extends State<HostScreen> with BaseSlimScreenState {
                   '{"op": "=", "left": "host_name", "right": "$hostname"}'
                 ],
                 sBloc: sBloc)
-              ..add(ServicesStartFetching()),
+              ..add(ServicesEventStartFetching()),
           ),
           BlocProvider<HostsBloc>(
             create: (context) => HostsBloc(
                 alias: alias,
                 filter: ['{"op": "=", "left": "name", "right": "$hostname"}'],
                 sBloc: sBloc)
-              ..add(HostsStartFetching()),
+              ..add(HostsEventFetch()),
           )
         ],
         child: BlocBuilder<HostsBloc, HostsState>(builder: (hcontext, hstate) {

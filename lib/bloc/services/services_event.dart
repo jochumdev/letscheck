@@ -4,7 +4,9 @@ import '../settings/settings.dart';
 
 abstract class ServicesEvent extends Equatable {}
 
-class ServicesStartFetching extends ServicesEvent {
+class ServicesEventStartFetching extends ServicesEvent {
+  ServicesEventStartFetching();
+
   @override
   List<Object> get props => [];
 
@@ -12,17 +14,27 @@ class ServicesStartFetching extends ServicesEvent {
   String toString() => 'Start fetching';
 }
 
+
+class ServicesEventFetch extends ServicesEvent {
+  ServicesEventFetch();
+
+  @override
+  List<Object> get props => [];
+
+  @override
+  String toString() => 'Fetch';
+}
+
 class ServicesEventFetched extends ServicesEvent {
-  final String alias;
-  final List<cmk_api.TableServicesDto> services;
+  final List<cmk_api.Service> services;
 
-  ServicesEventFetched({required this.alias, required this.services});
-
-  @override
-  List<Object> get props => [alias, services];
+  ServicesEventFetched({required this.services});
 
   @override
-  String toString() => "Services Fetched for '$alias'";
+  List<Object> get props => [services];
+
+  @override
+  String toString() => "Services Fetched";
 }
 
 class ServicesUpdate extends ServicesEvent {

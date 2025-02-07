@@ -16,16 +16,14 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
   HostsBloc({required this.alias, required this.filter, required this.sBloc})
       : super(HostsStateUninitialized()) {
     sBlocSubscription = sBloc.stream.listen((state) async {
-      switch (state.state!) {
+      switch (state.state) {
         case SettingsStateEnum.clientConnected:
         case SettingsStateEnum.clientUpdated:
         case SettingsStateEnum.clientFailed:
-          if (state.currentAlias == alias) {
-            try {
-              add(HostsUpdate(action: state.state!));
-            } on StateError {
-              // Ignore.
-            }
+          try {
+            add(HostsEventFetch());
+          } on StateError {
+            // Ignore.
           }
           break;
         case SettingsStateEnum.updatedRefreshSeconds:
@@ -39,25 +37,35 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
     });
 
     on<HostsStartFetching>((event, emit) async {
-      await _fetchData();
+      try {
+        add(HostsEventFetch());
+      } on StateError {
+        // Ignore.
+      }
       await _startFetching();
     });
 
-    on<HostsUpdate>((event, emit) async {
-      switch (event.action) {
-        case SettingsStateEnum.clientConnected:
-          await _fetchData();
-          break;
-        case SettingsStateEnum.clientFailed:
-        case SettingsStateEnum.clientDeleted:
-          await tickerSubscription?.cancel();
-          break;
-        default:
+    on<HostsEventFetch>((event, emit) async {
+      if (!sBloc.state.connections.containsKey(alias)) {
+        return;
+      }
+
+      if (sBloc.state.connections[alias]!.state !=
+          SettingsConnectionStateEnum.connected) {
+        return;
+      }
+
+      try {
+        final client = sBloc.state.connections[alias]!.client!;
+        final hosts = await client.getApiHosts(filter: filter);
+        add(HostsEventFetched(hosts: hosts));
+      } on cmk_api.NetworkError catch (e) {
+        sBloc.add(ConnectionFailed(alias, e));
       }
     });
 
     on<HostsEventFetched>((event, emit) async {
-      emit(HostsStateFetched(alias: event.alias, hosts: event.hosts));
+      emit(HostsStateFetched(alias: alias, hosts: event.hosts));
     });
   }
 
@@ -67,32 +75,8 @@ class HostsBloc extends Bloc<HostsEvent, HostsState> {
         Stream.periodic(Duration(seconds: sBloc.state.refreshSeconds))
             .listen((state) async {
       // Ticker fetch
-      await _fetchData();
+      add(HostsEventFetch());
     });
-  }
-
-  Future<void> _fetchData() async {
-    if (!sBloc.state.connections.containsKey(alias)) {
-      return;
-    }
-
-    if (sBloc.state.connections[alias]!.state !=
-        SettingsConnectionStateEnum.connected) {
-      return;
-    }
-
-    final client = sBloc.state.connections[alias]!.client!;
-
-    try {
-      try {
-        final hosts = await client.getApiTableHost(filter: filter);
-        add(HostsEventFetched(alias: alias, hosts: hosts));
-      } on cmk_api.NetworkError catch (e) {
-        sBloc.add(ConnectionFailed(alias, e));
-      }
-    } on StateError {
-      // Ignore.
-    }
   }
 
   void dispose() {

@@ -99,7 +99,7 @@ class ConnectionFormBloc extends FormBloc<String, String> {
 
     settingsBloc.add(UpdateConnection(
         alias.value,
-        SettingsStateConnection.init(
+        SettingsStateConnectionImpl(
           state: SettingsConnectionStateEnum.connected,
           baseUrl: baseUrl.value,
           site: site.value,
@@ -108,6 +108,7 @@ class ConnectionFormBloc extends FormBloc<String, String> {
           notifications: notifications.value,
           validateSsl: validateSsl.value,
           client: client,
+          filters: {},
         )));
 
     settingsBloc.add(ConnectionBack(alias.value));

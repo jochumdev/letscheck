@@ -7,7 +7,7 @@ import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
 
 class HostCardWidget extends StatelessWidget {
   final String alias;
-  final cmk_api.TableHostsDto host;
+  final cmk_api.Host host;
 
   HostCardWidget({super.key, required this.alias, required this.host});
 
@@ -41,13 +41,13 @@ class HostCardWidget extends StatelessWidget {
           ),
           Expanded(
             flex: 20,
-            child: SelectableText(host.name!),
+            child: SelectableText(host.hostName!),
           ),
           Expanded(
             flex: 2,
             child: IconButton(
               onPressed: () {
-                context.push('/conn/$alias/host/${host.name!}');
+                context.push('/conn/$alias/host/${host.hostName!}');
               },
               tooltip: "Goto host",
               icon: Icon(

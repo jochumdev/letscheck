@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Added
+- upgrade check\_mk\_api, it's now using sealed classes
+
 ## 0.1.4+1270 - 2025-02-05
 ### Added
 - upgrade flutter 3.27.1 -> 3.27.3

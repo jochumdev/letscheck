@@ -29,7 +29,7 @@ class CommentsFetchIds extends CommentsEvent {
 
 class CommentsGotIds extends CommentsEvent {
   final String alias;
-  final Map<num, cmk_api.TableCommentsDto> comments;
+  final Map<num, cmk_api.Comment> comments;
 
   CommentsGotIds({required this.alias, required this.comments});
 

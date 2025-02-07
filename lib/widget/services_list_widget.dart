@@ -5,7 +5,7 @@ import 'services_grouped_card_widget.dart';
 
 class ServicesListWidget extends StatelessWidget {
   final String alias;
-  final List<cmk_api.TableServicesDto> services;
+  final List<cmk_api.Service> services;
 
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 
