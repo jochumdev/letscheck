@@ -1,35 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:letscheck/bloc/connection_data/connection_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:letscheck/widget/site_stats_widget.dart';
-import 'base_slim_screen.dart';
+import 'package:letscheck/screen/slim/base_slim_screen.dart';
 
-class ServiceScreen extends StatefulWidget {
-  final String alias;
+class ServiceScreen extends ConsumerStatefulWidget {
+  final String site;
   final String hostname;
   final String service;
 
   ServiceScreen({
-    required this.alias,
+    required this.site,
     required this.hostname,
     required this.service,
   });
 
   @override
   ServiceScreenState createState() => ServiceScreenState(
-        alias: alias,
+        site: site,
         hostname: hostname,
         service: service,
       );
 }
 
-class ServiceScreenState extends State<ServiceScreen> with BaseSlimScreenState {
-  final String alias;
+class ServiceScreenState extends ConsumerState<ServiceScreen> with BaseSlimScreenState {
+  final String site;
   final String hostname;
   final String service;
 
   ServiceScreenState(
-      {required this.alias, required this.hostname, required this.service});
+      {required this.site, required this.hostname, required this.service});
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
     var title = 'Service';
@@ -45,10 +44,9 @@ class ServiceScreenState extends State<ServiceScreen> with BaseSlimScreenState {
 
   @override
   Widget content(BuildContext context) {
-    final cBloc = BlocProvider.of<ConnectionDataBloc>(context);
     return Column(
       children: [
-        SiteStatsWidget(alias: alias, state: cBloc.state),
+        SiteStatsWidget(site: site),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,

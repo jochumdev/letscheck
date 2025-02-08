@@ -1,34 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:letscheck/bloc/connection_data/connection_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:letscheck/providers/hosts/hosts_state.dart';
+import 'package:letscheck/providers/params.dart';
+import 'package:letscheck/providers/providers.dart';
+import 'package:letscheck/providers/services/services_state.dart';
+import 'package:letscheck/providers/services/services_util.dart';
 import 'package:letscheck/widget/site_stats_widget.dart';
-import 'base_slim_screen.dart';
-import '../../bloc/services/services.dart';
-import '../../bloc/settings/settings.dart';
-import '../../bloc/hosts/hosts.dart';
-import '../../widget/services_grouped_card_widget.dart';
-import '../../widget/center_loading_widget.dart';
-import '../../widget/host_card_widget.dart';
+import 'package:letscheck/widget/services_grouped_card_widget.dart';
+import 'package:letscheck/widget/host_card_widget.dart';
 
-class HostScreen extends StatefulWidget {
-  final String alias;
+import 'package:letscheck/screen/slim/base_slim_screen.dart';
+
+class HostScreen extends ConsumerStatefulWidget {
+  final String site;
   final String hostname;
 
-  HostScreen({required this.alias, required this.hostname});
+  HostScreen({required this.site, required this.hostname});
 
   @override
   HostScreenState createState() => HostScreenState(
-        alias: alias,
+        site: site,
         hostname: hostname,
       );
 }
 
-class HostScreenState extends State<HostScreen> with BaseSlimScreenState {
-  final String alias;
+class HostScreenState extends ConsumerState<HostScreen> with BaseSlimScreenState {
+  final String site;
   final String hostname;
 
-  HostScreenState({required this.alias, required this.hostname});
+  late final SiteAndFilterParams hostParams;
+  late final SiteAndFilterParams serviceParams;
+
+  HostScreenState({required this.site, required this.hostname}) {
+    hostParams = SiteAndFilterParams(site: site, filter: ['{"op": "=", "left": "name", "right": "$hostname"}']);
+    serviceParams = SiteAndFilterParams(site: site, filter: ['{"op": "=", "left": "host_name", "right": "$hostname"}']);
+  }
 
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
@@ -44,60 +50,32 @@ class HostScreenState extends State<HostScreen> with BaseSlimScreenState {
 
   @override
   Widget content(BuildContext context) {
-    final sBloc = BlocProvider.of<SettingsBloc>(context);
+    final hosts = ref.watch(hostsProvider(hostParams));
+    final services = ref.watch(servicesProvider(serviceParams));
 
-    return MultiBlocProvider(
-        providers: [
-          BlocProvider<ServicesBloc>(
-            create: (context) => ServicesBloc(
-                alias: alias,
-                filter: [
-                  '{"op": "=", "left": "host_name", "right": "$hostname"}'
-                ],
-                sBloc: sBloc)
-              ..add(ServicesEventStartFetching()),
-          ),
-          BlocProvider<HostsBloc>(
-            create: (context) => HostsBloc(
-                alias: alias,
-                filter: ['{"op": "=", "left": "name", "right": "$hostname"}'],
-                sBloc: sBloc)
-              ..add(HostsEventFetch()),
-          )
-        ],
-        child: BlocBuilder<HostsBloc, HostsState>(builder: (hcontext, hstate) {
-          if (hstate is HostsStateFetched) {
-            return BlocBuilder<ServicesBloc, ServicesState>(
-                builder: (context, state) {
-              if (state is ServicesStateFetched) {
-                final groupedServices =
-                    servicesGroupByHostname(services: state.services);
-                final cBloc = BlocProvider.of<ConnectionDataBloc>(context);
-                return Column(
-                  children: [
-                    SiteStatsWidget(alias: alias, state: cBloc.state),
-                    Expanded(
-                        child: Column(children: [
-                      HostCardWidget(alias: alias, host: hstate.hosts[0]),
-                      Expanded(
-                          child: ListView(children: [
-                        ServicesGroupedCardWidget(
-                          alias: alias,
-                          groupName: hostname,
-                          services: groupedServices[hostname]!,
-                          showGroupHeader: false,
-                        )
-                      ]))
-                    ])),
-                  ],
-                );
-              } else {
-                return CenterLoadingWidget();
-              }
-            });
-          } else {
-            return CenterLoadingWidget();
-          }
-        }));
+    if (hosts is! HostsLoaded || services is! ServicesLoaded) {
+      return Container();
+    }
+
+    final groupedServices = servicesGroupByHostname(services: services.services);
+
+    return Column(
+      children: [
+        SiteStatsWidget(site: site),
+        Expanded(
+            child: Column(children: [
+          HostCardWidget(site: site, host: hosts.hosts[0]),
+          Expanded(
+              child: ListView(children: [
+            ServicesGroupedCardWidget(
+              site: site,
+              groupName: hostname,
+              services: groupedServices[hostname]!,
+              showGroupHeader: false,
+            )
+          ]))
+        ])),
+      ],
+    );
   }
 }

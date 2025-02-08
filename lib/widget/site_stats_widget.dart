@@ -1,36 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_bloc/flutter_form_bloc.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:letscheck/providers/connection/connection_state.dart';
+import 'package:letscheck/providers/providers.dart';
+import 'package:letscheck/widget/site_stats_number_widget.dart';
 
-import '../bloc/connection_data/connection_data.dart';
-import '../bloc/settings/settings.dart';
-import 'site_stats_number_widget.dart';
+class SiteStatsWidget extends ConsumerWidget {
+  final String site;
 
-class SiteStatsWidget extends StatelessWidget {
-  final String alias;
-  final ConnectionDataState state;
-
-  SiteStatsWidget({required this.alias, required this.state});
+  SiteStatsWidget({required this.site});
 
   @override
-  Widget build(BuildContext context) {
-    final sBloc = BlocProvider.of<SettingsBloc>(context);
-    final conn = sBloc.state.connections[alias]!;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final connection = ref.watch(connectionProvider(site));
 
     var hasFilters = false;
-    for (var f in conn.filters.values) {
-      if (f) {
-        hasFilters = true;
-        break;
-      }
-    }
+    // for (var f in connection.filters.values) {
+    //   if (f) {
+    //     hasFilters = true;
+    //     break;
+    //   }
+    // }
 
     Widget statsWidget = Container();
 
-    if (state.stats[alias] != null &&
-        conn.state == SettingsConnectionStateEnum.connected) {
-      final stats = state.stats[alias]!;
+    if (connection is ConnectionLoaded) {
+      final stats = connection.stats;
       statsWidget = Padding(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: Column(children: [
@@ -40,7 +35,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.hosts.all,
               valueColor: Colors.white,
               onTap: () {
-                context.push('/conn/$alias/hosts/all');
+                context.push('/$site/hosts/all');
               },
             ),
             SiteStatsNumberWidget(
@@ -48,7 +43,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.hosts.warn,
               valueColor: Colors.yellow,
               onTap: () {
-                context.push('/conn/$alias/hosts/problems');
+                context.push('/$site/hosts/problems');
               },
             ),
             SiteStatsNumberWidget(
@@ -56,7 +51,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.hosts.crit,
               valueColor: Colors.red,
               onTap: () {
-                context.push('/conn/$alias/hosts/unhandled');
+                context.push('/$site/hosts/unhandled');
               },
             ),
             SizedBox(
@@ -70,7 +65,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.services.all,
               valueColor: Colors.white,
               onTap: () {
-                context.push('/conn/$alias/services/all');
+                context.push('/$site/services/all');
               },
             ),
             SiteStatsNumberWidget(
@@ -78,7 +73,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.services.warn,
               valueColor: Colors.yellow,
               onTap: () {
-                context.push('/conn/$alias/services/problems');
+                context.push('/$site/services/problems');
               },
             ),
             SiteStatsNumberWidget(
@@ -86,7 +81,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.services.crit,
               valueColor: Colors.red,
               onTap: () {
-                context.push('/conn/$alias/services/unhandled');
+                context.push('/$site/services/unhandled');
               },
             ),
             SiteStatsNumberWidget(
@@ -94,7 +89,7 @@ class SiteStatsWidget extends StatelessWidget {
               num: stats.services.unkn,
               valueColor: Colors.yellow,
               onTap: () {
-                context.push('/conn/$alias/services/stale');
+                context.push('/$site/services/stale');
               },
             ),
           ]),
@@ -119,12 +114,12 @@ class SiteStatsWidget extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    context.push('/settings/connection/$alias');
+                    context.push('/settings/connection/$site');
                   },
                   child: Padding(
                     padding: EdgeInsets.all(5.0),
                     child: Text(
-                      alias,
+                      site,
                       style: TextStyle(color: titleColor),
                     ),
                   ),
@@ -142,13 +137,12 @@ class SiteStatsWidget extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () {
-                        context.push('/settings/connection/$alias');
+                        context.push('/settings/connection/$site');
                       },
                       tooltip: 'Edit connection Details',
                       icon: Icon(Icons.settings_input_component,
                           size: 14,
-                          color: conn.state !=
-                                  SettingsConnectionStateEnum.connected
+                          color: connection is ConnectionError
                               ? Colors.red
                               : Colors.green),
                     ),

@@ -148,7 +148,7 @@ Future<void> sendLogNotification({
     title,
     body,
     notificationDetails,
-    payload: '/conn/$conn/host/${log.hostName}/services/${log.displayName}',
+    payload: '/$conn/host/${log.hostName}/services/${log.displayName}',
   );
 }
 

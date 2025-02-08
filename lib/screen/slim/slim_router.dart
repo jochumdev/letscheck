@@ -1,32 +1,32 @@
 import 'package:go_router/go_router.dart';
 
-import 'settings_languages_screen.dart';
-import 'home_screen.dart';
-import 'settings_screen.dart';
-import 'settings_connection_screen.dart';
-import 'not_found_screen.dart';
-import 'hosts_screen.dart';
-import 'services_screen.dart';
-import 'host_screen.dart';
-import 'service_screen.dart';
+import 'package:letscheck/screen/slim/settings_languages_screen.dart';
+import 'package:letscheck/screen/slim/home_screen.dart';
+import 'package:letscheck/screen/slim/settings_screen.dart';
+import 'package:letscheck/screen/slim/settings_connection_screen.dart';
+import 'package:letscheck/screen/slim/not_found_screen.dart';
+import 'package:letscheck/screen/slim/hosts_screen.dart';
+import 'package:letscheck/screen/slim/services_screen.dart';
+import 'package:letscheck/screen/slim/host_screen.dart';
+import 'package:letscheck/screen/slim/service_screen.dart';
 
-List<GoRoute> slimRoutes() {
+List<RouteBase> slimRoutes() {
   return [
     GoRoute(
       path: '/',
-      builder: (context, state) => HomeScreen(),
+      builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
-      path: '/conn/:alias/host/:hostname',
+      path: '/:alias/host/:hostname',
       builder: (context, state) => HostScreen(
-        alias: state.pathParameters['alias']!,
+        site: state.pathParameters['alias']!,
         hostname: state.pathParameters['hostname']!,
       ),
     ),
     GoRoute(
-      path: '/conn/:alias/hosts/:filter',
+      path: '/:alias/hosts/:filter',
       builder: (context, state) => HostsScreen(
-        alias: state.pathParameters['alias']!,
+        site: state.pathParameters['alias']!,
         filter: state.pathParameters['filter']!,
       ),
     ),
@@ -35,33 +35,33 @@ List<GoRoute> slimRoutes() {
       builder: (context, state) => NotFoundScreen(),
     ),
     GoRoute(
-      path: '/conn/:alias/host/:hostname/services/:service',
+      path: '/:alias/host/:hostname/services/:service',
       builder: (context, state) => ServiceScreen(
-        alias: state.pathParameters['alias']!,
+        site: state.pathParameters['alias']!,
         hostname: state.pathParameters['hostname']!,
         service: state.pathParameters['service']!,
       ),
     ),
     GoRoute(
-      path: '/conn/:alias/services/:filter',
+      path: '/:alias/services/:filter',
       builder: (context, state) => ServicesScreen(
-        alias: state.pathParameters['alias']!,
+        site: state.pathParameters['alias']!,
         filter: state.pathParameters['filter']!,
       ),
     ),
     GoRoute(
-      path: '/settings/connection/:name',
+      path: '/settings',
+      builder: (context, state) => SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/settings/connection/:alias',
       builder: (context, state) => SettingsConnectionScreen(
-        alias: state.pathParameters['name']!,
+        site: state.pathParameters['alias']!,
       ),
     ),
     GoRoute(
-      path: '/settings/language',
+      path: '/settings/languages',
       builder: (context, state) => SettingsLanguagesScreen(),
-    ),
-    GoRoute(
-      path: '/settings',
-      builder: (context, state) => SettingsScreen(),
     ),
   ];
 }

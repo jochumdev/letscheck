@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grouped_list/grouped_list.dart';
-
-import '../bloc/services/services.dart';
-import '../bloc/search/search.dart';
-import 'center_loading_widget.dart';
-import 'host_card_widget.dart';
-import 'services_grouped_card_widget.dart';
+import 'package:letscheck/providers/providers.dart';
+import 'package:letscheck/providers/search/search_state.dart';
+import 'package:letscheck/providers/services/services_util.dart';
+import 'package:letscheck/widget/host_card_widget.dart';
+import 'package:letscheck/widget/services_grouped_card_widget.dart';
 
 class CustomSearchDelegate extends SearchDelegate {
   CustomSearchDelegate()
@@ -67,80 +66,105 @@ class CustomSearchDelegate extends SearchDelegate {
       );
     }
 
-    BlocProvider.of<SearchBloc>(context).add(SearchTerm(term: query));
-
-    return BlocBuilder<SearchBloc, SearchState>(builder: (context, state) {
-      if (state is SearchStateLoaded) {
-        var groupItems = <dynamic>[];
-        state.hosts.forEach((alias, hosts) {
-          for (var host in hosts) {
-            groupItems
-                .add({'group': '$alias: Hosts', 'alias': alias, 'host': host});
-          }
-        });
-        state.services.forEach((alias, services) {
-          final groupedServices = servicesGroupByHostname(services: services.toList());
-
-          groupedServices.forEach((_, hServices) {
-            groupItems.add({
-              'group': '$alias: Services',
-              'alias': alias,
-              'services': hServices
-            });
-          });
-        });
-
-        if (groupItems.isEmpty) {
-          return Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Center(
-                    child: Column(
-                  children: <Widget>[
-                    Text(
-                      'No Results Found.',
-                    ),
-                  ],
-                ))
-              ]);
-        } else {
-          return GroupedListView<dynamic, String>(
-            elements: groupItems,
-            groupBy: (element) => element['group'],
-            groupComparator: (value1, value2) => value2.compareTo(value1),
-            useStickyGroupSeparators: false,
-            groupSeparatorBuilder: (String value) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                value,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            itemBuilder: (context, element) {
-              if (element.containsKey('host')) {
-                return HostCardWidget(
-                    alias: element['alias'], host: element['host']);
-              }
-              // Service
-              return ServicesGroupedCardWidget(
-                  alias: element['alias'],
-                  groupName: element['services'][0].hostName,
-                  services: element['services']);
-            },
-          );
-        }
-      }
-
-      return CenterLoadingWidget();
-    });
-  }
+    // Create a RiverPod ConsumerWidget 
+    return SearchResultView(query: query);
+ }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     // This method is called everytime the search term changes.
     // If you want to add search suggestions as the user enters their search term, this is the place to do that.
     return Column();
+  }
+}
+ 
+class SearchResultView extends ConsumerStatefulWidget {
+  final String query;
+
+  const SearchResultView({super.key, required this.query});
+
+  @override
+  ConsumerState<SearchResultView> createState() => _SearchResultViewState();
+}
+
+class _SearchResultViewState extends ConsumerState<SearchResultView> {
+  @override
+  void initState() {
+    super.initState();
+    Future(() {
+      if (mounted) {
+        ref.read(searchProvider.notifier).search(widget.query);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final search = ref.watch(searchProvider);
+
+    if (search is! SearchLoaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    var groupItems = <dynamic>[];
+    search.hosts.forEach((alias, hosts) {
+      for (var host in hosts) {
+        groupItems
+            .add({'group': '$alias: Hosts', 'alias': alias, 'host': host});
+      }
+    });
+    search.services.forEach((alias, services) {
+      final groupedServices = servicesGroupByHostname(services: services.toList());
+
+      groupedServices.forEach((_, hServices) {
+        groupItems.add({
+          'group': '$alias: Services',
+          'alias': alias,
+          'services': hServices
+        });
+      });
+    });
+
+    if (groupItems.isEmpty) {
+      return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Center(
+                child: Column(
+              children: <Widget>[
+                Text(
+                  'No Results Found.',
+                ),
+              ],
+            ))
+          ]);
+    } else {
+      return GroupedListView<dynamic, String>(
+        elements: groupItems,
+        groupBy: (element) => element['group'],
+        groupComparator: (value1, value2) => value2.compareTo(value1),
+        useStickyGroupSeparators: false,
+        groupSeparatorBuilder: (String value) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            value,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        itemBuilder: (context, element) {
+          if (element.containsKey('host')) {
+            return HostCardWidget(
+                site: element['alias'], host: element['host']);
+          }
+          // Service
+          return ServicesGroupedCardWidget(
+              site: element['alias'],
+              groupName: element['services'][0].hostName,
+              services: element['services']);
+        },
+      );
+    }
   }
 }

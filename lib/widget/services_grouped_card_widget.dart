@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
-import 'package:letscheck/javascript/javascript.dart';
-import '../bloc/comments/comments.dart';
+import 'package:letscheck/providers/connection/connection_state.dart';
+import 'package:letscheck/providers/providers.dart';
 
-class ServicesGroupedCardWidget extends StatelessWidget {
-  final String alias;
+class ServicesGroupedCardWidget extends ConsumerWidget {
+  final String site;
   final String groupName;
   final bool showGroupHeader;
   final List<cmk_api.Service> services;
@@ -17,17 +17,17 @@ class ServicesGroupedCardWidget extends StatelessWidget {
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 
   ServicesGroupedCardWidget(
-      {required this.alias,
+      {required this.site,
       required this.groupName,
       required this.services,
       this.showGroupHeader = true});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var cardWidgets = <Widget>[];
 
-    final cBloc = BlocProvider.of<CommentsBloc>(context);
-    final jsRuntime = RepositoryProvider.of<JavascriptRuntimeWrapper>(context);
+    final comments = ref.watch(connectionProvider(site).select((s) => (s is ConnectionLoaded) ? s.comments : const {}));
+    final jsRuntime = ref.watch(javascriptRuntimeProvider);
 
     if (showGroupHeader) {
       cardWidgets.add(
@@ -47,7 +47,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
                 flex: 2,
                 child: IconButton(
                   onPressed: () {
-                    context.push('/conn/$alias/host/${services[0].hostName!}');
+                    context.push('/$site/host/${services[0].hostName!}');
                   },
                   tooltip: "Goto host",
                   icon: Icon(
@@ -65,7 +65,7 @@ class ServicesGroupedCardWidget extends StatelessWidget {
     for (var service in services) {
       gotoService() async {
         context.push(
-            '/conn/$alias/host/${service.hostName!}/services/${service.displayName!}');
+            '/$site/host/${service.hostName!}/services/${service.displayName!}');
       }
 
       Widget stateIcon = IconButton(
@@ -111,33 +111,31 @@ class ServicesGroupedCardWidget extends StatelessWidget {
       }
 
       Widget commentsWidget = Container();
-      if (cBloc.state.comments.containsKey(alias)) {
-        var commentRows = <Widget>[];
-        for (var id in service.comments!) {
-          if (cBloc.state.comments[alias]!.containsKey(id)) {
-            final comment = cBloc.state.comments[alias]![id];
-            commentRows.add(Row(children: [
-              Expanded(
-                flex: 1,
-                child: Container(),
-              ),
-              Expanded(
-                flex: 3,
-                child: Padding(
-                    padding: const EdgeInsets.only(left: 5),
-                    child: SelectableText(
-                        '@${comment!.author}\n${jsRuntime.evaluate("DateTime.fromISO('${comment.entryTime.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});")}',
-                        style: Theme.of(context).textTheme.bodySmall)),
-              ),
-              Expanded(
-                flex: 6,
-                child: Padding(
-                    padding: const EdgeInsets.only(right: 5),
-                    child: SelectableText(comment.comment!,
-                        style: Theme.of(context).textTheme.labelMedium)),
-              ),
-            ]));
-          }
+      var commentRows = <Widget>[];
+      for (var id in service.comments!) {
+        if (comments.containsKey(id)) {
+          final comment = comments[id]!;
+          commentRows.add(Row(children: [
+            Expanded(
+              flex: 1,
+              child: Container(),
+            ),
+            Expanded(
+              flex: 3,
+              child: Padding(
+                  padding: const EdgeInsets.only(left: 5),
+                  child: SelectableText(
+                      '@${comment!.author}\n${comment.entryTime}',
+                      style: Theme.of(context).textTheme.bodySmall)),
+            ),
+            Expanded(
+              flex: 6,
+              child: Padding(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: SelectableText(comment.comment!,
+                      style: Theme.of(context).textTheme.labelMedium)),
+            ),
+          ]));
         }
 
         if (commentRows.isNotEmpty) {
@@ -176,9 +174,8 @@ class ServicesGroupedCardWidget extends StatelessWidget {
                                       : service.displayName!.length),
                               style: Theme.of(context).textTheme.bodyMedium),
                           Text(
-                            jsRuntime.evaluate(
-                                "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});"),
-                            // jsRuntime.evaluate("console.log('')").stringResult,
+                            jsRuntime.hasValue ? jsRuntime.value!.evaluate(
+                                "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});") : '', 
                             maxLines: 2,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),

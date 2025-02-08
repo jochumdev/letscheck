@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:letscheck/widget/site_stats_widget.dart';
 
-import '../../bloc/connection_data/connection_data.dart';
-import '../../bloc/settings/settings.dart';
-import '../../widget/site_stats_widget.dart';
+import '../../providers/providers.dart';
 import '../../widget/custom_search_delegate.dart';
 
 class BaseSlimScreenSettings {
@@ -18,21 +16,27 @@ class BaseSlimScreenSettings {
   final bool showSearch;
 
   BaseSlimScreenSettings(this.title,
-      {this.showRefresh = true,
+      {this.showRefresh = false,
       this.showSettings = true,
       this.showMenu = true,
       this.showLeading = true,
       this.showSearch = true});
 }
 
-mixin class BaseSlimScreenState {
+mixin BaseSlimScreenState<T extends ConsumerStatefulWidget> on ConsumerState<T> { 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   Future<void> leadingButtonAction(BuildContext context) async {
     context.pop();
   }
 
-  Future<void> refreshAction(context) async {}
+  Future<void> refreshAction(BuildContext context) async {
+    final connectionNames =
+        ref.read(settingsProvider.select((s) => s.connections.keys));
+    for (final site in connectionNames) {
+      await ref.read(connectionProvider(site).notifier).refresh();
+    }
+  }
 
   Widget content(BuildContext context) {
     return Container();
@@ -42,6 +46,7 @@ mixin class BaseSlimScreenState {
     return BaseSlimScreenSettings("invalid");
   }
 
+  @override
   Widget build(BuildContext context) {
     // Fix portrait mode.
     SystemChrome.setPreferredOrientations([
@@ -49,27 +54,27 @@ mixin class BaseSlimScreenState {
       DeviceOrientation.portraitDown,
     ]);
 
-    final settings = setup(context);
+    final mySettings = setup(context);
+
+    final settings = ref.watch(settingsProvider);
 
     var drawer = Drawer(
-      child: BlocBuilder<ConnectionDataBloc, ConnectionDataState>(
-          builder: (context, state) {
-        final sBloc = BlocProvider.of<SettingsBloc>(context);
+      child: Builder(
+          builder: (context) {
         return ListView.builder(
             physics: ClampingScrollPhysics(),
             shrinkWrap: false,
-            itemCount: sBloc.state.connections.length,
+            itemCount: settings.connections.length,
             itemBuilder: (context, index) {
               return SiteStatsWidget(
-                      alias: sBloc.state.connections.keys.toList()[index],
-                      state: state)
-                  .build(context);
+                      site: settings.connections.keys.toList()[index])
+              .build(context, ref);
             });
       }),
     );
 
     Widget leading;
-    if (settings.showMenu) {
+    if (mySettings.showMenu) {
       leading = IconButton(
           icon: Icon(Icons.menu),
           tooltip: "Menu",
@@ -93,7 +98,7 @@ mixin class BaseSlimScreenState {
     }
 
     var actions = <Widget>[];
-    if (settings.showRefresh) {
+    if (mySettings.showRefresh) {
       actions.add(IconButton(
         icon: Icon(Icons.refresh),
         tooltip: "Refresh",
@@ -103,7 +108,7 @@ mixin class BaseSlimScreenState {
       ));
     }
 
-    if (settings.showSettings) {
+    if (mySettings.showSettings) {
       actions.add(IconButton(
         icon: Icon(Icons.settings),
         tooltip: "Settings",
@@ -113,7 +118,7 @@ mixin class BaseSlimScreenState {
       ));
     }
 
-    if (settings.showSearch) {
+    if (mySettings.showSearch) {
       actions.add(IconButton(
         icon: Icon(Icons.search),
         tooltip: "Search",
@@ -124,35 +129,19 @@ mixin class BaseSlimScreenState {
     }
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: drawer,
       appBar: AppBar(
         elevation: 0.0,
         titleSpacing:
-            settings.showLeading ? 0 : NavigationToolbar.kMiddleSpacing,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Let\'s Check', style: TextStyle(fontSize: 14)),
-                Text(settings.title,
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              ],
-            )
-          ],
-        ),
-        automaticallyImplyLeading: false,
-        leading: settings.showLeading ? leading : null,
+            mySettings.showLeading ? NavigationToolbar.kMiddleSpacing : 0.0,
+        title: Text(mySettings.title),
+        leading: mySettings.showLeading ? leading : null,
         actions: actions,
       ),
-      body: Scaffold(
-        key: _scaffoldKey,
-        drawer: drawer,
-        drawerEnableOpenDragGesture: true,
-        body: content(context),
+      body: RefreshIndicator(
+        onRefresh: () => refreshAction(context),
+        child: content(context),
       ),
     );
   }

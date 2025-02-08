@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_settings_ui/flutter_settings_ui.dart';
+import 'package:letscheck/form/connection_form/connection_form.dart';
 
-import '../../form/connection_form/connection_form.dart';
-import '../../bloc/settings/settings.dart';
-import 'base_slim_screen.dart';
+import 'package:letscheck/screen/slim/base_slim_screen.dart';
 
-class SettingsConnectionScreen extends StatefulWidget {
-  final String alias;
+class SettingsConnectionScreen extends ConsumerStatefulWidget {
+  final String site;
 
-  SettingsConnectionScreen({required this.alias});
+  SettingsConnectionScreen({required this.site});
 
   @override
   SettingsConnectionScreenState createState() => SettingsConnectionScreenState(
-        alias: alias,
+        site: site,
       );
 }
 
-class SettingsConnectionScreenState extends State<SettingsConnectionScreen>
-    with BaseSlimScreenState {
-  final String alias;
+class SettingsConnectionScreenState
+    extends ConsumerState<SettingsConnectionScreen> with BaseSlimScreenState {
+  final String site;
 
-  SettingsConnectionScreenState({required this.alias});
+  SettingsConnectionScreenState({required this.site});
 
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
     var title = 'Add Connection';
-    if (alias != '+') {
-      title = "Connection: $alias";
+    if (site != '+') {
+      title = "Connection: $site";
     }
 
     return BaseSlimScreenSettings(
       title,
-      showLeading: alias != '+',
+      showLeading: site != '+',
       showRefresh: false,
       showMenu: false,
       showSettings: false,
@@ -41,25 +41,31 @@ class SettingsConnectionScreenState extends State<SettingsConnectionScreen>
 
   @override
   Widget content(BuildContext context) {
-    final sBloc = BlocProvider.of<SettingsBloc>(context);
+    var titleColor = Theme.of(context).brightness == Brightness.dark
+        ? Color.fromRGBO(211, 227, 253, 1)
+        : Color.fromRGBO(11, 87, 208, 1);
 
-    if (alias != '+') {
-      return BlocProvider(
-        create: (context) => ConnectionFormBloc(
-          settingsBloc: sBloc,
-          connectionAlias: alias,
-          connection: sBloc.state.connections[alias]!,
-          isEditing: true,
+    return SettingsList(
+      sections: [
+        CustomSettingsSection(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  site != '+' ? 'Connection: $site' : 'Add Connection',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall!
+                      .copyWith(color: titleColor),
+                ),
+                ConnectionForm(alias: site)
+              ],
+            ),
+          ),
         ),
-        child: ConnectionFormWidget(alias: alias),
-      );
-    }
-
-    return BlocProvider(
-      create: (context) => ConnectionFormBloc(
-        settingsBloc: sBloc,
-      ),
-      child: ConnectionFormWidget(),
+      ],
     );
   }
 }

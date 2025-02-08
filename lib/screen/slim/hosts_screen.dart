@@ -1,53 +1,33 @@
 import 'package:flutter/material.dart';
-
-import 'package:letscheck/bloc/connection_data/connection_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:letscheck/providers/hosts/hosts_state.dart';
+import 'package:letscheck/providers/params.dart';
+import 'package:letscheck/providers/providers.dart';
 import 'package:letscheck/widget/site_stats_widget.dart';
-import 'base_slim_screen.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:letscheck/widget/hosts_list_widget.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:letscheck/screen/slim/base_slim_screen.dart';
 
-import '../../bloc/settings/settings.dart';
-import '../../bloc/hosts/hosts.dart';
-import '../../widget/hosts_list_widget.dart';
-import '../../widget/center_loading_widget.dart';
-
-class HostsScreen extends StatefulWidget {
-  final String alias;
+class HostsScreen extends ConsumerStatefulWidget {
+  final String site;
   final String filter;
 
-  HostsScreen({required this.alias, required this.filter});
+  HostsScreen({required this.site, required this.filter});
 
   @override
   HostsScreenState createState() => HostsScreenState(
-        alias: alias,
+        site: site,
         filter: filter,
       );
 }
 
-class HostsScreenState extends State<HostsScreen> with BaseSlimScreenState {
-  final String alias;
+class HostsScreenState extends ConsumerState<HostsScreen>
+    with BaseSlimScreenState {
+  final String site;
   final String filter;
+  late final SiteAndFilterParams params;
 
-  HostsScreenState({required this.alias, required this.filter});
-
-  @override
-  BaseSlimScreenSettings setup(BuildContext context) {
-    var title = 'Hosts';
-    switch (filter) {
-      case 'all':
-        title = "$alias Hosts";
-        break;
-      default:
-        title = "$alias Hosts $filter";
-    }
-
-    return BaseSlimScreenSettings(title, showMenu: false);
-  }
-
-  @override
-  Widget content(BuildContext context) {
-    final sBloc = BlocProvider.of<SettingsBloc>(context);
-
+  HostsScreenState({required this.site, required this.filter}) {
     var myFilters = <String>[];
     switch (filter) {
       case 'problems':
@@ -69,32 +49,46 @@ class HostsScreenState extends State<HostsScreen> with BaseSlimScreenState {
           myFilters.add(filter);
         }
     }
+    params = SiteAndFilterParams(site: site, filter: myFilters);
+  }
 
-    return BlocProvider<HostsBloc>(
-      create: (context) =>
-          HostsBloc(alias: alias, filter: myFilters, sBloc: sBloc)
-            ..add(HostsEventFetch()),
-      child: BlocBuilder<HostsBloc, HostsState>(
-        builder: (context, state) {
-          final cBloc = BlocProvider.of<ConnectionDataBloc>(context);
-          if (state is HostsStateFetched) {
-            return Column(
-              children: [
-                SiteStatsWidget(alias: alias, state: cBloc.state),
-                Expanded(
-                    child: HostsListWidget(alias: alias, hosts: state.hosts)),
-              ],
-            );
-          } else {
-            return Column(
-              children: [
-                SiteStatsWidget(alias: alias, state: cBloc.state),
-                Expanded(child: CenterLoadingWidget()),
-              ],
-            );
-          }
-        },
-      ),
-    );
+  @override
+  BaseSlimScreenSettings setup(BuildContext context) {
+    var title = 'Hosts';
+    switch (filter) {
+      case 'all':
+        title = "$site Hosts";
+        break;
+      default:
+        title = "$site Hosts $filter";
+    }
+
+    return BaseSlimScreenSettings(title, showMenu: false);
+  }
+
+  @override
+  Widget content(BuildContext context) {
+    final hosts = ref.watch(hostsProvider(params));
+
+    if (hosts is HostsLoaded) {
+      return Column(
+        children: [
+          SiteStatsWidget(site: site),
+          Expanded(
+              child: HostsListWidget(
+            alias: site,
+            hosts: hosts.hosts,
+            listKey: PageStorageKey('hosts_screen_$site'),
+          )),
+        ],
+      );
+    } else {
+      return Column(
+        children: [
+          SiteStatsWidget(site: site),
+          const Expanded(child: Center(child: CircularProgressIndicator())),
+        ],
+      );
+    }
   }
 }

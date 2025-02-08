@@ -1,33 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
-import 'package:letscheck/bloc/services/services.dart';
-import 'services_grouped_card_widget.dart';
+import 'package:letscheck/providers/services/services_util.dart';
+import 'package:letscheck/widget/services_grouped_card_widget.dart';
 
-class ServicesListWidget extends StatelessWidget {
+class ServicesListWidget extends StatefulWidget {
   final String alias;
   final List<cmk_api.Service> services;
+  final Key? listKey;
+
+  const ServicesListWidget({
+    required this.alias,
+    required this.services,
+    this.listKey,
+    super.key,
+  });
+
+  @override
+  State<ServicesListWidget> createState() => _ServicesListWidgetState();
+}
+
+class _ServicesListWidgetState extends State<ServicesListWidget> with AutomaticKeepAliveClientMixin {
+  final ScrollController _scrollController = ScrollController();
 
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 
-  ServicesListWidget({required this.alias, required this.services});
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final groupedServices = servicesGroupByHostname(services: services);
+    super.build(context); // Required by AutomaticKeepAliveClientMixin
 
-    var hostNames = groupedServices.keys.toList();
-    hostNames.sort();
+    final groupedServices = servicesGroupByHostname(services: widget.services);
+    final hostNames = groupedServices.keys.toList()..sort();
 
-    var result = <Widget>[];
-    for (var i = 0; i < hostNames.length; i++) {
-      final hostname = hostNames[i];
-
-      result.add(ServicesGroupedCardWidget(
-          alias: alias,
+    return ListView.builder(
+      key: widget.listKey,
+      controller: _scrollController,
+      itemCount: hostNames.length,
+      itemBuilder: (context, index) {
+        final hostname = hostNames[index];
+        return ServicesGroupedCardWidget(
+          site: widget.alias,
           groupName: hostname,
-          services: groupedServices[hostname]!));
-    }
-
-    return ListView(children: result);
+          services: groupedServices[hostname]!,
+        );
+      },
+    );
   }
 }

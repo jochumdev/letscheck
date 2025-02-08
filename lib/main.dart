@@ -1,24 +1,17 @@
-import 'dart:ui';
 import 'dart:async';
 import 'dart:io' show Platform, Directory;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart'
     show kIsWeb, LicenseRegistry, LicenseEntryWithLineBreaks;
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_form_bloc/flutter_form_bloc.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'bloc/settings/settings.dart';
-import 'bloc/connection_data/connection_data.dart';
-import 'bloc/search/search.dart';
-import 'bloc/comments/comments.dart';
+import 'package:letscheck/providers/providers.dart';
+import 'package:letscheck/router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'theme_data.dart';
-import 'screen/slim/slim_router.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -30,8 +23,6 @@ import 'package:tray_manager/tray_manager.dart';
 // ignore: implementation_imports
 import 'package:tray_manager/src/helpers/sandbox.dart' show runningInSandbox;
 
-import 'package:letscheck/javascript/javascript.dart';
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'notifications/android.dart' as notifications_android;
 import 'notifications/darwin.dart' as notifications_darwin;
@@ -39,7 +30,7 @@ import 'notifications/linux.dart' as notifications_linux;
 import 'notifications/windows.dart' as notifications_windows;
 import 'notifications/plugin.dart';
 
-import 'bg_service.dart' as bg_service;
+import 'background_service.dart' as bg_service;
 
 /// Streams are created so that app can respond to notification-related events
 /// since the plugin is initialized in the `main` function
@@ -92,24 +83,20 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks(['google_fonts'], fontsLicense);
   });
 
-  if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
-    await windowManager.ensureInitialized();
+  if (!kIsWeb) {
+    await _configureLocalTimeZone();
   }
 
-  await _configureLocalTimeZone();
+  // Initialize shared preferences
+  final prefs = await SharedPreferences.getInstance();
 
-  HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: kIsWeb
-        ? HydratedStorageDirectory.web
-        : HydratedStorageDirectory(
-            await getAppConfigDirectory(),
-          ),
-  );
+  // Initialize window manager if not web
+  if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+    await windowManager.ensureInitialized();
+    // await windowManager.setPreventClose(true);
+  }
 
   await initializeDateFormatting(Intl.defaultLocale);
-
-  final sBloc = SettingsBloc();
-  final hdBloc = ConnectionDataBloc(sBloc: sBloc);
 
   if (!kIsWeb) {
     final initializationSettings = InitializationSettings(
@@ -171,90 +158,63 @@ Future<void> main() async {
     bg_service.start();
   }
 
-  final javascriptRuntime = await initJavascriptRuntime();
-
-  runApp(MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider.value(value: await PackageInfo.fromPlatform()),
-        RepositoryProvider.value(value: javascriptRuntime),
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
       ],
-      child: MultiBlocProvider(providers: [
-        BlocProvider<SettingsBloc>.value(value: sBloc..add(AppStarted())),
-        BlocProvider<ConnectionDataBloc>.value(
-            value: hdBloc..add(ConnectionDataStartFetching())),
-        BlocProvider<SearchBloc>(create: (context) => SearchBloc(sBloc: sBloc)),
-        BlocProvider<CommentsBloc>(
-            create: (context) => CommentsBloc(sBloc: sBloc)),
-      ], child: App())));
+      child: const App(),
+    ),
+  );
 }
 
-class App extends StatefulWidget {
+class App extends ConsumerStatefulWidget {
+  const App({super.key});
+
   @override
-  AppState createState() => AppState();
+  ConsumerState<App> createState() => _AppState();
 }
 
-class AppState extends State<App> with TrayListener {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
+class _AppState extends ConsumerState<App> with TrayListener {
   @override
   void initState() {
-    trayManager.addListener(this);
     super.initState();
+    if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+      trayManager.addListener(this);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    var mediaWidth =
-        MediaQueryData.fromView(PlatformDispatcher.instance.views.first)
-            .size
-            .width;
-    final routes = mediaWidth >= ultraWideLayoutThreshold
-        ? slimRoutes() // UltraWide
-        : mediaWidth > wideLayoutThreshold
-            ? slimRoutes() // Wide
-            : slimRoutes(); // Slim
+    final settings = ref.watch(settingsProvider);
+    final router = ref.watch(routerProvider);
 
-    final router = GoRouter(
-      routes: routes,
-      debugLogDiagnostics: true,
-      redirect: (context, state) async {
-        if (context.read<SettingsBloc>().state.connections.isEmpty) {
-          return '/settings/connection/+';
-        }
-        return null;
-      },
+    return MaterialApp.router(
+      routerConfig: router,
+      debugShowCheckedModeBanner: false,
+      title: 'LetsCheck',
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
+      themeMode: settings.isLightMode ? ThemeMode.light : ThemeMode.dark,
     );
-
-    return BlocBuilder<SettingsBloc, SettingsState>(builder: (context, state) {
-      BlocProvider.of<ConnectionDataBloc>(context);
-
-      return MaterialApp.router(
-        routerConfig: router,
-        // navigatorObservers: <NavigatorObserver>[observer],
-        debugShowCheckedModeBanner: false,
-        title: 'LetsCheck',
-        theme: state.isLightMode ? buildLightTheme() : buildDarkTheme(),
-      );
-    });
   }
 
   @override
   void dispose() {
-    trayManager.removeListener(this);
+    if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+      trayManager.removeListener(this);
+    }
     super.dispose();
   }
 
   @override
-  void onTrayMenuItemClick(MenuItem menuItem) async {
-    switch (menuItem.key) {
-      case 'show_window':
-        await windowManager.focus();
-        break;
-      case 'exit_app':
-        await windowManager.destroy();
-        break;
-      default:
-      // no action.
+  Future<void> onTrayMenuItemClick(MenuItem menuItem) async {
+    if (menuItem.key == 'show_window') {
+      await windowManager.show();
+    } else if (menuItem.key == 'hide_window') {
+      await windowManager.hide();
+    } else if (menuItem.key == 'exit_app') {
+      await windowManager.destroy();
     }
   }
 }

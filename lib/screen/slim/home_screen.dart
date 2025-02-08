@@ -1,98 +1,126 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'base_slim_screen.dart';
-import '../../widget/center_loading_widget.dart';
-import '../../widget/site_stats_widget.dart';
-import '../../widget/services_list_widget.dart';
-import '../../widget/tab_controller_listener.dart';
-import '../../bloc/settings/settings.dart';
-import '../../bloc/connection_data/connection_data.dart';
-import '../../bloc/comments/comments.dart';
+import 'package:letscheck/providers/connection/connection_state.dart';
+import 'package:letscheck/widget/site_stats_widget.dart';
+import 'package:letscheck/widget/services_list_widget.dart';
+import 'package:letscheck/widget/tab_controller_listener.dart';
+import 'package:letscheck/providers/providers.dart';
 
-class HomeScreen extends StatefulWidget {
+import 'package:letscheck/screen/slim/base_slim_screen.dart';
+
+class HomeScreen extends ConsumerStatefulWidget {
+  const HomeScreen({super.key});
+
   @override
-  HomeScreenState createState() => HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class HomeScreenState extends State<HomeScreen> with BaseSlimScreenState {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with BaseSlimScreenState {
   @override
-  Future<void> refreshAction(context) async {
-    final sBloc = BlocProvider.of<SettingsBloc>(context);
-    final cBloc = BlocProvider.of<ConnectionDataBloc>(context);
-    cBloc.add(ConnectionDataUpdate(
-        action: SettingsStateEnum.clientUpdated,
-        alias: sBloc.state.currentAlias));
+  void initState() {
+    super.initState();
+
+    // Schedule the state update for after the build
+    Future.microtask(() {
+      final settings = ref.read(settingsProvider);
+      if (settings.connections.length == 1) {
+        final alias = settings.connections.keys.first;
+        ref.read(settingsProvider.notifier).setCurrentSite(alias);
+      }
+    });
   }
 
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
-    return BaseSlimScreenSettings('Home', showSettings: true);
+    return BaseSlimScreenSettings('Home', showRefresh: !kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows), showSettings: true);
   }
 
   @override
   Widget content(BuildContext context) {
-    final sBloc = BlocProvider.of<SettingsBloc>(context);
+    final settings = ref.watch(settingsProvider);
+    final connectionData = ref.watch(connectionProvider(settings.currentAlias));
 
-    return BlocBuilder<ConnectionDataBloc, ConnectionDataState>(
-        builder: (context, state) {
-      return BlocBuilder<CommentsBloc, CommentsState>(
-          builder: (cContext, cState) {
-        if (sBloc.state.connections.length > 1) {
-          return DefaultTabController(
-            length: sBloc.state.connections.length,
-            child: TabControllerListener(
-                onTabSelected: (int index) {
-                  sBloc.add(
-                    SettingsSetCurrentAlias(
-                        sBloc.state.connections.keys.elementAt(index)),
-                  );
-                },
-                child: TabBarView(
-                  children: sBloc.state.connections.keys.map((alias) {
-                    if (state.unhServices.containsKey(alias)) {
-                      commentsFetchForServices(
-                          context: context,
-                          alias: alias,
-                          services: state.unhServices[alias]!.toList());
-                    }
+    if (settings.connections.length > 1) {
+      return DefaultTabController(
+        length: settings.connections.length,
+        child: TabControllerListener(
+          onTabSelected: (int index) {
+            ref.read(settingsProvider.notifier).setCurrentSite(
+                  settings.connections.keys.elementAt(index),
+                );
+          },
+          child: TabBarView(
+            children: settings.connections.keys.map((site) {
+              final connection = ref.watch(connectionProvider(site));
+              return switch (connection) {
+                ConnectionInitial() => Container(),
+                ConnectionLoaded(unhServices: final unhServices) => Column(
+                    children: [
+                      SiteStatsWidget(
+                        site: site,
+                      ),
+                      Expanded(
+                          child: ServicesListWidget(
+                        alias: site,
+                        services: unhServices.toList(),
+                        listKey: PageStorageKey('home_services_$site'),
+                      )),
+                      const TabPageSelector(),
+                    ],
+                  ),
+                ConnectionError(message: final message, error: final error) =>
+                  Column(
+                    children: [
+                      SiteStatsWidget(
+                        site: site,
+                      ),
+                      Expanded(
+                          child: Center(
+                              child: Text('$message, error was: $error'))),
+                      const TabPageSelector(),
+                    ],
+                  ),
+              };
+            }).toList(),
+          ),
+        ),
+      );
+    } else if (settings.connections.length == 1) {
+      final site = settings.connections.keys.first;
 
-                    return Column(
-                      children: [
-                        SiteStatsWidget(alias: alias, state: state),
-                        state.unhServices.containsKey(alias)
-                            ? Expanded(
-                                child: ServicesListWidget(
-                                    alias: alias,
-                                    services: state.unhServices[alias]!.toList()))
-                            : Expanded(child: CenterLoadingWidget()),
-                        TabPageSelector(),
-                      ],
-                    );
-                  }).toList(),
-                )),
-          );
-        } else if (sBloc.state.connections.length == 1) {
-          final alias = sBloc.state.connections.keys.first;
-
-          sBloc.add(
-            SettingsSetCurrentAlias(alias),
-          );
-
-          return Column(
+      return switch (connectionData) {
+        ConnectionInitial() => Container(),
+        ConnectionLoaded(unhServices: final unhServices) => Column(
             children: [
-              SiteStatsWidget(alias: alias, state: state),
-              state.unhServices.containsKey(alias)
-                  ? Expanded(
-                      child: ServicesListWidget(
-                          alias: alias, services: state.unhServices[alias]!.toList()))
-                  : Expanded(child: CenterLoadingWidget()),
+              SiteStatsWidget(
+                site: site,
+              ),
+              Expanded(
+                  child: ServicesListWidget(
+                alias: site,
+                services: unhServices.toList(),
+                listKey: PageStorageKey('home_services_$site'),
+              )),
             ],
-          );
-        }
+          ),
+        ConnectionError(message: final message, error: final error) => Column(
+            children: [
+              SiteStatsWidget(
+                site: site,
+              ),
+              Expanded(
+                  child: Center(child: Text('$message, error was: $error'))),
+              const TabPageSelector(),
+            ],
+          ),
+      };
+    }
 
-        return Container();
-      });
-    });
+    return Container();
   }
 }

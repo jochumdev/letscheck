@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'base_slim_screen.dart';
 
-class NotFoundScreen extends StatefulWidget {
+class NotFoundScreen extends ConsumerStatefulWidget {
   static final route = GoRoute(
     path: '/error/404',
     builder: (context, state) => NotFoundScreen(),
@@ -13,7 +14,7 @@ class NotFoundScreen extends StatefulWidget {
   NotFoundScreenState createState() => NotFoundScreenState();
 }
 
-class NotFoundScreenState extends State<NotFoundScreen>
+class NotFoundScreenState extends ConsumerState<NotFoundScreen>
     with BaseSlimScreenState {
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
@@ -23,7 +24,6 @@ class NotFoundScreenState extends State<NotFoundScreen>
 
   @override
   Widget content(BuildContext context) {
-    print(ModalRoute.of(context)!.settings.name);
     return Container(
       child: Center(
         child: Text('Page not found!'),
