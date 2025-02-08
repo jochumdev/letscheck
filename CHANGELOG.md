@@ -1,11 +1,11 @@
 # LetsCheck
-## Unreleased
+## 0.2.0+1272 - 2025-02-08
 ### Added
-- upgrade check_mk_api, it's now using final classes
-- Replaced flutter_bloc with flutter_riverpod, its a rewrite of the whole app.
-  closes issue #17: Change Settings->Refresh Seconds to an number input Dialog
-  closes issue #19: Hide password
-  closes issue #20: Allow users to limit a connection on WIFI
+- upgrade check\_mk\_api, it's now using final classes
+- Replaced flutter\_bloc with flutter\_riverpod, its a rewrite of the whole app.
+closes issue #17: Change Settings->Refresh Seconds to an number input Dialog
+closes issue #19: Hide password
+closes issue #20: Allow users to limit a connection on WIFI
 
 ## 0.1.4+1270 - 2025-02-05
 ### Added
