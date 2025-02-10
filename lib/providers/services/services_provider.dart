@@ -1,68 +1,71 @@
 import 'dart:async';
 
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:letscheck/providers/connection/connection_state.dart';
-import 'package:letscheck/providers/connection/connection_util.dart';
+import 'package:letscheck/providers/connection_data/connection_data_state.dart';
+import 'package:letscheck/providers/connection_data/connection_data_util.dart';
 import 'package:letscheck/providers/params.dart';
 import 'package:letscheck/providers/providers.dart';
 import 'services_state.dart';
 
 class ServicesNotifier extends StateNotifier<ServicesState> {
   final Ref ref;
-  final SiteAndFilterParams params;
+  final AliasAndFilterParams params;
   Timer? _refreshTimer;
+  late ProviderSubscription<AsyncValue<cmk_api.ConnectionState?>> _connectionStateSubscription;
 
   ServicesNotifier(this.ref, this.params) : super(const ServicesInitial()) {
     _init();
   }
 
   Future<void> _init() async {
-    // Listen to settings changes
-    ref.listen(settingsProvider, (previous, next) {
-      if (next.refreshSeconds != previous?.refreshSeconds) {
+    // Listen to client state changes
+    _connectionStateSubscription = ref.listen(clientStateProvider(params.alias), (previous, next) {
+      if (next.value == cmk_api.ConnectionState.connected) {
         _startRefreshTimer();
+        _fetchData();
+      } else {
+        final client = ref.read(clientProvider(params.alias));
+        _refreshTimer?.cancel();
+        state = ServicesError(error: client.error());
       }
     });
 
     await _fetchData();
-    _startRefreshTimer();
   }
 
   Future<void> _fetchData() async {
     if (!mounted) return;
 
-    if (state is ServicesLoading) return;
+    final client = ref.read(clientProvider(params.alias));
+    final clientState = ref.read(clientStateProvider(params.alias));
 
-    final connection = ref.read(connectionProvider(params.site));
-    if (connection is! ConnectionLoaded) {
-      state = const ServicesError(error: 'Client not initialized');
+    if (clientState.value != cmk_api.ConnectionState.connected) {
+      if (!mounted) return;
+      state = ServicesError(error: client.error());
       return;
     }
-
-    final client = connection.client;
-
-    state = ServicesLoading(
-      services: state.services,
-    );
 
     try {
       final services = await client.getApiServices(filter: params.filter);
 
       if (!mounted) return;
 
-      final ids = getCommentIdsToFetch(state: connection, site: params.site, services: services);
-      if (ids.isNotEmpty) {
-        ref.read(connectionProvider(params.site).notifier).fetchComments(ids);
+      final connectionData = ref.read(connectionDataProvider(params.alias));
+      if (connectionData is ConnectionDataLoaded) {
+        final ids = getCommentIdsToFetch(state: connectionData, site: params.alias, services: services);
+        if (ids.isNotEmpty) {
+          ref.read(connectionDataProvider(params.alias).notifier).fetchComments(ids);
+        }
       }
-
+      
       if (!mounted) return;
 
       state = ServicesLoaded(services: services);
-    } on cmk_api.NetworkError catch (e) {
+    } on cmk_api.NetworkException catch (e) {
       if (!mounted) return;
       state = ServicesError(
-        error: e.toString(),
+        error: e,
       );
     }
   }
@@ -79,6 +82,7 @@ class ServicesNotifier extends StateNotifier<ServicesState> {
 
   @override
   void dispose() {
+    _connectionStateSubscription.close();
     _refreshTimer?.cancel();
     super.dispose();
   }

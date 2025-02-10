@@ -28,12 +28,12 @@ class HostScreenState extends ConsumerState<HostScreen> with BaseSlimScreenState
   final String site;
   final String hostname;
 
-  late final SiteAndFilterParams hostParams;
-  late final SiteAndFilterParams serviceParams;
+  late final AliasAndFilterParams hostParams;
+  late final AliasAndFilterParams serviceParams;
 
   HostScreenState({required this.site, required this.hostname}) {
-    hostParams = SiteAndFilterParams(site: site, filter: ['{"op": "=", "left": "name", "right": "$hostname"}']);
-    serviceParams = SiteAndFilterParams(site: site, filter: ['{"op": "=", "left": "host_name", "right": "$hostname"}']);
+    hostParams = AliasAndFilterParams(alias: site, filter: ['{"op": "=", "left": "name", "right": "$hostname"}']);
+    serviceParams = AliasAndFilterParams(alias: site, filter: ['{"op": "=", "left": "host_name", "right": "$hostname"}']);
   }
 
   @override

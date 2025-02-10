@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:letscheck/providers/settings/settings_state.dart';
-import 'package:letscheck/services/connectivity_service.dart';
 import 'package:mutex/mutex.dart';
 
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:letscheck/services/connectivity_service.dart';
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:letscheck/notifications/plugin.dart';
 import 'package:letscheck/notifications/android.dart' as android;
 
@@ -65,17 +65,16 @@ Timer? timer;
 
 var refreshSeconds = 60;
 var clients = <String, cmk_api.Client>{};
-var enabled = <String, bool>{};
-var wifiOnly = <String, bool>{};
+var cSettings = <String, SettingsStateConnection>{};
 
 void _fetchAndRunNotificiations(Timer? timer) async {
   try {
     mutex!.acquire();
 
     for (final alias in clients.keys) {
-      if (enabled[alias]!) {
+      if (cSettings.containsKey(alias) && cSettings[alias]!.sendNotifications) {
         if (clients.containsKey(alias)) {
-          if (wifiOnly[alias]! && !await ConnectivityService.isOnWifi()) {
+          if (cSettings[alias]!.wifiOnly && await ConnectivityService.isMobile()) {
             continue;
           }
 
@@ -141,24 +140,23 @@ void onStart(ServiceInstance service) async {
         refreshSeconds = settings["refresh_seconds"];
       }
       if (settings.containsKey('connections')) {
-        for (final alias in settings['connections'].keys) {
-          final cSettings = settings['connections'][alias]!;
+        for (final jsonConnectionSettings in settings['connections']) {
 
-          enabled[alias] = cSettings['enabled'];
-          wifiOnly[alias] = cSettings['wifi_only'];
+          final s = SettingsStateConnection.fromJson(jsonConnectionSettings);
 
-          if (enabled[alias]!) {
+          if (s.sendNotifications) {
             var client = cmk_api.Client(
               cmk_api.ClientSettings(
-                baseUrl: cSettings['url'],
-                site: cSettings['site'],
-                username: cSettings['username'],
-                secret: cSettings['password'],
-                validateSsl: !cSettings['insecure'],
+                baseUrl: s.baseUrl,
+                site: s.site,
+                username: s.username,
+                secret: s.password,
+                insecure: !s.insecure,
               ),
             );
 
-            clients[cSettings['site']] = client;
+            clients[s.alias] = client;
+            cSettings[s.alias] = s;
           }
         }
       }
@@ -184,26 +182,8 @@ void onStart(ServiceInstance service) async {
 
 void sendSettings(SettingsState state) async {
   Map<String, dynamic> settings = {};
-  settings['connections'] = <String, Map<String, dynamic>>{};
-
   settings['refresh_seconds'] = state.refreshSeconds;
-
-  for (final alias in state.connections.keys) {
-    final conn = state.connections[alias]!;
-
-    Map<String, dynamic> cSettings = {};
-
-    cSettings['site'] = conn.site;
-    cSettings['url'] = conn.baseUrl;
-    cSettings['username'] = conn.username;
-    cSettings['password'] = conn.password;
-    cSettings['insecure'] = conn.insecure;
-    cSettings['enabled'] = conn.sendNotifications;
-    cSettings['wifi_only'] = conn.wifiOnly;
-
-    settings['connections'][alias] = cSettings;
-  }
-
+  settings['connections'] = List<Map<String, dynamic>>.from(state.connections.map((c) => c.toJson()));
   FlutterBackgroundService().invoke('settings', settings);
 }
 

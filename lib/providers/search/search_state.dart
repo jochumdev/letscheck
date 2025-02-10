@@ -1,9 +1,9 @@
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 
 sealed class SearchState {
   final String query;
-  final Map<String, List<cmk_api.Host>> hosts;
-  final Map<String, List<cmk_api.Service>> services;
+  final Map<String, Set<cmk_api.Host>> hosts;
+  final Map<String, Set<cmk_api.Service>> services;
   final String? error;
 
   const SearchState({

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:letscheck/providers/connection/connection_state.dart';
+import 'package:letscheck/providers/connection_data/connection_data_state.dart';
 import 'package:letscheck/providers/providers.dart';
 import 'package:letscheck/widget/site_stats_number_widget.dart';
 
@@ -12,7 +12,7 @@ class SiteStatsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final connection = ref.watch(connectionProvider(site));
+    final connectionData = ref.watch(connectionDataProvider(site));
 
     var hasFilters = false;
     // for (var f in connection.filters.values) {
@@ -24,8 +24,8 @@ class SiteStatsWidget extends ConsumerWidget {
 
     Widget statsWidget = Container();
 
-    if (connection is ConnectionLoaded) {
-      final stats = connection.stats;
+    if (connectionData is ConnectionDataLoaded) {
+      final stats = connectionData.stats;
       statsWidget = Padding(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: Column(children: [
@@ -142,7 +142,7 @@ class SiteStatsWidget extends ConsumerWidget {
                       tooltip: 'Edit connection Details',
                       icon: Icon(Icons.settings_input_component,
                           size: 14,
-                          color: connection is ConnectionError
+                          color: connectionData is ConnectionDataError
                               ? Colors.red
                               : Colors.green),
                     ),

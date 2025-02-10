@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:letscheck/providers/params.dart';
 import 'package:letscheck/providers/providers.dart';
@@ -26,7 +26,7 @@ class ServicesScreenState extends ConsumerState<ServicesScreen>
     with BaseSlimScreenState {
   final String site;
   final String filter;
-  late SiteAndFilterParams params;
+  late AliasAndFilterParams params;
 
   ServicesScreenState({required this.site, required this.filter}) {
     var myFilters = <String>[];
@@ -51,7 +51,7 @@ class ServicesScreenState extends ConsumerState<ServicesScreen>
         }
     }
 
-    params = SiteAndFilterParams(site: site, filter: myFilters);
+    params = AliasAndFilterParams(alias: site, filter: myFilters);
   }
 
   @override

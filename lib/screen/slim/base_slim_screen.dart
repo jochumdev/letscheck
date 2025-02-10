@@ -32,9 +32,9 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget> on ConsumerState<T> 
 
   Future<void> refreshAction(BuildContext context) async {
     final connectionNames =
-        ref.read(settingsProvider.select((s) => s.connections.keys));
+        ref.read(settingsProvider.select((s) => s.connections.map((c) => c.alias)));
     for (final site in connectionNames) {
-      await ref.read(connectionProvider(site).notifier).refresh();
+      await ref.read(clientProvider(site)).reconnect();
     }
   }
 
@@ -67,7 +67,7 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget> on ConsumerState<T> 
             itemCount: settings.connections.length,
             itemBuilder: (context, index) {
               return SiteStatsWidget(
-                      site: settings.connections.keys.toList()[index])
+                      site: settings.connections[index].alias)
               .build(context, ref);
             });
       }),

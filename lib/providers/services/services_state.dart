@@ -1,8 +1,8 @@
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 
 sealed class ServicesState {
   final List<cmk_api.Service> services;
-  final String? error;
+  final Exception? error;
 
   const ServicesState({
     this.services = const [],
@@ -12,10 +12,6 @@ sealed class ServicesState {
 
 final class ServicesInitial extends ServicesState {
   const ServicesInitial() : super();
-}
-
-final class ServicesLoading extends ServicesState {
-  const ServicesLoading({super.services});
 }
 
 final class ServicesLoaded extends ServicesState {

@@ -1,6 +1,5 @@
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:letscheck/providers/connection/connection_state.dart';
 import 'package:letscheck/providers/providers.dart';
 import 'search_state.dart';
 
@@ -10,6 +9,8 @@ class SearchNotifier extends StateNotifier<SearchState> {
   SearchNotifier(this.ref) : super(const SearchInitial());
 
   Future<void> search(String query) async {
+    if (!mounted) return;
+
     if (query.isEmpty) {
       state = const SearchInitial();
       return;
@@ -21,25 +22,44 @@ class SearchNotifier extends StateNotifier<SearchState> {
 
     final settings = ref.read(settingsProvider);
 
-    var hosts = <String, List<cmk_api.Host>>{};
-    var services = <String, List<cmk_api.Service>>{};
+    var hosts = <String, Set<cmk_api.Host>>{};
+    var services = <String, Set<cmk_api.Service>>{};
 
-    for (var site in settings.connections.keys) {
-      final connection = ref.watch(connectionProvider(site));
+    final querySplit = query.split('|');
 
-      if (connection is! ConnectionLoaded) continue;
+    for (final part in querySplit) {
+      if (part.isEmpty) continue;
 
-      final client = connection.client;
-      try {
-        final hostsResult = await client.getApiHosts(
-            filter: ['{"op": "~", "left": "name", "right": "$query"}']);
-        final servicesResult = await client.getApiServices(
-            filter: ['{"op": "~", "left": "description", "right": "$query"}']);
+      for (var alias in settings.connections.map((c) => c.alias)) {
+        final client = ref.read(clientProvider(alias));
+        final clientState = ref.read(clientStateProvider(alias));
 
-        hosts[site] = hostsResult;
-        services[site] = servicesResult;
-      } on cmk_api.NetworkError {
-        // Ignore.
+        if (!mounted) return;
+
+        if (clientState.value != cmk_api.ConnectionState.connected) {
+          continue;
+        }
+
+        try {
+          final hostsResult = await client.getApiHosts(
+              filter: ['{"op": "~~", "left": "name", "right": "$part"}']);
+          final servicesResult = await client.getApiServices(filter: [
+            '{"op": "~~", "left": "description", "right": "$part"}'
+          ]);
+
+          if (hosts.containsKey(alias)) {
+            hosts[alias]!.addAll(hostsResult);
+          } else {
+            hosts[alias] = hostsResult.toSet();
+          }
+          if (services.containsKey(alias)) {
+            services[alias]!.addAll(servicesResult);
+          } else {
+            services[alias] = servicesResult.toSet();
+          }
+        } on cmk_api.NetworkException {
+          // Ignore.
+        }
       }
     }
 

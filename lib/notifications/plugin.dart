@@ -1,6 +1,6 @@
 import 'dart:io' show Platform;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:mutex/mutex.dart';
 import 'android.dart' as android;
 
@@ -168,7 +168,6 @@ Future<void> sendNotificationsForConnection(
     var aliasKnown = knownNotifications[conn]!;
 
     final events = await client.getViewEvents(fromSecs: refreshSeconds);
-
     print(
         "Found ${events.length} notifications for $conn within $refreshSeconds seconds");
 
@@ -192,7 +191,7 @@ Future<void> sendNotificationsForConnection(
       }
     }
     aliasKnown.removeWhere((key, item) => toRemove.contains(key));
-  } on cmk_api.NetworkError {
+  } on cmk_api.BaseException {
     // Ignore.
   } finally {
     _notificationsLock.release();

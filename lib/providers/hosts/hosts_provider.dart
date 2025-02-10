@@ -1,44 +1,48 @@
 import 'dart:async';
 
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:letscheck/providers/connection/connection_state.dart';
 import 'package:letscheck/providers/params.dart';
 import 'package:letscheck/providers/providers.dart';
 import 'hosts_state.dart';
 
 class HostsNotifier extends StateNotifier<HostsState> {
   final Ref ref;
-  final SiteAndFilterParams params;
+  final AliasAndFilterParams params;
   Timer? _refreshTimer;
+  late ProviderSubscription<AsyncValue<cmk_api.ConnectionState?>> _connectionStateSubscription;
 
-  HostsNotifier(this.ref, this.params)
-      : super(const HostsInitial()) {
+  HostsNotifier(this.ref, this.params) : super(const HostsInitial()) {
     _init();
   }
 
   Future<void> _init() async {
-    // Listen to settings changes
-    ref.listen(settingsProvider, (previous, next) {
-      if (next.refreshSeconds != previous?.refreshSeconds) {
+    // Listen to client state changes
+    _connectionStateSubscription = ref.listen(clientStateProvider(params.alias), (previous, next) {
+      if (next.value == cmk_api.ConnectionState.connected) {
         _startRefreshTimer();
+        _fetchData();
+      } else {
+        final client = ref.read(clientProvider(params.alias));
+        _refreshTimer?.cancel();
+        state = HostsError(error: client.error());
       }
     });
 
     await _fetchData();
-    _startRefreshTimer();
   }
 
   Future<void> _fetchData() async {
     if (!mounted) return;
 
-    final connection = ref.watch(connectionProvider(params.site));
-    if (connection is! ConnectionLoaded) {
-      state = const HostsError(error: 'Client not initialized');
+    final client = ref.read(clientProvider(params.alias));
+    final clientState = ref.read(clientStateProvider(params.alias));
+
+    if (clientState.value != cmk_api.ConnectionState.connected) {
+      if (!mounted) return;
+      state = HostsError(error: client.error());
       return;
     }
-
-    final client = connection.client;
 
     try {
       final hosts = await client.getApiHosts(filter: params.filter);
@@ -46,10 +50,10 @@ class HostsNotifier extends StateNotifier<HostsState> {
       if (!mounted) return;
 
       state = HostsLoaded(hosts: hosts);
-    } on cmk_api.NetworkError catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
       state = HostsError(
-        error: e.toString(),
+        error: e,
       );
     }
   }
@@ -57,7 +61,7 @@ class HostsNotifier extends StateNotifier<HostsState> {
   void _startRefreshTimer() {
     _refreshTimer?.cancel();
     final settings = ref.read(settingsProvider);
-    
+
     _refreshTimer = Timer.periodic(
       Duration(seconds: settings.refreshSeconds),
       (_) => _fetchData(),
@@ -66,6 +70,7 @@ class HostsNotifier extends StateNotifier<HostsState> {
 
   @override
   void dispose() {
+    _connectionStateSubscription.close();
     _refreshTimer?.cancel();
     super.dispose();
   }

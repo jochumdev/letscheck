@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:go_router/go_router.dart';
-import 'package:letscheck/providers/connection/connection_state.dart';
+
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
+
 import 'package:letscheck/providers/providers.dart';
 import 'package:letscheck/screen/slim/base_slim_screen.dart';
 
@@ -38,19 +40,19 @@ class SettingsScreenState extends ConsumerState<SettingsScreen>
      return ref.watch(packageInfoProvider).when(
         data: (packageInfo) {
           var connectionTiles = <Widget>[];
-          for (final site in settings.connections.keys) {
-            final conn = ref.watch(connectionProvider(site));
+          for (final cSettings in settings.connections) {
+            final clientState = ref.watch(clientStateProvider(cSettings.alias));
 
             connectionTiles.add(ListTile(
-              title: Text(site),
-              subtitle: Text(settings.connections[site]!.baseUrl),
+              title: Text(cSettings.alias),
+              subtitle: Text(cSettings.baseUrl),
               leading: Icon(Icons.settings_input_component,
-                  color: conn is ConnectionLoaded
+                  color: clientState.value == cmk_api.ConnectionState.connected
                       ? Colors.green
                       : Colors.red),
-              trailing: IconButton(onPressed: () => settingsNotifier.deleteConnection(site), icon: Icon(Icons.delete, color: Colors.red)) ,
+              trailing: IconButton(onPressed: () => settingsNotifier.deleteConnection(cSettings), icon: Icon(Icons.delete, color: Colors.red)) ,
               onTap: () {
-                context.push('/settings/connection/$site');
+                context.push('/settings/connection/${Uri.encodeComponent(cSettings.alias)}');
               },
             ));
           }

@@ -1,33 +1,33 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final connectivityProvider = StreamProvider<ConnectivityResult>((ref) {
+final connectivityProvider = StreamProvider<List<ConnectivityResult>>((ref) {
   final connectivity = Connectivity();
   // Return a Stream that emits the current connectivity status and then
   // emits new values whenever the status changes
   return connectivity.onConnectivityChanged;
 });
 
-final isWifiProvider = Provider<bool>((ref) {
+final isMobileProvider = Provider<bool>((ref) {
   final connectivity = ref.watch(connectivityProvider);
   return connectivity.when(
-    data: (status) => status == ConnectivityResult.wifi,
-    loading: () => false,
-    error: (_, __) => false,
+    data: (status) => status.contains(ConnectivityResult.mobile),
+    loading: () => true,
+    error: (_, __) => true,
   );
 });
 
 class ConnectivityService {
-  static Future<bool> isOnWifi() async {
+  static Future<bool> isMobile() async {
     final connectivity = await Connectivity().checkConnectivity();
-    return connectivity == ConnectivityResult.wifi;
+    return connectivity.contains(ConnectivityResult.mobile);
   }
 
-  static Future<ConnectivityResult> checkConnectivity() async {
+  static Future<List<ConnectivityResult>> checkConnectivity() async {
     return await Connectivity().checkConnectivity();
   }
 
-  static Stream<ConnectivityResult> get onConnectivityChanged {
+  static Stream<List<ConnectivityResult>> get onConnectivityChanged {
     return Connectivity().onConnectivityChanged;
   }
 }

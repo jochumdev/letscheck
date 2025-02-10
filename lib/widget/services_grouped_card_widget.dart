@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
-import 'package:letscheck/providers/connection/connection_state.dart';
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
+import 'package:letscheck/providers/connection_data/connection_data_state.dart';
 import 'package:letscheck/providers/providers.dart';
 
 class ServicesGroupedCardWidget extends ConsumerWidget {
@@ -26,7 +26,7 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var cardWidgets = <Widget>[];
 
-    final comments = ref.watch(connectionProvider(site).select((s) => (s is ConnectionLoaded) ? s.comments : const {}));
+    final comments = ref.watch(connectionDataProvider(site).select((s) => (s is ConnectionDataLoaded) ? s.comments : const {}));
     final jsRuntime = ref.watch(javascriptRuntimeProvider);
 
     if (showGroupHeader) {
@@ -47,7 +47,7 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
                 flex: 2,
                 child: IconButton(
                   onPressed: () {
-                    context.push('/$site/host/${services[0].hostName!}');
+                    context.push('/$site/host/${Uri.encodeComponent(services[0].hostName!)}');
                   },
                   tooltip: "Goto host",
                   icon: Icon(
@@ -65,7 +65,7 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
     for (var service in services) {
       gotoService() async {
         context.push(
-            '/$site/host/${service.hostName!}/services/${service.displayName!}');
+            '/$site/host/${Uri.encodeComponent(service.hostName!)}/services/${Uri.encodeComponent(service.displayName!)}');
       }
 
       Widget stateIcon = IconButton(

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 
 class HostCardWidget extends StatelessWidget {
   final String site;
@@ -47,7 +47,7 @@ class HostCardWidget extends StatelessWidget {
             flex: 2,
             child: IconButton(
               onPressed: () {
-                context.push('/$site/host/${host.hostName!}');
+                context.push('/$site/host/${Uri.encodeComponent(host.hostName!)}');
               },
               tooltip: "Goto host",
               icon: Icon(

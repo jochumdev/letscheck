@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:letscheck/widget/host_card_widget.dart';
 
 class HostsListWidget extends StatelessWidget {

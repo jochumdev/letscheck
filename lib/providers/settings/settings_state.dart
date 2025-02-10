@@ -1,4 +1,5 @@
 final class SettingsStateConnection {
+  final String alias;
   final String site;
   final String baseUrl;
   final String username;
@@ -8,6 +9,7 @@ final class SettingsStateConnection {
   final bool wifiOnly;
 
   const SettingsStateConnection({
+    required this.alias,
     required this.site,
     required this.baseUrl,
     required this.username,
@@ -18,6 +20,7 @@ final class SettingsStateConnection {
   });
 
   SettingsStateConnection copyWith({
+    String? alias,
     String? site,
     String? baseUrl,
     String? username,
@@ -27,6 +30,7 @@ final class SettingsStateConnection {
     bool? wifiOnly,
   }) {
     return SettingsStateConnection(
+      alias: alias ?? this.alias,
       site: site ?? this.site,
       baseUrl: baseUrl ?? this.baseUrl,
       username: username ?? this.username,
@@ -38,6 +42,7 @@ final class SettingsStateConnection {
   }
 
   Map<String, dynamic> toJson() => {
+        'alias': alias,
         'site': site,
         'base_url': baseUrl,
         'username': username,
@@ -47,7 +52,9 @@ final class SettingsStateConnection {
         'wifi_only': wifiOnly,
       };
 
-  factory SettingsStateConnection.fromJson(Map<String, dynamic> json) => SettingsStateConnection(
+  factory SettingsStateConnection.fromJson(Map<String, dynamic> json) =>
+      SettingsStateConnection(
+        alias: json['alias'] as String,
         site: json['site'] as String,
         baseUrl: json['base_url'] as String,
         username: json['username'] as String,
@@ -59,20 +66,20 @@ final class SettingsStateConnection {
 }
 
 final class SettingsState {
-  final Map<String, SettingsStateConnection> connections;
+  final List<SettingsStateConnection> connections;
   final String currentAlias;
   final bool isLightMode;
   final int refreshSeconds;
 
   const SettingsState({
-    this.connections = const {},
+    this.connections = const [],
     this.currentAlias = '',
     this.isLightMode = true,
     this.refreshSeconds = 30,
   });
 
   SettingsState copyWith({
-    Map<String, SettingsStateConnection>? connections,
+    List<SettingsStateConnection>? connections,
     String? currentAlias,
     bool? isLightMode,
     int? refreshSeconds,
@@ -86,20 +93,20 @@ final class SettingsState {
   }
 
   Map<String, dynamic> toJson() => {
-        'connections': connections.map((key, value) => MapEntry(key, value.toJson())),
+        'connections': connections.map((value) => value.toJson()).toList(growable: false),
         'currentAlias': currentAlias,
         'isLightMode': isLightMode,
         'refreshSeconds': refreshSeconds,
       };
 
   factory SettingsState.fromJson(Map<String, dynamic> json) => SettingsState(
-        connections: (json['connections'] as Map<String, dynamic>?)?.map(
-              (key, value) => MapEntry(
-                key,
-                SettingsStateConnection.fromJson(value as Map<String, dynamic>),
-              ),
-            ) ??
-            {},
+        connections: (json['connections'] as List<dynamic>?)
+                ?.map(
+                  (value) => SettingsStateConnection.fromJson(
+                      value as Map<String, dynamic>),
+                )
+                .toList(growable: false) ??
+            [],
         currentAlias: json['currentAlias'] as String? ?? '',
         isLightMode: json['isLightMode'] as bool? ?? true,
         refreshSeconds: json['refreshSeconds'] as int? ?? 30,

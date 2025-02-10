@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:reactive_forms/reactive_forms.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:letscheck/providers/settings/settings_provider.dart';
 import 'package:letscheck/providers/settings/settings_state.dart';
 
@@ -83,7 +83,7 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
     if (alias == '+') return;
 
     final settings = ref.read(settingsProvider);
-    final connection = settings.connections[alias];
+    final connection = settings.connections.where((c) => c.alias == alias).singleOrNull;
     if (connection == null) return;
 
     state = ConnectionFormState(
@@ -101,6 +101,8 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
   }
 
   Future<bool> submit() async {
+    if (!mounted) return false;
+
     if (!state.isValid) return false;
 
     try {
@@ -116,9 +118,9 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
           baseUrl: state.url!,
           username: state.username!,
           secret: state.isEditing && state.password == ''
-              ? settings.connections[alias]?.password ?? state.password!
+              ? settings.connections.where((c) => c.alias == alias).singleOrNull?.password ?? state.password!
               : state.password!,
-          validateSsl: !state.insecure,
+          insecure: !state.insecure,
         ),
       );
 
@@ -126,19 +128,19 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
         await client.testConnection();
       } catch (e) {
         state = state.copyWith(
-          error: 'Connection test failed: ${e.toString()}',
+          error: e.toString(),
           isSubmitting: false,
         );
         return false;
       }
 
       if (state.isEditing) {
-        final currentConnection = settings.connections[alias];
+        final currentConnection = settings.connections.where((c) => c.alias == alias).singleOrNull;
         if (currentConnection == null) return false;
 
         await settingsNotifier.updateConnection(
-          alias,
           SettingsStateConnection(
+            alias: alias,
             site: state.site!,
             baseUrl: state.url!,
             username: state.username!,
@@ -153,8 +155,8 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
       } else {
         if (state.alias == null) return false;
         await settingsNotifier.addConnection(
-          state.alias!,
           SettingsStateConnection(
+            alias: state.alias!,
             site: state.site!,
             baseUrl: state.url!,
             username: state.username!,
@@ -168,7 +170,9 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
 
       return true;
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      if (!mounted) return false;
+
+      state = state.copyWith(error: e.toString(), isSubmitting: false);
       return false;
     } finally {
       state = state.copyWith(isSubmitting: false);
@@ -181,10 +185,24 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
   }
 }
 
-class ConnectionForm extends ConsumerWidget {
+class ConnectionForm extends ConsumerStatefulWidget {
   final String alias;
 
   const ConnectionForm({required this.alias, super.key});
+
+  @override
+  ConsumerState<ConnectionForm> createState() => _ConnectionFormState();
+}
+
+class _ConnectionFormState extends ConsumerState<ConnectionForm> {
+  late final FormGroup form;
+
+  @override
+  void initState() {
+    super.initState();
+    final formState = ref.read(connectionFormProvider(widget.alias));
+    form = buildForm(formState);
+  }
 
   FormGroup buildForm(ConnectionFormState state) {
     return FormGroup({
@@ -234,11 +252,9 @@ class ConnectionForm extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
-    final formState = ref.watch(connectionFormProvider(alias));
-    final formNotifier = ref.read(connectionFormProvider(alias).notifier);
-    final form = buildForm(formState);
+  Widget build(BuildContext context) {
+    final formState = ref.watch(connectionFormProvider(widget.alias));
+    final formNotifier = ref.watch(connectionFormProvider(widget.alias).notifier);
     final passwordVisible = ValueNotifier<bool>(false);
 
     return ReactiveForm(
@@ -345,7 +361,7 @@ class ConnectionForm extends ConsumerWidget {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (settings.connections.isNotEmpty)
+                  if (ref.watch(settingsProvider).connections.isNotEmpty)
                     ElevatedButton(
                       onPressed:
                           formState.isSubmitting ? null : () => context.pop(),
@@ -353,31 +369,24 @@ class ConnectionForm extends ConsumerWidget {
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.error)),
                     ),
-                  if (settings.connections.isNotEmpty) SizedBox(width: 8),
+                  if (ref.watch(settingsProvider).connections.isNotEmpty) SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: form.valid && !formState.isSubmitting
                         ? () async {
-                            ref
-                                .read(connectionFormProvider(alias).notifier)
-                                .update((state) => ConnectionFormState(
-                                      site: form.control('site').value,
-                                      alias: form.control('alias').value,
-                                      url: form.control('url').value,
-                                      username: form.control('username').value,
-                                      password: form.control('password').value,
-                                      insecure:
-                                          form.control('insecure').value ??
-                                              false,
-                                      sendNotifications: form
-                                              .control('sendNotifications')
-                                              .value ??
-                                          false,
-                                      wifiOnly:
-                                          form.control('wifiOnly').value ??
-                                              false,
-                                      isValid: true,
-                                      isEditing: formState.isEditing,
-                                    ));
+                            // Get current form values
+                            final currentValues = form.value;
+                            formNotifier.update((state) => ConnectionFormState(
+                                  site: currentValues['site'] as String,
+                                  alias: currentValues['alias'] as String,
+                                  url: currentValues['url'] as String,
+                                  username: currentValues['username'] as String,
+                                  password: currentValues['password'] as String,
+                                  insecure: currentValues['insecure'] as bool? ?? false,
+                                  sendNotifications: currentValues['sendNotifications'] as bool? ?? false,
+                                  wifiOnly: currentValues['wifiOnly'] as bool? ?? false,
+                                  isValid: true,
+                                  isEditing: formState.isEditing,
+                                ));
 
                             if (await formNotifier.submit()) {
                               if (formState.isEditing) {

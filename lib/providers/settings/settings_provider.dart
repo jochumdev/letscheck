@@ -13,7 +13,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
   SettingsNotifier(this._prefs)
       : super(const SettingsState(
-          connections: {},
+          connections: [],
           currentAlias: '',
           isLightMode: false,
           refreshSeconds: 60,
@@ -25,7 +25,11 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     final stateJson = _prefs.getString('settings');
     if (stateJson != null) {
       final stateMap = jsonDecode(stateJson) as Map<String, dynamic>;
-      state = SettingsState.fromJson(stateMap);
+      try {
+        state = SettingsState.fromJson(stateMap);
+      } catch (e) {
+        // Ignore. 
+      }
     }
   }
 
@@ -46,45 +50,45 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     _saveState();
   }
 
-  Future<void> addConnection(String alias, SettingsStateConnection connection) async {
-    if (state.connections.containsKey(alias)) {
-      throw StateError('Connection with alias $alias already exists');
+  bool hasConnection(String alias) => state.connections.any((c) => c.alias == alias);
+
+  Future<void> addConnection(SettingsStateConnection connection) async {
+    if (hasConnection(connection.alias)) {
+      throw StateError('Connection with alias ${connection.alias} already exists');
     }
 
     state = state.copyWith(
-      connections: Map.from(state.connections)..addAll({alias: connection}),
+      connections: List.from(state.connections)..add(connection),
     );
     _saveState();
   }
 
-  Future<void> updateConnection(String site, SettingsStateConnection connection) async {
-    if (!state.connections.containsKey(site)) return;
+  Future<void> updateConnection(SettingsStateConnection connection) async {
+    if (!hasConnection(connection.alias)) return;
 
-    final connections = Map<String, SettingsStateConnection>.from(state.connections)..update(site, (value) => connection);
+    final connections = List<SettingsStateConnection>.from(state.connections)..removeWhere((c) => c.alias == connection.alias)..add(connection);
     state = state.copyWith(connections: connections);
     _saveState();
   }
 
-  Future<void> deleteConnection(String site) async {
-    if (!state.connections.containsKey(site)) return;
+  Future<void> deleteConnection(SettingsStateConnection connection) async {
+    if (!hasConnection(connection.alias)) return;
 
-    final connections = Map<String, SettingsStateConnection>.from(state.connections);
-    connections.remove(site);
-
+    final connections = List<SettingsStateConnection>.from(state.connections)..removeWhere((c) => c.alias == connection.alias);
     state = state.copyWith(
       connections: connections,
     );
     _saveState();
   }
 
-  Future<void> setCurrentSite(String site) async {
-    if (!state.connections.containsKey(site)) {
-      throw StateError('Connection with alias $site does not exist');
+  Future<void> setCurrentSite(String alias) async {
+    if (!hasConnection(alias)) {
+      throw StateError('Connection with alias $alias does not exist');
     }
 
-    if (state.currentAlias == site) return;
+    if (state.currentAlias == alias) return;
 
-    state = state.copyWith(currentAlias: site);
+    state = state.copyWith(currentAlias: alias);
     _saveState();
   }
 }

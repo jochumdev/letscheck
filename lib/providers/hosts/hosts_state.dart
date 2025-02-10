@@ -1,8 +1,8 @@
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 
 sealed class HostsState {
   final List<cmk_api.Host> hosts;
-  final String? error;
+  final Exception? error;
 
   const HostsState({
     this.hosts = const [],

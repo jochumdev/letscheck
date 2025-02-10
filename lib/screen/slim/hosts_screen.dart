@@ -5,7 +5,7 @@ import 'package:letscheck/providers/params.dart';
 import 'package:letscheck/providers/providers.dart';
 import 'package:letscheck/widget/site_stats_widget.dart';
 import 'package:letscheck/widget/hosts_list_widget.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:letscheck/screen/slim/base_slim_screen.dart';
 
 class HostsScreen extends ConsumerStatefulWidget {
@@ -25,7 +25,7 @@ class HostsScreenState extends ConsumerState<HostsScreen>
     with BaseSlimScreenState {
   final String site;
   final String filter;
-  late final SiteAndFilterParams params;
+  late final AliasAndFilterParams params;
 
   HostsScreenState({required this.site, required this.filter}) {
     var myFilters = <String>[];
@@ -49,7 +49,7 @@ class HostsScreenState extends ConsumerState<HostsScreen>
           myFilters.add(filter);
         }
     }
-    params = SiteAndFilterParams(site: site, filter: myFilters);
+    params = AliasAndFilterParams(alias: site, filter: myFilters);
   }
 
   @override

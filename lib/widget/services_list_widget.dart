@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:check_mk_api/check_mk_api.dart' as cmk_api;
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:letscheck/providers/services/services_util.dart';
 import 'package:letscheck/widget/services_grouped_card_widget.dart';
 

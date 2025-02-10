@@ -1,32 +1,32 @@
 import 'package:flutter/foundation.dart' show listEquals;
 
-final class SiteAndFilterParams {
-  final String site;
+final class AliasAndFilterParams {
+  final String alias;
   final List<String> filter;
 
-  const SiteAndFilterParams({required this.site, required this.filter});
+  const AliasAndFilterParams({required this.alias, required this.filter});
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is SiteAndFilterParams &&
-        other.site == site &&
+    return other is AliasAndFilterParams &&
+        other.alias == alias &&
         listEquals(other.filter, filter);
   }
 
   @override
-  int get hashCode => site.hashCode ^ filter.hashCode;
+  int get hashCode => alias.hashCode ^ filter.hashCode;
 
   @override
-  String toString() => 'SiteAndFilterParams(site: $site, filter: $filter)';
+  String toString() => 'AliasAndFilterParams(alias: $alias, filter: $filter)';
 
-  SiteAndFilterParams copyWith({
-    String? site,
+  AliasAndFilterParams copyWith({
+    String? alias,
     List<String>? filter,
   }) {
-    return SiteAndFilterParams(
-      site: site ?? this.site,
+    return AliasAndFilterParams(
+      alias: alias ?? this.alias,
       filter: filter ?? this.filter,
     );
   }

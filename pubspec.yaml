@@ -24,8 +24,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  check_mk_api:
-    path: vendor/check_mk_api
+  checkmk_api:
+    path: vendor/checkmk_api
     # git: 
     #   url: https://github.com/jochumdev/check_mk_api-flutter.git
   flutter_riverpod: ^2.4.9
@@ -53,7 +53,7 @@ dependencies:
   path_provider: ^2.0.13
   shared_preferences: ^2.5.1
   reactive_forms: ^16.1.1
-  connectivity_plus: ^5.0.2
+  connectivity_plus: ^6.1.3
 
 dev_dependencies:
   lints: ^5.0.0
