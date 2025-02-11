@@ -9,6 +9,7 @@ import 'package:letscheck/screen/slim/hosts_screen.dart';
 import 'package:letscheck/screen/slim/services_screen.dart';
 import 'package:letscheck/screen/slim/host_screen.dart';
 import 'package:letscheck/screen/slim/service_screen.dart';
+import 'package:letscheck/screen/slim/log_screen.dart';
 
 List<RouteBase> slimRoutes() {
   return [
@@ -62,6 +63,10 @@ List<RouteBase> slimRoutes() {
     GoRoute(
       path: '/settings/languages',
       builder: (context, state) => SettingsLanguagesScreen(),
+    ),
+    GoRoute(
+      path: '/logs',
+      builder: (context, state) => LogScreen(),
     ),
   ];
 }

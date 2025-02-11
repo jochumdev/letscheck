@@ -174,8 +174,8 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
                                       : service.displayName!.length),
                               style: Theme.of(context).textTheme.bodyMedium),
                           Text(
-                            jsRuntime.hasValue ? jsRuntime.value!.evaluate(
-                                "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});") : '', 
+                            jsRuntime.evaluate(
+                                "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});"), 
                             maxLines: 2,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),

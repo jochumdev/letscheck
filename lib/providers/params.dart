@@ -1,22 +1,13 @@
-import 'package:flutter/foundation.dart' show listEquals;
+import 'package:equatable/equatable.dart';
 
-final class AliasAndFilterParams {
+final class AliasAndFilterParams extends Equatable {
   final String alias;
   final List<String> filter;
 
   const AliasAndFilterParams({required this.alias, required this.filter});
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is AliasAndFilterParams &&
-        other.alias == alias &&
-        listEquals(other.filter, filter);
-  }
-
-  @override
-  int get hashCode => alias.hashCode ^ filter.hashCode;
+  List<Object?> get props => [alias, filter];
 
   @override
   String toString() => 'AliasAndFilterParams(alias: $alias, filter: $filter)';

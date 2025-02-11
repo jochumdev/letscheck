@@ -10,7 +10,7 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
   final Ref ref;
   final String alias;
   Timer? _refreshTimer;
-  late ProviderSubscription<AsyncValue<cmk_api.ConnectionState?>> _connectionStateSubscription;
+  late ProviderSubscription<AsyncValue<cmk_api.ConnectionState>> _connectionStateSubscription;
 
   ConnectionDataNotifier(this.ref, this.alias)
       : super(const ConnectionDataInitial()) {
@@ -38,9 +38,8 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
     if (!mounted) return;
 
     final client = ref.read(clientProvider(alias));
-    final clientState = ref.read(clientStateProvider(alias));
 
-    if (clientState.value != cmk_api.ConnectionState.connected) {
+    if (client.connectionState != cmk_api.ConnectionState.connected) {
       if (!mounted) return;
       state = ConnectionDataError(error: client.error());
       return;
@@ -116,8 +115,8 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
 
   @override
   void dispose() {
-    _connectionStateSubscription.close();
     _refreshTimer?.cancel();
+    _connectionStateSubscription.close();
     super.dispose();
   }
 }

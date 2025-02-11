@@ -7,6 +7,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:letscheck/providers/settings/settings_state.dart';
 import 'package:mutex/mutex.dart';
+import 'package:dio/dio.dart';
 
 import 'package:letscheck/services/connectivity_service.dart';
 import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
@@ -146,6 +147,7 @@ void onStart(ServiceInstance service) async {
 
           if (s.sendNotifications) {
             var client = cmk_api.Client(
+              () => Dio(),
               cmk_api.ClientSettings(
                 baseUrl: s.baseUrl,
                 site: s.site,

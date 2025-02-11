@@ -27,8 +27,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   BaseSlimScreenSettings setup(BuildContext context) {
     return BaseSlimScreenSettings('Home',
-        showRefresh: !kIsWeb &&
-            (Platform.isLinux || Platform.isMacOS || Platform.isWindows),
+        showRefresh: true,
         showSettings: true);
   }
 
@@ -86,7 +85,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     SiteStatsWidget(
                       site: alias,
                     ),
-                    Expanded(child: Center(child: Text('Error: $error'))),
+                    Expanded(child: Center(child: Text('$error!'))),
                     const TabPageSelector(),
                   ],
                 ),

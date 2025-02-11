@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:letscheck/widget/site_stats_widget.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
+
+import 'package:letscheck/widget/site_stats_widget.dart';
 import '../../providers/providers.dart';
 import '../../widget/custom_search_delegate.dart';
 
@@ -14,16 +17,19 @@ class BaseSlimScreenSettings {
   final bool showMenu;
   final bool showLeading;
   final bool showSearch;
+  final bool showLogs;
 
   BaseSlimScreenSettings(this.title,
       {this.showRefresh = false,
       this.showSettings = true,
       this.showMenu = true,
       this.showLeading = true,
-      this.showSearch = true});
+      this.showSearch = true,
+      this.showLogs = true});
 }
 
-mixin BaseSlimScreenState<T extends ConsumerStatefulWidget> on ConsumerState<T> { 
+mixin BaseSlimScreenState<T extends ConsumerStatefulWidget>
+    on ConsumerState<T> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   Future<void> leadingButtonAction(BuildContext context) async {
@@ -31,10 +37,13 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget> on ConsumerState<T> 
   }
 
   Future<void> refreshAction(BuildContext context) async {
-    final connectionNames =
-        ref.read(settingsProvider.select((s) => s.connections.map((c) => c.alias)));
+    final connectionNames = ref.read(
+        settingsProvider.select((s) => s.connections.map((c) => c.alias)));
     for (final site in connectionNames) {
-      await ref.read(clientProvider(site)).reconnect();
+      final client = ref.read(clientProvider(site));
+      if (client.requestedConnectionState != cmk_api.ConnectionState.paused) {
+        await client.connect();
+      }
     }
   }
 
@@ -59,16 +68,14 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget> on ConsumerState<T> 
     final settings = ref.watch(settingsProvider);
 
     var drawer = Drawer(
-      child: Builder(
-          builder: (context) {
+      child: Builder(builder: (context) {
         return ListView.builder(
             physics: ClampingScrollPhysics(),
             shrinkWrap: false,
             itemCount: settings.connections.length,
             itemBuilder: (context, index) {
-              return SiteStatsWidget(
-                      site: settings.connections[index].alias)
-              .build(context, ref);
+              return SiteStatsWidget(site: settings.connections[index].alias)
+                  .build(context, ref);
             });
       }),
     );
@@ -98,6 +105,16 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget> on ConsumerState<T> 
     }
 
     var actions = <Widget>[];
+    if (mySettings.showLogs) {
+      actions.add(IconButton(
+        icon: Icon(Icons.list),
+        tooltip: "Logs",
+        onPressed: () async {
+          context.push('/logs');
+        },
+      ));
+    }
+
     if (mySettings.showRefresh) {
       actions.add(IconButton(
         icon: Icon(Icons.refresh),
@@ -128,6 +145,8 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget> on ConsumerState<T> 
       ));
     }
 
+    final talker = ref.read(talkerProvider);
+
     return Scaffold(
       key: _scaffoldKey,
       drawer: drawer,
@@ -141,7 +160,13 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget> on ConsumerState<T> 
       ),
       body: RefreshIndicator(
         onRefresh: () => refreshAction(context),
-        child: content(context),
+        child: TalkerWrapper(
+          talker: talker,
+          options: const TalkerWrapperOptions(
+            enableErrorAlerts: true,
+          ),
+          child: content(context),
+        ),
       ),
     );
   }

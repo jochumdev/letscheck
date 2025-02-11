@@ -1,15 +1,21 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:talker_flutter/talker_flutter.dart';
+
 import 'package:letscheck/providers/providers.dart';
 import 'package:letscheck/screen/slim/slim_router.dart';
+
 
 final routerProvider = Provider<GoRouter>((ref) {
   final empty = ref.watch(settingsProvider.select((s) => s.connections.isEmpty));
   ref.keepAlive(); // Keep the router instance alive between rebuilds
   
+  final talker = ref.read(talkerProvider);
+
   return GoRouter(
+    observers: [TalkerRouteObserver(talker)],
     routes: slimRoutes(),
-    debugLogDiagnostics: true,
+    debugLogDiagnostics: false,
     redirect: (context, state) {
       // Redirect to add connection if no connections exist
       if (empty) {

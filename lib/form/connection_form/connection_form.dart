@@ -1,10 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:letscheck/providers/providers.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
-import 'package:letscheck/providers/settings/settings_provider.dart';
 import 'package:letscheck/providers/settings/settings_state.dart';
+import 'package:talker_dio_logger/talker_dio_logger.dart';
 
 final connectionFormProvider = StateNotifierProvider.autoDispose
     .family<ConnectionFormNotifier, ConnectionFormState, String>((ref, alias) {
@@ -83,7 +85,8 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
     if (alias == '+') return;
 
     final settings = ref.read(settingsProvider);
-    final connection = settings.connections.where((c) => c.alias == alias).singleOrNull;
+    final connection =
+        settings.connections.where((c) => c.alias == alias).singleOrNull;
     if (connection == null) return;
 
     state = ConnectionFormState(
@@ -111,14 +114,25 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
       final settingsNotifier = ref.read(settingsProvider.notifier);
       final settings = ref.read(settingsProvider);
 
+      final talkerDioLogger = ref.read(talkerDioLoggerProvider);
+
       // Create a temporary client to test the connection
       final client = cmk_api.Client(
+        () {
+          final dio = Dio();
+          dio.interceptors.add(talkerDioLogger);
+          return dio;
+        },
         cmk_api.ClientSettings(
           site: state.site!,
           baseUrl: state.url!,
           username: state.username!,
           secret: state.isEditing && state.password == ''
-              ? settings.connections.where((c) => c.alias == alias).singleOrNull?.password ?? state.password!
+              ? settings.connections
+                      .where((c) => c.alias == alias)
+                      .singleOrNull
+                      ?.password ??
+                  state.password!
               : state.password!,
           insecure: !state.insecure,
         ),
@@ -135,7 +149,8 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
       }
 
       if (state.isEditing) {
-        final currentConnection = settings.connections.where((c) => c.alias == alias).singleOrNull;
+        final currentConnection =
+            settings.connections.where((c) => c.alias == alias).singleOrNull;
         if (currentConnection == null) return false;
 
         await settingsNotifier.updateConnection(
@@ -252,7 +267,8 @@ class _ConnectionFormState extends ConsumerState<ConnectionForm> {
   @override
   Widget build(BuildContext context) {
     final formState = ref.watch(connectionFormProvider(widget.alias));
-    final formNotifier = ref.watch(connectionFormProvider(widget.alias).notifier);
+    final formNotifier =
+        ref.watch(connectionFormProvider(widget.alias).notifier);
     final passwordVisible = ValueNotifier<bool>(false);
 
     return ReactiveForm(
@@ -314,7 +330,8 @@ class _ConnectionFormState extends ConsumerState<ConnectionForm> {
                 formControlName: 'password',
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  helperText: 'Your Checkmk Password or leave empty if already set',
+                  helperText:
+                      'Your Checkmk Password or leave empty if already set',
                   suffixIcon: IconButton(
                     icon: Icon(
                       isVisible ? Icons.visibility_off : Icons.visibility,
@@ -343,7 +360,8 @@ class _ConnectionFormState extends ConsumerState<ConnectionForm> {
           ReactiveSwitchListTile(
             formControlName: 'wifiOnly',
             title: const Text('Only connect via Wi-Fi'),
-            subtitle: const Text('Only connect to Checkmk when Wi-Fi is available'),
+            subtitle:
+                const Text('Only connect to Checkmk when Wi-Fi is available'),
           ),
           if (formState.error != null)
             Padding(
@@ -367,7 +385,8 @@ class _ConnectionFormState extends ConsumerState<ConnectionForm> {
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.error)),
                     ),
-                  if (ref.watch(settingsProvider).connections.isNotEmpty) SizedBox(width: 8),
+                  if (ref.watch(settingsProvider).connections.isNotEmpty)
+                    SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: form.valid && !formState.isSubmitting
                         ? () async {
@@ -379,9 +398,16 @@ class _ConnectionFormState extends ConsumerState<ConnectionForm> {
                                   url: currentValues['url'] as String,
                                   username: currentValues['username'] as String,
                                   password: currentValues['password'] as String,
-                                  insecure: currentValues['insecure'] as bool? ?? false,
-                                  sendNotifications: currentValues['sendNotifications'] as bool? ?? false,
-                                  wifiOnly: currentValues['wifiOnly'] as bool? ?? false,
+                                  insecure:
+                                      currentValues['insecure'] as bool? ??
+                                          false,
+                                  sendNotifications:
+                                      currentValues['sendNotifications']
+                                              as bool? ??
+                                          false,
+                                  wifiOnly:
+                                      currentValues['wifiOnly'] as bool? ??
+                                          false,
                                   isValid: true,
                                   isEditing: formState.isEditing,
                                 ));

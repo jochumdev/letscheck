@@ -5,11 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart'
     show kIsWeb, LicenseRegistry, LicenseEntryWithLineBreaks;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:letscheck/javascript/javascript.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:letscheck/providers/providers.dart';
 import 'package:letscheck/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'theme_data.dart';
+import 'package:talker/talker.dart';
+import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -30,6 +32,7 @@ import 'notifications/linux.dart' as notifications_linux;
 import 'notifications/windows.dart' as notifications_windows;
 import 'notifications/plugin.dart';
 
+import 'theme_data.dart';
 import 'background_service.dart' as bg_service;
 
 /// Streams are created so that app can respond to notification-related events
@@ -158,10 +161,27 @@ Future<void> main() async {
     bg_service.start();
   }
 
+  final talker = Talker(logger: TalkerLogger(formatter: ColoredLoggerFormatter()));
+
+  final jsRuntime = await initJavascriptRuntime();
+
   runApp(
     ProviderScope(
+      observers: [
+        TalkerRiverpodObserver(
+            settings: TalkerRiverpodLoggerSettings(
+              enabled: true,
+              printProviderAdded: true,
+              printProviderUpdated: false,
+              printProviderDisposed: true,
+              printProviderFailed: true,
+            ),
+            talker: talker),
+      ],
       overrides: [
+        talkerProvider.overrideWithValue(talker),
         sharedPreferencesProvider.overrideWithValue(prefs),
+        javascriptRuntimeProvider.overrideWithValue(jsRuntime),
       ],
       child: const App(),
     ),
@@ -179,7 +199,8 @@ class _AppState extends ConsumerState<App> with TrayListener {
   @override
   void initState() {
     super.initState();
-    if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+    if (!kIsWeb &&
+        (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
       trayManager.addListener(this);
     }
   }
@@ -201,7 +222,8 @@ class _AppState extends ConsumerState<App> with TrayListener {
 
   @override
   void dispose() {
-    if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+    if (!kIsWeb &&
+        (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
       trayManager.removeListener(this);
     }
     super.dispose();
