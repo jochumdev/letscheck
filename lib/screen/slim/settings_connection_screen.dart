@@ -3,36 +3,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:letscheck/form/connection_form/connection_form.dart';
 
-import 'package:letscheck/screen/slim/base_slim_screen.dart';
+import 'package:letscheck/screen/slim/slim_layout.dart';
 
 class SettingsConnectionScreen extends ConsumerStatefulWidget {
-  final String site;
+  final String alias;
 
-  SettingsConnectionScreen({required this.site});
+  SettingsConnectionScreen({required this.alias});
 
   @override
   SettingsConnectionScreenState createState() => SettingsConnectionScreenState(
-        site: site,
+        alias: alias,
       );
 }
 
 class SettingsConnectionScreenState
-    extends ConsumerState<SettingsConnectionScreen> with BaseSlimScreenState {
-  final String site;
+    extends ConsumerState<SettingsConnectionScreen> {
+  final String alias;
 
-  SettingsConnectionScreenState({required this.site});
+  SettingsConnectionScreenState({required this.alias});
 
-  @override
-  BaseSlimScreenSettings setup(BuildContext context) {
+  SlimLayoutSettings settings() {
     var title = 'Add Connection';
-    if (site != '+') {
-      title = "Connection: $site";
+    if (alias != '+') {
+      title = "Connection: $alias";
     }
 
-    return BaseSlimScreenSettings(
+    return SlimLayoutSettings(
       title,
-      showLeading: site != '+',
-      showRefresh: false,
+      showLeading: alias != '+',
       showMenu: false,
       showSettings: false,
       showSearch: false,
@@ -40,32 +38,35 @@ class SettingsConnectionScreenState
   }
 
   @override
-  Widget content(BuildContext context) {
+  Widget build(BuildContext context) {
     var titleColor = Theme.of(context).brightness == Brightness.dark
         ? Color.fromRGBO(211, 227, 253, 1)
         : Color.fromRGBO(11, 87, 208, 1);
 
-    return SettingsList(
-      sections: [
-        CustomSettingsSection(
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  site != '+' ? 'Connection: $site' : 'Add Connection',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall!
-                      .copyWith(color: titleColor),
-                ),
-                ConnectionForm(alias: site)
-              ],
+    return SlimLayout(
+      layoutSettings: settings(),
+      child: SettingsList(
+        sections: [
+          CustomSettingsSection(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    alias != '+' ? 'Connection: $alias' : 'Add Connection',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall!
+                        .copyWith(color: titleColor),
+                  ),
+                  ConnectionForm(alias: alias)
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -6,10 +6,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 
 class HostCardWidget extends StatelessWidget {
-  final String site;
+  final String alias;
   final cmk_api.Host host;
 
-  HostCardWidget({super.key, required this.site, required this.host});
+  HostCardWidget({super.key, required this.alias, required this.host});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,8 @@ class HostCardWidget extends StatelessWidget {
             flex: 2,
             child: IconButton(
               onPressed: () {
-                context.push('/$site/host/${Uri.encodeComponent(host.hostName!)}');
+                context
+                    .push('/conn/$alias/host/${Uri.encodeComponent(host.hostName!)}');
               },
               tooltip: "Goto host",
               icon: Icon(

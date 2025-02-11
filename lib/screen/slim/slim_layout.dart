@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io' if (kIsWeb) 'package:web/web.dart' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,78 +13,76 @@ import 'package:letscheck/widget/site_stats_widget.dart';
 import '../../providers/providers.dart';
 import '../../widget/custom_search_delegate.dart';
 
-class BaseSlimScreenSettings {
+class SlimLayoutSettings {
   final String title;
-  final bool showRefresh;
+  late bool showRefresh;
   final bool showSettings;
   final bool showMenu;
   final bool showLeading;
   final bool showSearch;
   final bool showLogs;
 
-  BaseSlimScreenSettings(this.title,
-      {this.showRefresh = false,
-      this.showSettings = true,
+  SlimLayoutSettings(this.title,
+      {this.showSettings = true,
       this.showMenu = true,
       this.showLeading = true,
       this.showSearch = true,
-      this.showLogs = true});
+      this.showLogs = true}) {
+    showRefresh = Platform.isAndroid || Platform.isIOS;
+  }
 }
 
-mixin BaseSlimScreenState<T extends ConsumerStatefulWidget>
-    on ConsumerState<T> {
+class SlimLayout extends ConsumerWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+
+  final SlimLayoutSettings layoutSettings;
+  final Widget child;
+
+  SlimLayout({super.key, required this.layoutSettings, required this.child});
 
   Future<void> leadingButtonAction(BuildContext context) async {
     context.pop();
   }
 
-  Future<void> refreshAction(BuildContext context) async {
+  Future<void> refreshAction(BuildContext context, WidgetRef ref) async {
     final connectionNames = ref.read(
         settingsProvider.select((s) => s.connections.map((c) => c.alias)));
-    for (final site in connectionNames) {
-      final client = ref.read(clientProvider(site));
+    for (final alias in connectionNames) {
+      final client = ref.read(clientProvider(alias));
       if (client.requestedConnectionState != cmk_api.ConnectionState.paused) {
         await client.connect();
       }
     }
   }
 
-  Widget content(BuildContext context) {
-    return Container();
-  }
-
-  BaseSlimScreenSettings setup(BuildContext context) {
-    return BaseSlimScreenSettings("invalid");
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Fix portrait mode.
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
 
-    final mySettings = setup(context);
-
     final settings = ref.watch(settingsProvider);
 
+    var widgets = <Widget>[];
+
+    for (var i = 0; i < settings.connections.length; i++) {
+      widgets.add(SiteStatsWidget(alias: settings.connections[i].alias)
+          .build(context, ref));
+      widgets.add(Divider());
+    }
+
     var drawer = Drawer(
-      child: Builder(builder: (context) {
-        return ListView.builder(
-            physics: ClampingScrollPhysics(),
-            shrinkWrap: false,
-            itemCount: settings.connections.length,
-            itemBuilder: (context, index) {
-              return SiteStatsWidget(site: settings.connections[index].alias)
-                  .build(context, ref);
-            });
-      }),
+      child: ListView(
+        physics: ClampingScrollPhysics(),
+        shrinkWrap: false,
+        children: widgets,
+      ),
     );
 
     Widget leading;
-    if (mySettings.showMenu) {
+    if (layoutSettings.showMenu) {
       leading = IconButton(
           icon: Icon(Icons.menu),
           tooltip: "Menu",
@@ -105,7 +106,7 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget>
     }
 
     var actions = <Widget>[];
-    if (mySettings.showLogs) {
+    if (layoutSettings.showLogs) {
       actions.add(IconButton(
         icon: Icon(Icons.list),
         tooltip: "Logs",
@@ -115,17 +116,17 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget>
       ));
     }
 
-    if (mySettings.showRefresh) {
+    if (layoutSettings.showRefresh) {
       actions.add(IconButton(
         icon: Icon(Icons.refresh),
         tooltip: "Refresh",
         onPressed: () async {
-          await refreshAction(context);
+          await refreshAction(context, ref);
         },
       ));
     }
 
-    if (mySettings.showSettings) {
+    if (layoutSettings.showSettings) {
       actions.add(IconButton(
         icon: Icon(Icons.settings),
         tooltip: "Settings",
@@ -135,7 +136,7 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget>
       ));
     }
 
-    if (mySettings.showSearch) {
+    if (layoutSettings.showSearch) {
       actions.add(IconButton(
         icon: Icon(Icons.search),
         tooltip: "Search",
@@ -153,19 +154,19 @@ mixin BaseSlimScreenState<T extends ConsumerStatefulWidget>
       appBar: AppBar(
         elevation: 0.0,
         titleSpacing:
-            mySettings.showLeading ? NavigationToolbar.kMiddleSpacing : 0.0,
-        title: Text(mySettings.title),
-        leading: mySettings.showLeading ? leading : null,
+            layoutSettings.showLeading ? NavigationToolbar.kMiddleSpacing : 0.0,
+        title: Text(layoutSettings.title),
+        leading: layoutSettings.showLeading ? leading : null,
         actions: actions,
       ),
       body: RefreshIndicator(
-        onRefresh: () => refreshAction(context),
+        onRefresh: () => refreshAction(context, ref),
         child: TalkerWrapper(
           talker: talker,
           options: const TalkerWrapperOptions(
             enableErrorAlerts: true,
           ),
-          child: content(context),
+          child: child,
         ),
       ),
     );

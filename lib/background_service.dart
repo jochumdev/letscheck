@@ -75,7 +75,8 @@ void _fetchAndRunNotificiations(Timer? timer) async {
     for (final alias in clients.keys) {
       if (cSettings.containsKey(alias) && cSettings[alias]!.sendNotifications) {
         if (clients.containsKey(alias)) {
-          if (cSettings[alias]!.wifiOnly && await ConnectivityService.isMobile()) {
+          if (cSettings[alias]!.wifiOnly &&
+              await ConnectivityService.isMobile()) {
             continue;
           }
 
@@ -141,11 +142,14 @@ void onStart(ServiceInstance service) async {
         refreshSeconds = settings["refresh_seconds"];
       }
       if (settings.containsKey('connections')) {
-        for (final jsonConnectionSettings in settings['connections']) {
+        // Clear old values.
+        clients = {};
+        cSettings = {};
 
+        for (final jsonConnectionSettings in settings['connections']) {
           final s = SettingsStateConnection.fromJson(jsonConnectionSettings);
 
-          if (s.sendNotifications) {
+          if (s.sendNotifications && !s.paused) {
             var client = cmk_api.Client(
               () => Dio(),
               cmk_api.ClientSettings(
@@ -155,6 +159,7 @@ void onStart(ServiceInstance service) async {
                 secret: s.password,
                 insecure: !s.insecure,
               ),
+              requireConnect: false,
             );
 
             clients[s.alias] = client;
@@ -185,7 +190,8 @@ void onStart(ServiceInstance service) async {
 void sendSettings(SettingsState state) async {
   Map<String, dynamic> settings = {};
   settings['refresh_seconds'] = state.refreshSeconds;
-  settings['connections'] = List<Map<String, dynamic>>.from(state.connections.map((c) => c.toJson()));
+  settings['connections'] =
+      List<Map<String, dynamic>>.from(state.connections.map((c) => c.toJson()));
   FlutterBackgroundService().invoke('settings', settings);
 }
 

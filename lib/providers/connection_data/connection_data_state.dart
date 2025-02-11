@@ -13,7 +13,8 @@ final class ConnectionDataLoaded extends ConnectionDataState {
   final List<cmk_api.Service> unhServices;
   final Map<int, cmk_api.Comment> comments;
 
-  const ConnectionDataLoaded({required this.stats, required this.unhServices, required this.comments});
+  const ConnectionDataLoaded(
+      {required this.stats, required this.unhServices, required this.comments});
 
   ConnectionDataLoaded copyWith({
     cmk_api.StatsTacticalOverview? stats,

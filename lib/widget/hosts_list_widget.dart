@@ -19,14 +19,12 @@ class HostsListWidget extends StatelessWidget {
     var sortedHostNames = mapHosts.keys.toList();
     sortedHostNames.sort();
 
-    return ListView.builder(
+    return ListView(
       key: listKey,
-      itemCount: sortedHostNames.length,
-      itemBuilder: (context, idx) {
-        var hostName = sortedHostNames[idx];
-        var host = mapHosts[hostName];
-        return HostCardWidget(site: alias, host: host!);
-      },
+      children: [
+        for (var hostName in sortedHostNames)
+          HostCardWidget(alias: alias, host: mapHosts[hostName]!),
+      ],
     );
   }
 }

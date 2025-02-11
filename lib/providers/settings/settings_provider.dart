@@ -30,7 +30,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       try {
         state = SettingsState.fromJson(stateMap);
       } catch (e) {
-        // Ignore. 
+        // Ignore.
       }
     }
   }
@@ -55,11 +55,13 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     _saveState();
   }
 
-  bool hasConnection(String alias) => state.connections.any((c) => c.alias == alias);
+  bool hasConnection(String alias) =>
+      state.connections.any((c) => c.alias == alias);
 
   Future<void> addConnection(SettingsStateConnection connection) async {
     if (hasConnection(connection.alias)) {
-      throw StateError('Connection with alias ${connection.alias} already exists');
+      throw StateError(
+          'Connection with alias ${connection.alias} already exists');
     }
 
     state = state.copyWith(
@@ -71,7 +73,9 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   Future<void> updateConnection(SettingsStateConnection connection) async {
     if (!hasConnection(connection.alias)) return;
 
-    final connections = List<SettingsStateConnection>.from(state.connections)..removeWhere((c) => c.alias == connection.alias)..add(connection);
+    final connections = List<SettingsStateConnection>.from(state.connections)
+      ..removeWhere((c) => c.alias == connection.alias)
+      ..add(connection);
     state = state.copyWith(connections: connections);
     _saveState();
   }
@@ -79,7 +83,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   Future<void> deleteConnection(SettingsStateConnection connection) async {
     if (!hasConnection(connection.alias)) return;
 
-    final connections = List<SettingsStateConnection>.from(state.connections)..removeWhere((c) => c.alias == connection.alias);
+    final connections = List<SettingsStateConnection>.from(state.connections)
+      ..removeWhere((c) => c.alias == connection.alias);
     state = state.copyWith(
       connections: connections,
     );
@@ -98,7 +103,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 }
 
-final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
+final settingsProvider =
+    StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
   return SettingsNotifier(prefs);
 });

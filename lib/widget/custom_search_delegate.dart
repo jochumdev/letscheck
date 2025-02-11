@@ -66,9 +66,9 @@ class CustomSearchDelegate extends SearchDelegate {
       );
     }
 
-    // Create a RiverPod ConsumerWidget 
+    // Create a RiverPod ConsumerWidget
     return SearchResultView(query: query);
- }
+  }
 
   @override
   Widget buildSuggestions(BuildContext context) {
@@ -77,7 +77,7 @@ class CustomSearchDelegate extends SearchDelegate {
     return Column();
   }
 }
- 
+
 class SearchResultView extends ConsumerStatefulWidget {
   final String query;
 
@@ -114,7 +114,8 @@ class _SearchResultViewState extends ConsumerState<SearchResultView> {
       }
     });
     search.services.forEach((alias, services) {
-      final groupedServices = servicesGroupByHostname(services: services.toList());
+      final groupedServices =
+          servicesGroupByHostname(services: services.toList());
 
       groupedServices.forEach((_, hServices) {
         groupItems.add({
@@ -156,11 +157,11 @@ class _SearchResultViewState extends ConsumerState<SearchResultView> {
         itemBuilder: (context, element) {
           if (element.containsKey('host')) {
             return HostCardWidget(
-                site: element['alias'], host: element['host']);
+                alias: element['alias'], host: element['host']);
           }
           // Service
           return ServicesGroupedCardWidget(
-              site: element['alias'],
+              alias: element['alias'],
               groupName: element['services'][0].hostName,
               services: element['services']);
         },

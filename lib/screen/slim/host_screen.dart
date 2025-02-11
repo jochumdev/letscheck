@@ -9,35 +9,38 @@ import 'package:letscheck/widget/site_stats_widget.dart';
 import 'package:letscheck/widget/services_grouped_card_widget.dart';
 import 'package:letscheck/widget/host_card_widget.dart';
 
-import 'package:letscheck/screen/slim/base_slim_screen.dart';
+import 'package:letscheck/screen/slim/slim_layout.dart';
 
 class HostScreen extends ConsumerStatefulWidget {
-  final String site;
+  final String alias;
   final String hostname;
 
-  HostScreen({required this.site, required this.hostname});
+  HostScreen({required this.alias, required this.hostname});
 
   @override
   HostScreenState createState() => HostScreenState(
-        site: site,
+        alias: alias,
         hostname: hostname,
       );
 }
 
-class HostScreenState extends ConsumerState<HostScreen> with BaseSlimScreenState {
-  final String site;
+class HostScreenState extends ConsumerState<HostScreen> {
+  final String alias;
   final String hostname;
 
   late final AliasAndFilterParams hostParams;
   late final AliasAndFilterParams serviceParams;
 
-  HostScreenState({required this.site, required this.hostname}) {
-    hostParams = AliasAndFilterParams(alias: site, filter: ['{"op": "=", "left": "name", "right": "$hostname"}']);
-    serviceParams = AliasAndFilterParams(alias: site, filter: ['{"op": "=", "left": "host_name", "right": "$hostname"}']);
+  HostScreenState({required this.alias, required this.hostname}) {
+    hostParams = AliasAndFilterParams(
+        alias: alias,
+        filter: ['{"op": "=", "left": "name", "right": "$hostname"}']);
+    serviceParams = AliasAndFilterParams(
+        alias: alias,
+        filter: ['{"op": "=", "left": "host_name", "right": "$hostname"}']);
   }
 
-  @override
-  BaseSlimScreenSettings setup(BuildContext context) {
+  SlimLayoutSettings settings() {
     var title = 'Host';
     var myHostname = hostname;
     if (myHostname.length > 25) {
@@ -45,11 +48,11 @@ class HostScreenState extends ConsumerState<HostScreen> with BaseSlimScreenState
     }
     title = "Host $myHostname";
 
-    return BaseSlimScreenSettings(title, showMenu: false, showSearch: false);
+    return SlimLayoutSettings(title, showMenu: false, showSearch: false);
   }
 
   @override
-  Widget content(BuildContext context) {
+  Widget build(BuildContext context) {
     final hosts = ref.watch(hostsProvider(hostParams));
     final services = ref.watch(servicesProvider(serviceParams));
 
@@ -57,25 +60,29 @@ class HostScreenState extends ConsumerState<HostScreen> with BaseSlimScreenState
       return Container();
     }
 
-    final groupedServices = servicesGroupByHostname(services: services.services);
+    final groupedServices =
+        servicesGroupByHostname(services: services.services);
 
-    return Column(
-      children: [
-        SiteStatsWidget(site: site),
-        Expanded(
-            child: Column(children: [
-          HostCardWidget(site: site, host: hosts.hosts[0]),
+    return SlimLayout(
+      layoutSettings: settings(),
+      child: Column(
+        children: [
+          SiteStatsWidget(alias: alias),
           Expanded(
-              child: ListView(children: [
-            ServicesGroupedCardWidget(
-              site: site,
-              groupName: hostname,
-              services: groupedServices[hostname]!,
-              showGroupHeader: false,
-            )
-          ]))
-        ])),
-      ],
+              child: Column(children: [
+            HostCardWidget(alias: alias, host: hosts.hosts[0]),
+            Expanded(
+                child: ListView(children: [
+              ServicesGroupedCardWidget(
+                alias: alias,
+                groupName: hostname,
+                services: groupedServices[hostname]!,
+                showGroupHeader: false,
+              )
+            ]))
+          ])),
+        ],
+      ),
     );
   }
 }

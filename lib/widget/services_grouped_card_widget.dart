@@ -9,7 +9,7 @@ import 'package:letscheck/providers/connection_data/connection_data_state.dart';
 import 'package:letscheck/providers/providers.dart';
 
 class ServicesGroupedCardWidget extends ConsumerWidget {
-  final String site;
+  final String alias;
   final String groupName;
   final bool showGroupHeader;
   final List<cmk_api.Service> services;
@@ -17,7 +17,7 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
 
   ServicesGroupedCardWidget(
-      {required this.site,
+      {required this.alias,
       required this.groupName,
       required this.services,
       this.showGroupHeader = true});
@@ -26,7 +26,8 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var cardWidgets = <Widget>[];
 
-    final comments = ref.watch(connectionDataProvider(site).select((s) => (s is ConnectionDataLoaded) ? s.comments : const {}));
+    final comments = ref.watch(connectionDataProvider(alias)
+        .select((s) => (s is ConnectionDataLoaded) ? s.comments : const {}));
     final jsRuntime = ref.watch(javascriptRuntimeProvider);
 
     if (showGroupHeader) {
@@ -47,7 +48,8 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
                 flex: 2,
                 child: IconButton(
                   onPressed: () {
-                    context.push('/$site/host/${Uri.encodeComponent(services[0].hostName!)}');
+                    context.push(
+                        '/conn/$alias/host/${Uri.encodeComponent(services[0].hostName!)}');
                   },
                   tooltip: "Goto host",
                   icon: Icon(
@@ -65,7 +67,7 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
     for (var service in services) {
       gotoService() async {
         context.push(
-            '/$site/host/${Uri.encodeComponent(service.hostName!)}/services/${Uri.encodeComponent(service.displayName!)}');
+            '/conn/$alias/host/${Uri.encodeComponent(service.hostName!)}/services/${Uri.encodeComponent(service.displayName!)}');
       }
 
       Widget stateIcon = IconButton(
@@ -175,7 +177,7 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
                               style: Theme.of(context).textTheme.bodyMedium),
                           Text(
                             jsRuntime.evaluate(
-                                "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});"), 
+                                "DateTime.fromISO('${service.lastStateChange.toString().replaceFirst(" ", "T")}').toRelative({style: 'short'});"),
                             maxLines: 2,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
@@ -191,14 +193,7 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
                 ),
                 Expanded(
                   flex: 2,
-                  child: IconButton(
-                    onPressed: gotoService,
-                    tooltip: "Goto service",
-                    icon: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 20,
-                    ),
-                  ),
+                  child: Container(),
                 ),
               ],
             ),
@@ -206,8 +201,6 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
           ]),
         ),
       );
-
-      //   cardWidgets.add();
     }
 
     return Card(

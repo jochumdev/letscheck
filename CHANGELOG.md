@@ -4,6 +4,7 @@
 - rework connection handling
 - rework connection handling, pt2
 - intodruce talker, rework connection handling, pt3
+- rework connection handling, pt4
 
 ## 0.2.0+1272 - 2025-02-08
 ### Added

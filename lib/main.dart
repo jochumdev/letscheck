@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart'
     show kIsWeb, LicenseRegistry, LicenseEntryWithLineBreaks;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:letscheck/javascript/javascript.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:letscheck/providers/providers.dart';
 import 'package:letscheck/router.dart';
@@ -161,9 +162,12 @@ Future<void> main() async {
     bg_service.start();
   }
 
-  final talker = Talker(logger: TalkerLogger(formatter: ColoredLoggerFormatter()));
+  final talker =
+      Talker(logger: TalkerLogger(formatter: ColoredLoggerFormatter()));
 
   final jsRuntime = await initJavascriptRuntime();
+
+  final packageInfo = await PackageInfo.fromPlatform();
 
   runApp(
     ProviderScope(
@@ -182,6 +186,7 @@ Future<void> main() async {
         talkerProvider.overrideWithValue(talker),
         sharedPreferencesProvider.overrideWithValue(prefs),
         javascriptRuntimeProvider.overrideWithValue(jsRuntime),
+        packageInfoProvider.overrideWithValue(packageInfo),
       ],
       child: const App(),
     ),

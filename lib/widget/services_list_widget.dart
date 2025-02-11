@@ -19,7 +19,8 @@ class ServicesListWidget extends StatefulWidget {
   State<ServicesListWidget> createState() => _ServicesListWidgetState();
 }
 
-class _ServicesListWidgetState extends State<ServicesListWidget> with AutomaticKeepAliveClientMixin {
+class _ServicesListWidgetState extends State<ServicesListWidget>
+    with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
 
   final minimalVisualDensity = VisualDensity(horizontal: -4.0, vertical: -4.0);
@@ -40,18 +41,17 @@ class _ServicesListWidgetState extends State<ServicesListWidget> with AutomaticK
     final groupedServices = servicesGroupByHostname(services: widget.services);
     final hostNames = groupedServices.keys.toList()..sort();
 
-    return ListView.builder(
+    return ListView(
       key: widget.listKey,
       controller: _scrollController,
-      itemCount: hostNames.length,
-      itemBuilder: (context, index) {
-        final hostname = hostNames[index];
-        return ServicesGroupedCardWidget(
-          site: widget.alias,
-          groupName: hostname,
-          services: groupedServices[hostname]!,
-        );
-      },
+      children: [
+        for (final hostname in hostNames)
+          ServicesGroupedCardWidget(
+            alias: widget.alias,
+            groupName: hostname,
+            services: groupedServices[hostname]!,
+          ),
+      ],
     );
   }
 }

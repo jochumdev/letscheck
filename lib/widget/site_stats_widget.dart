@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
+
 import 'package:letscheck/providers/connection_data/connection_data_state.dart';
 import 'package:letscheck/providers/providers.dart';
 import 'package:letscheck/widget/site_stats_number_widget.dart';
 
 class SiteStatsWidget extends ConsumerWidget {
-  final String site;
+  final String alias;
 
-  SiteStatsWidget({required this.site});
+  SiteStatsWidget({required this.alias});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final connectionData = ref.watch(connectionDataProvider(site));
+    final clientState = ref.watch(clientStateProvider(alias));
+    final connectionData = ref.watch(connectionDataProvider(alias));
 
     var hasFilters = false;
     // for (var f in connection.filters.values) {
@@ -35,7 +39,7 @@ class SiteStatsWidget extends ConsumerWidget {
               num: stats.hosts.all,
               valueColor: Colors.white,
               onTap: () {
-                context.push('/$site/hosts/all');
+                context.push('/conn/$alias/hosts/all');
               },
             ),
             SiteStatsNumberWidget(
@@ -43,7 +47,7 @@ class SiteStatsWidget extends ConsumerWidget {
               num: stats.hosts.warn,
               valueColor: Colors.yellow,
               onTap: () {
-                context.push('/$site/hosts/problems');
+                context.push('/conn/$alias/hosts/problems');
               },
             ),
             SiteStatsNumberWidget(
@@ -51,7 +55,7 @@ class SiteStatsWidget extends ConsumerWidget {
               num: stats.hosts.crit,
               valueColor: Colors.red,
               onTap: () {
-                context.push('/$site/hosts/unhandled');
+                context.push('/conn/$alias/hosts/unhandled');
               },
             ),
             SizedBox(
@@ -65,7 +69,7 @@ class SiteStatsWidget extends ConsumerWidget {
               num: stats.services.all,
               valueColor: Colors.white,
               onTap: () {
-                context.push('/$site/services/all');
+                context.push('/conn/$alias/services/all');
               },
             ),
             SiteStatsNumberWidget(
@@ -73,7 +77,7 @@ class SiteStatsWidget extends ConsumerWidget {
               num: stats.services.warn,
               valueColor: Colors.yellow,
               onTap: () {
-                context.push('/$site/services/problems');
+                context.push('/conn/$alias/services/problems');
               },
             ),
             SiteStatsNumberWidget(
@@ -81,7 +85,7 @@ class SiteStatsWidget extends ConsumerWidget {
               num: stats.services.crit,
               valueColor: Colors.red,
               onTap: () {
-                context.push('/$site/services/unhandled');
+                context.push('/conn/$alias/services/unhandled');
               },
             ),
             SiteStatsNumberWidget(
@@ -89,7 +93,7 @@ class SiteStatsWidget extends ConsumerWidget {
               num: stats.services.unkn,
               valueColor: Colors.yellow,
               onTap: () {
-                context.push('/$site/services/stale');
+                context.push('/conn/$alias/services/stale');
               },
             ),
           ]),
@@ -114,12 +118,12 @@ class SiteStatsWidget extends ConsumerWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    context.push('/settings/connection/$site');
+                    context.go('/conn/$alias');
                   },
                   child: Padding(
                     padding: EdgeInsets.all(5.0),
                     child: Text(
-                      site,
+                      alias,
                       style: TextStyle(color: titleColor),
                     ),
                   ),
@@ -137,14 +141,15 @@ class SiteStatsWidget extends ConsumerWidget {
                     ),
                     IconButton(
                       onPressed: () {
-                        context.push('/settings/connection/$site');
+                        context.push('/settings/connection/conn/$alias');
                       },
                       tooltip: 'Edit connection Details',
                       icon: Icon(Icons.settings_input_component,
                           size: 14,
-                          color: connectionData is ConnectionDataError
-                              ? Colors.red
-                              : Colors.green),
+                          color: clientState.valueOrNull ==
+                                  cmk_api.ConnectionState.connected
+                              ? Colors.green
+                              : Colors.red),
                     ),
                   ],
                 ),

@@ -1,4 +1,6 @@
-final class SettingsStateConnection {
+import 'package:equatable/equatable.dart';
+
+final class SettingsStateConnection extends Equatable {
   final String alias;
   final String site;
   final String baseUrl;
@@ -7,6 +9,7 @@ final class SettingsStateConnection {
   final bool insecure;
   final bool sendNotifications;
   final bool wifiOnly;
+  final bool paused;
 
   const SettingsStateConnection({
     required this.alias,
@@ -17,7 +20,21 @@ final class SettingsStateConnection {
     this.insecure = false,
     this.sendNotifications = false,
     this.wifiOnly = false,
+    this.paused = false,
   });
+
+  @override
+  List<Object?> get props => [
+        alias,
+        site,
+        baseUrl,
+        username,
+        password,
+        insecure,
+        sendNotifications,
+        wifiOnly,
+        paused,
+      ];
 
   SettingsStateConnection copyWith({
     String? alias,
@@ -28,6 +45,7 @@ final class SettingsStateConnection {
     bool? insecure,
     bool? sendNotifications,
     bool? wifiOnly,
+    bool? paused,
   }) {
     return SettingsStateConnection(
       alias: alias ?? this.alias,
@@ -38,6 +56,7 @@ final class SettingsStateConnection {
       insecure: insecure ?? this.insecure,
       sendNotifications: sendNotifications ?? this.sendNotifications,
       wifiOnly: wifiOnly ?? this.wifiOnly,
+      paused: paused ?? this.paused,
     );
   }
 
@@ -50,6 +69,7 @@ final class SettingsStateConnection {
         'insecure': insecure,
         'send_notifications': sendNotifications,
         'wifi_only': wifiOnly,
+        'paused': paused,
       };
 
   factory SettingsStateConnection.fromJson(Map<String, dynamic> json) =>
@@ -62,10 +82,11 @@ final class SettingsStateConnection {
         insecure: json['insecure'] as bool? ?? false,
         sendNotifications: json['send_notifications'] as bool? ?? false,
         wifiOnly: json['wifi_only'] as bool? ?? false,
+        paused: json['paused'] as bool? ?? false,
       );
 }
 
-final class SettingsState {
+final class SettingsState extends Equatable {
   final List<SettingsStateConnection> connections;
   final String currentAlias;
   final bool isLightMode;
@@ -78,6 +99,14 @@ final class SettingsState {
     this.refreshSeconds = 30,
   });
 
+  @override
+  List<Object?> get props => [
+        connections,
+        currentAlias,
+        isLightMode,
+        refreshSeconds,
+      ];
+
   SettingsState copyWith({
     List<SettingsStateConnection>? connections,
     String? currentAlias,
@@ -85,7 +114,7 @@ final class SettingsState {
     int? refreshSeconds,
   }) {
     return SettingsState(
-      connections: connections ?? this.connections,
+      connections: connections?.toList(growable: false) ?? this.connections,
       currentAlias: currentAlias ?? this.currentAlias,
       isLightMode: isLightMode ?? this.isLightMode,
       refreshSeconds: refreshSeconds ?? this.refreshSeconds,
@@ -93,7 +122,8 @@ final class SettingsState {
   }
 
   Map<String, dynamic> toJson() => {
-        'connections': connections.map((value) => value.toJson()).toList(growable: false),
+        'connections':
+            connections.map((value) => value.toJson()).toList(growable: false),
         'currentAlias': currentAlias,
         'isLightMode': isLightMode,
         'refreshSeconds': refreshSeconds,

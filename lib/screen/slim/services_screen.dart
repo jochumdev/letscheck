@@ -7,28 +7,27 @@ import 'package:letscheck/providers/services/services_state.dart';
 import 'package:letscheck/widget/services_list_widget.dart';
 import 'package:letscheck/widget/site_stats_widget.dart';
 
-import 'package:letscheck/screen/slim/base_slim_screen.dart';
+import 'package:letscheck/screen/slim/slim_layout.dart';
 
 class ServicesScreen extends ConsumerStatefulWidget {
-  final String site;
+  final String alias;
   final String filter;
 
-  ServicesScreen({required this.site, required this.filter});
+  ServicesScreen({required this.alias, required this.filter});
 
   @override
   ServicesScreenState createState() => ServicesScreenState(
-        site: site,
+        alias: alias,
         filter: filter,
       );
 }
 
-class ServicesScreenState extends ConsumerState<ServicesScreen>
-    with BaseSlimScreenState {
-  final String site;
+class ServicesScreenState extends ConsumerState<ServicesScreen> {
+  final String alias;
   final String filter;
   late AliasAndFilterParams params;
 
-  ServicesScreenState({required this.site, required this.filter}) {
+  ServicesScreenState({required this.alias, required this.filter}) {
     var myFilters = <String>[];
     switch (filter) {
       case 'problems':
@@ -51,11 +50,10 @@ class ServicesScreenState extends ConsumerState<ServicesScreen>
         }
     }
 
-    params = AliasAndFilterParams(alias: site, filter: myFilters);
+    params = AliasAndFilterParams(alias: alias, filter: myFilters);
   }
 
-  @override
-  BaseSlimScreenSettings setup(BuildContext context) {
+  SlimLayoutSettings settings() {
     var title = 'Services';
     switch (filter) {
       case 'all':
@@ -65,32 +63,38 @@ class ServicesScreenState extends ConsumerState<ServicesScreen>
         title = "Services $filter";
     }
 
-    return BaseSlimScreenSettings(title, showMenu: false);
+    return SlimLayoutSettings(title, showMenu: false);
   }
 
   @override
-  Widget content(BuildContext context) {
+  Widget build(BuildContext context) {
     final services = ref.watch(servicesProvider(params));
 
     if (services is ServicesLoaded) {
-      return Column(
-        children: [
-          SiteStatsWidget(site: site),
-          Expanded(
-            child: ServicesListWidget(
-              alias: site,
-              services: services.services,
-              listKey: PageStorageKey('services_screen_$site'),
+      return SlimLayout(
+        layoutSettings: settings(),
+        child: Column(
+          children: [
+            SiteStatsWidget(alias: alias),
+            Expanded(
+              child: ServicesListWidget(
+                alias: alias,
+                services: services.services,
+                listKey: PageStorageKey('services_screen_$alias'),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     } else {
-      return Column(
-        children: [
-          SiteStatsWidget(site: site),
-          const Expanded(child: Center(child: CircularProgressIndicator())),
-        ],
+      return SlimLayout(
+        layoutSettings: settings(),
+        child: Column(
+          children: [
+            SiteStatsWidget(alias: alias),
+            const Expanded(child: Center(child: CircularProgressIndicator())),
+          ],
+        ),
       );
     }
   }

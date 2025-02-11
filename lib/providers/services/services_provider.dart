@@ -12,7 +12,8 @@ class ServicesNotifier extends StateNotifier<ServicesState> {
   final Ref ref;
   final AliasAndFilterParams params;
   Timer? _refreshTimer;
-  late ProviderSubscription<AsyncValue<cmk_api.ConnectionState?>> _connectionStateSubscription;
+  late ProviderSubscription<AsyncValue<cmk_api.ConnectionState?>>
+      _connectionStateSubscription;
 
   ServicesNotifier(this.ref, this.params) : super(const ServicesInitial()) {
     _init();
@@ -20,7 +21,8 @@ class ServicesNotifier extends StateNotifier<ServicesState> {
 
   Future<void> _init() async {
     // Listen to client state changes
-    _connectionStateSubscription = ref.listen(clientStateProvider(params.alias), (previous, next) {
+    _connectionStateSubscription =
+        ref.listen(clientStateProvider(params.alias), (previous, next) {
       if (next.hasValue && next.value == cmk_api.ConnectionState.connected) {
         _startRefreshTimer();
         _fetchData();
@@ -53,12 +55,15 @@ class ServicesNotifier extends StateNotifier<ServicesState> {
 
       final connectionData = ref.read(connectionDataProvider(params.alias));
       if (connectionData is ConnectionDataLoaded) {
-        final ids = getCommentIdsToFetch(state: connectionData, site: params.alias, services: services);
+        final ids = getCommentIdsToFetch(
+            state: connectionData, alias: params.alias, services: services);
         if (ids.isNotEmpty) {
-          ref.read(connectionDataProvider(params.alias).notifier).fetchComments(ids);
+          ref
+              .read(connectionDataProvider(params.alias).notifier)
+              .fetchComments(ids);
         }
       }
-      
+
       if (!mounted) return;
 
       state = ServicesLoaded(services: services);
@@ -73,7 +78,7 @@ class ServicesNotifier extends StateNotifier<ServicesState> {
   void _startRefreshTimer() {
     _refreshTimer?.cancel();
     final settings = ref.read(settingsProvider);
-    
+
     _refreshTimer = Timer.periodic(
       Duration(seconds: settings.refreshSeconds),
       (_) => _fetchData(),

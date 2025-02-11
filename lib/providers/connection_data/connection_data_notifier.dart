@@ -10,7 +10,8 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
   final Ref ref;
   final String alias;
   Timer? _refreshTimer;
-  late ProviderSubscription<AsyncValue<cmk_api.ConnectionState>> _connectionStateSubscription;
+  late ProviderSubscription<AsyncValue<cmk_api.ConnectionState>>
+      _connectionStateSubscription;
 
   ConnectionDataNotifier(this.ref, this.alias)
       : super(const ConnectionDataInitial()) {
@@ -19,7 +20,10 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
 
   Future<void> _init() async {
     // Listen to client state changes
-    _connectionStateSubscription = ref.listen(clientStateProvider(alias), (previous, next) async {
+    _connectionStateSubscription =
+        ref.listen(clientStateProvider(alias), (previous, next) async {
+      if (!mounted) return;
+
       if (next.hasValue && next.value == cmk_api.ConnectionState.connected) {
         _startRefreshTimer();
         await _fetchData();
@@ -30,7 +34,7 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
       }
     });
 
-    // Initial fetch
+    if (!mounted) return;
     await _fetchData();
   }
 
@@ -48,7 +52,7 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
     try {
       final stats = await client.getApiStatsTacticalOverview();
       final unhServices = await client.getApiServices(
-        filter: ['{"op": "!=", "left": "state", "right": "0"}']);
+          filter: ['{"op": "!=", "left": "state", "right": "0"}']);
 
       if (!mounted) return;
 
@@ -65,7 +69,10 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
           comments: const {},
         );
 
-        final ids = getCommentIdsToFetch(state: state as ConnectionDataLoaded, site: alias, services: unhServices);
+        final ids = getCommentIdsToFetch(
+            state: state as ConnectionDataLoaded,
+            alias: alias,
+            services: unhServices);
         if (ids.isNotEmpty) {
           fetchComments(ids);
         }
@@ -77,19 +84,20 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
   }
 
   Future<void> fetchComments(Set<int> ids) async {
-    if (state is! ConnectionDataLoaded) return;
-
     final client = ref.read(clientProvider(alias));
 
     try {
-      final allFilters = ids.map((id) => '{"op": "=", "left": "id", "right": "$id"}');
+      final allFilters =
+          ids.map((id) => '{"op": "=", "left": "id", "right": "$id"}');
       final filters = ['{"op": "or", "expr": [${allFilters.join(',')}]}'];
       final comments = await client.getApiComments(filter: filters);
-      
+
       if (!mounted) return;
+      if (state is! ConnectionDataLoaded) return;
 
       // Create a new map with existing comments
-      var result = Map<int, cmk_api.Comment>.from((state as ConnectionDataLoaded).comments);
+      var result = Map<int, cmk_api.Comment>.from(
+          (state as ConnectionDataLoaded).comments);
       // Add or update new comments
       for (var comment in comments) {
         result[comment.id] = comment;

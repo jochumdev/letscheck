@@ -10,7 +10,8 @@ class HostsNotifier extends StateNotifier<HostsState> {
   final Ref ref;
   final AliasAndFilterParams params;
   Timer? _refreshTimer;
-  late ProviderSubscription<AsyncValue<cmk_api.ConnectionState?>> _connectionStateSubscription;
+  late ProviderSubscription<AsyncValue<cmk_api.ConnectionState?>>
+      _connectionStateSubscription;
 
   HostsNotifier(this.ref, this.params) : super(const HostsInitial()) {
     _init();
@@ -18,7 +19,8 @@ class HostsNotifier extends StateNotifier<HostsState> {
 
   Future<void> _init() async {
     // Listen to client state changes
-    _connectionStateSubscription = ref.listen(clientStateProvider(params.alias), (previous, next) {
+    _connectionStateSubscription =
+        ref.listen(clientStateProvider(params.alias), (previous, next) {
       if (next.hasValue && next.value == cmk_api.ConnectionState.connected) {
         _startRefreshTimer();
         _fetchData();

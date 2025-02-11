@@ -3,12 +3,10 @@ import 'plugin.dart';
 
 final List<DarwinNotificationCategory> notificationCategories =
     <DarwinNotificationCategory>[
-
   DarwinNotificationCategory(
     darwinNotificationCategoryPlain,
     actions: <DarwinNotificationAction>[
       DarwinNotificationAction.plain('id_1', 'Show'),
-
     ],
     options: <DarwinNotificationCategoryOption>{
       DarwinNotificationCategoryOption.hiddenPreviewShowTitle,

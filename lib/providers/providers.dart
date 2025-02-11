@@ -43,14 +43,20 @@ final talkerDioLoggerProvider = Provider<TalkerDioLogger>((ref) {
 });
 
 final clientProvider = Provider.family<cmk_api.Client, String>((ref, alias) {
-  final settings = ref.watch(settingsProvider
-      .select((s) => s.connections.where((c) => c.alias == alias).single));
+  final allSettings = ref.watch(settingsProvider);
+  final settings =
+      allSettings.connections.where((c) => c.alias == alias).single;
 
   final talkerDioLogger = ref.read(talkerDioLoggerProvider);
 
   final client = cmk_api.Client(
     () {
-      final dio = Dio();
+      final dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
       dio.interceptors.add(
         talkerDioLogger,
       );
@@ -68,36 +74,42 @@ final clientProvider = Provider.family<cmk_api.Client, String>((ref, alias) {
   return client;
 });
 
+/// Provides the connection state for a specific client identified by [alias].
+///
+/// The state is determined by:
+/// - Network connectivity (WiFi vs Mobile/None)
+/// - Connection settings (WiFi only mode, paused state)
+/// - Current client state
+///
+/// Throws [StateError] if no connection with the given alias exists.
 final clientStateProvider =
     StreamProvider.family<cmk_api.ConnectionState, String>((ref, alias) {
-  final settings = ref.watch(settingsProvider
-      .select((s) => s.connections.where((c) => c.alias == alias).single));
+  final allSettings = ref.watch(settingsProvider);
+  final settings =
+      allSettings.connections.where((c) => c.alias == alias).single;
 
   var client = ref.watch(clientProvider(alias));
 
-  final connectionStateStream = client.connectionStateStream;
-
-  
-
   return Rx.combineLatest2(
-      connectionStateStream, ConnectivityService.onConnectivityChanged,
+      client.connectionStateStream, ConnectivityService.onConnectivityChanged,
       (state, connectivity) {
-    final isOnMobileOrNoConnection = connectivity.contains(ConnectivityResult.mobile) ||
-        connectivity.contains(ConnectivityResult.none);
+    final hasWifiConnection =
+        !connectivity.contains(ConnectivityResult.mobile) &&
+            !connectivity.contains(ConnectivityResult.none);
 
-    final paused = client.requestedConnectionState == cmk_api.ConnectionState.paused;
+    final shouldBePaused =
+        settings.paused || (settings.wifiOnly && !hasWifiConnection);
+    final isPaused =
+        client.requestedConnectionState == cmk_api.ConnectionState.paused ||
+            client.connectionState == cmk_api.ConnectionState.initial;
 
-    if (settings.wifiOnly) {
-      if (isOnMobileOrNoConnection && !paused) {
-        // Disconnect the client when we are on mobile and wifiOnly is true
-        client.pause(reason: 'Paused - not on WiFi');
-      } else if (!isOnMobileOrNoConnection && paused) {
-        // Connect the client when we are not on mobile and wifiOnly is true
-        client.connect();
-      }
-    } else if (state == cmk_api.ConnectionState.initial &&
-        client.requestedConnectionState == cmk_api.ConnectionState.connected) {
-      // Connect the client when the state is initial and we are not on wifi
+    // Handle connection state based on settings and network conditions
+    if (shouldBePaused) {
+      client.pause(
+          reason: settings.wifiOnly
+              ? 'Paused - This is Wifi Only'
+              : 'Paused by Settings');
+    } else if (isPaused) {
       client.connect();
     }
 
@@ -125,8 +137,8 @@ final searchProvider =
   return SearchNotifier(ref);
 });
 
-final packageInfoProvider = FutureProvider<PackageInfo>((ref) async {
-  return await PackageInfo.fromPlatform();
+final packageInfoProvider = Provider<PackageInfo>((ref) {
+  throw UnimplementedError('Initialize the provider in the app');
 });
 
 final javascriptRuntimeProvider = Provider<JavascriptRuntimeWrapper>((ref) {

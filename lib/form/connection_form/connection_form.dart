@@ -6,7 +6,6 @@ import 'package:letscheck/providers/providers.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 import 'package:letscheck/providers/settings/settings_state.dart';
-import 'package:talker_dio_logger/talker_dio_logger.dart';
 
 final connectionFormProvider = StateNotifierProvider.autoDispose
     .family<ConnectionFormNotifier, ConnectionFormState, String>((ref, alias) {
@@ -22,6 +21,7 @@ class ConnectionFormState {
   final bool insecure;
   final bool sendNotifications;
   final bool wifiOnly;
+  final bool paused;
   final String? error;
   final bool isSubmitting;
   final bool isValid;
@@ -36,6 +36,7 @@ class ConnectionFormState {
     this.insecure = false,
     this.sendNotifications = false,
     this.wifiOnly = false,
+    this.paused = false,
     this.error,
     this.isSubmitting = false,
     this.isValid = false,
@@ -51,6 +52,7 @@ class ConnectionFormState {
     bool? insecure,
     bool? sendNotifications,
     bool? wifiOnly,
+    bool? paused,
     String? error,
     bool? isSubmitting,
     bool? isValid,
@@ -65,6 +67,7 @@ class ConnectionFormState {
       insecure: insecure ?? this.insecure,
       sendNotifications: sendNotifications ?? this.sendNotifications,
       wifiOnly: wifiOnly ?? this.wifiOnly,
+      paused: paused ?? this.paused,
       error: error ?? this.error,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isValid: isValid ?? this.isValid,
@@ -98,6 +101,7 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
       insecure: connection.insecure,
       sendNotifications: connection.sendNotifications,
       wifiOnly: connection.wifiOnly,
+      paused: connection.paused,
       isEditing: true,
       isValid: true,
     );
@@ -138,14 +142,16 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
         ),
       );
 
-      try {
-        await client.testConnection();
-      } catch (e) {
-        state = state.copyWith(
-          error: e.toString(),
-          isSubmitting: false,
-        );
-        return false;
+      if (state.paused) {
+        try {
+          await client.testConnection();
+        } catch (e) {
+          state = state.copyWith(
+            error: e.toString(),
+            isSubmitting: false,
+          );
+          return false;
+        }
       }
 
       if (state.isEditing) {
@@ -165,6 +171,7 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
             insecure: state.insecure,
             sendNotifications: state.sendNotifications,
             wifiOnly: state.wifiOnly,
+            paused: state.paused,
           ),
         );
       } else {
@@ -179,6 +186,7 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
             insecure: state.insecure,
             sendNotifications: state.sendNotifications,
             wifiOnly: state.wifiOnly,
+            paused: state.paused,
           ),
         );
       }
@@ -219,15 +227,15 @@ class _ConnectionFormState extends ConsumerState<ConnectionForm> {
 
   FormGroup buildForm(ConnectionFormState state) {
     return FormGroup({
-      'site': FormControl<String>(
-        value: state.site,
+      'alias': FormControl<String>(
+        value: state.alias,
         validators: [
           Validators.required,
           Validators.pattern(r'[a-zA-Z0-9_-]+')
         ],
       ),
-      'alias': FormControl<String>(
-        value: state.alias,
+      'site': FormControl<String>(
+        value: state.site,
         validators: [
           Validators.required,
           Validators.pattern(r'[a-zA-Z0-9_-]+')
@@ -260,6 +268,9 @@ class _ConnectionFormState extends ConsumerState<ConnectionForm> {
       ),
       'wifiOnly': FormControl<bool>(
         value: state.wifiOnly,
+      ),
+      'paused': FormControl<bool>(
+        value: state.paused,
       ),
     });
   }
@@ -363,6 +374,11 @@ class _ConnectionFormState extends ConsumerState<ConnectionForm> {
             subtitle:
                 const Text('Only connect to Checkmk when Wi-Fi is available'),
           ),
+          ReactiveSwitchListTile(
+            formControlName: 'paused',
+            title: const Text('Pause the connection'),
+            subtitle: const Text('Do not connect to Checkmk'),
+          ),
           if (formState.error != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
@@ -408,6 +424,8 @@ class _ConnectionFormState extends ConsumerState<ConnectionForm> {
                                   wifiOnly:
                                       currentValues['wifiOnly'] as bool? ??
                                           false,
+                                  paused:
+                                      currentValues['paused'] as bool? ?? false,
                                   isValid: true,
                                   isEditing: formState.isEditing,
                                 ));
