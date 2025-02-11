@@ -19,7 +19,7 @@ class HostsNotifier extends StateNotifier<HostsState> {
   Future<void> _init() async {
     // Listen to client state changes
     _connectionStateSubscription = ref.listen(clientStateProvider(params.alias), (previous, next) {
-      if (next.value == cmk_api.ConnectionState.connected) {
+      if (next.hasValue && next.value == cmk_api.ConnectionState.connected) {
         _startRefreshTimer();
         _fetchData();
       } else {

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,7 +37,10 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
   void _saveState() {
     _prefs.setString('settings', jsonEncode(state.toJson()));
-    background_service.sendSettings(state);
+
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      background_service.sendSettings(state);
+    }
   }
 
   Future<void> setTheme(bool lightMode) async {

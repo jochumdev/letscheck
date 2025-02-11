@@ -39,34 +39,42 @@ final clientProvider = Provider.family<cmk_api.Client, String>((ref, alias) {
 final clientStatesProvider =
     StreamProvider.family<cmk_api.ConnectionState, String>((ref, alias) {
   final client = ref.watch(clientProvider(alias));
-
-  return client.connectionState;
+  return client.connectionStateStream;
 });
 
 final clientStateProvider =
-    StreamProvider.family<cmk_api.ConnectionState?, String>((ref, alias) async* {
+    StreamProvider.family<cmk_api.ConnectionState, String>((ref, alias) async* {
   final settings = ref.watch(settingsProvider
       .select((s) => s.connections.where((c) => c.alias == alias).single));
 
+  ref.watch(clientStatesProvider(alias));
+
   final client = ref.watch(clientProvider(alias));
   final connectivity = await ref.watch(connectivityProvider.future);
-  final currentState = ref.watch(clientStatesProvider(alias));
+  final currentState = client.currentState;
 
   if (settings.wifiOnly) {
     // Disconnect the client when we are on mobile and wifiOnly is true
-    if (currentState.value == cmk_api.ConnectionState.connected &&
+    if (currentState == cmk_api.ConnectionState.connected &&
         (connectivity.contains(ConnectivityResult.mobile) ||
             connectivity.contains(ConnectivityResult.none))) {
       client.disconnect(reason: cmk_api.BaseException(message: "Not on WiFi"));
-    } else if (currentState.value != cmk_api.ConnectionState.connected && currentState.value != cmk_api.ConnectionState.connecting) {
-      // Reconnect when the Wifi comes back.
-      await client.reconnect();
+    } else if (currentState == cmk_api.ConnectionState.disconnected || currentState == cmk_api.ConnectionState.error) {
+      try {
+        await client.connect();
+      } catch (_) {
+        // Ignore.
+      }
     } 
-  } else if (currentState.value != cmk_api.ConnectionState.connected && currentState.value != cmk_api.ConnectionState.connecting) {
-    await client.reconnect();
+  } else if (currentState == cmk_api.ConnectionState.disconnected || currentState == cmk_api.ConnectionState.error) {
+      try {
+        await client.connect();
+      } catch (_) {
+        // Ignore.
+      }
   }
 
-  yield currentState.value;
+  yield currentState;
 });
 
 final connectionDataProvider = StateNotifierProvider.family<

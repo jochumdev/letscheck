@@ -20,8 +20,7 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
   Future<void> _init() async {
     // Listen to client state changes
     _connectionStateSubscription = ref.listen(clientStateProvider(alias), (previous, next) async {
-      print('${alias}: ${next.value}');
-      if (next.value == cmk_api.ConnectionState.connected) {
+      if (next.hasValue && next.value == cmk_api.ConnectionState.connected) {
         _startRefreshTimer();
         await _fetchData();
       } else {
@@ -84,8 +83,9 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
     final client = ref.read(clientProvider(alias));
 
     try {
-      final filter = ids.map((id) => '{"op": "=", "left": "id", "right": "$id"}').toList();
-      final comments = await client.getApiComments(filter: filter);
+      final allFilters = ids.map((id) => '{"op": "=", "left": "id", "right": "$id"}');
+      final filters = ['{"op": "or", "expr": [${allFilters.join(',')}]}'];
+      final comments = await client.getApiComments(filter: filters);
       
       if (!mounted) return;
 

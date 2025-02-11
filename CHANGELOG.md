@@ -2,6 +2,7 @@
 ## Unreleased
 ### Added
 - rework connection handling
+- rework connection handling, pt2
 
 ## 0.2.0+1272 - 2025-02-08
 ### Added

@@ -174,8 +174,6 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
 
       state = state.copyWith(error: e.toString(), isSubmitting: false);
       return false;
-    } finally {
-      state = state.copyWith(isSubmitting: false);
     }
   }
 

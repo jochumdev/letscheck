@@ -174,7 +174,6 @@ Future<void> sendNotificationsForConnection(
     for (var event in events) {
       final key =
           '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
-      print(key);
       if (!aliasKnown.containsKey(key)) {
         sendLogNotification(conn: conn, log: event);
         aliasKnown[key] = event.time;

@@ -54,11 +54,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     }
 
     return DefaultTabController(
-      length: settings.connections.length,
+      length: _params!.length,
       child: TabControllerListener(
         onTabSelected: (int index) {
           ref.read(settingsProvider.notifier).setCurrentSite(
-                settings.connections[index].alias,
+                _params![index].alias,
               );
         },
         child: TabBarView(
