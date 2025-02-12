@@ -212,7 +212,7 @@ class _AppState extends ConsumerState<App> with TrayListener {
 
   @override
   Widget build(BuildContext context) {
-    final settings = ref.watch(settingsProvider);
+    final isLightMode = ref.watch(settingsProvider.select((s) => s.isLightMode));
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
@@ -221,7 +221,7 @@ class _AppState extends ConsumerState<App> with TrayListener {
       title: 'LetsCheck',
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: settings.isLightMode ? ThemeMode.light : ThemeMode.dark,
+      themeMode: isLightMode ? ThemeMode.light : ThemeMode.dark,
     );
   }
 

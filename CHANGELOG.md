@@ -7,6 +7,7 @@
 - rework connection handling, pt4
 - little work on the theme.
 - improve themeing, add floating action button
+- use a FutureProvider for the client
 
 ### Fixed
 - smaller fixes

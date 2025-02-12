@@ -42,7 +42,7 @@ final talkerDioLoggerProvider = Provider<TalkerDioLogger>((ref) {
   );
 });
 
-final clientProvider = Provider.family<cmk_api.Client, String>((ref, alias) {
+final clientProvider = FutureProvider.family<cmk_api.Client, String>((ref, alias) {
   final allSettings = ref.watch(settingsProvider);
   final settings =
       allSettings.connections.where((c) => c.alias == alias).single;
@@ -83,14 +83,14 @@ final clientProvider = Provider.family<cmk_api.Client, String>((ref, alias) {
 ///
 /// Throws [StateError] if no connection with the given alias exists.
 final clientStateProvider =
-    StreamProvider.family<cmk_api.ConnectionState, String>((ref, alias) {
+    StreamProvider.family<cmk_api.ConnectionState, String>((ref, alias) async* {
   final allSettings = ref.watch(settingsProvider);
   final settings =
       allSettings.connections.where((c) => c.alias == alias).single;
 
-  var client = ref.watch(clientProvider(alias));
+  var client = await ref.watch(clientProvider(alias).future);
 
-  return Rx.combineLatest2(
+  yield* Rx.combineLatest2(
       client.connectionStateStream, ConnectivityService.onConnectivityChanged,
       (state, connectivity) {
     final hasWifiConnection =

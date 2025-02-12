@@ -31,7 +31,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
       if (part.isEmpty) continue;
 
       for (var alias in settings.connections.map((c) => c.alias)) {
-        final client = ref.read(clientProvider(alias));
+        final client = await ref.read(clientProvider(alias).future);
         final clientState = ref.read(clientStateProvider(alias));
 
         if (!mounted) return;

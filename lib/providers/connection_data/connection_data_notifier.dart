@@ -28,7 +28,7 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
         _startRefreshTimer();
         await _fetchData();
       } else {
-        final client = ref.read(clientProvider(alias));
+        final client = await ref.read(clientProvider(alias).future);
         _refreshTimer?.cancel();
         state = ConnectionDataError(error: client.error());
       }
@@ -41,7 +41,7 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
   Future<void> _fetchData() async {
     if (!mounted) return;
 
-    final client = ref.read(clientProvider(alias));
+    final client = await ref.read(clientProvider(alias).future);
 
     if (client.connectionState != cmk_api.ConnectionState.connected) {
       if (!mounted) return;
@@ -84,7 +84,7 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
   }
 
   Future<void> fetchComments(Set<int> ids) async {
-    final client = ref.read(clientProvider(alias));
+    final client = await ref.read(clientProvider(alias).future);
 
     try {
       final allFilters =

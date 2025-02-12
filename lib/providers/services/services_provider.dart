@@ -22,12 +22,12 @@ class ServicesNotifier extends StateNotifier<ServicesState> {
   Future<void> _init() async {
     // Listen to client state changes
     _connectionStateSubscription =
-        ref.listen(clientStateProvider(params.alias), (previous, next) {
+        ref.listen(clientStateProvider(params.alias), (previous, next) async {
       if (next.hasValue && next.value == cmk_api.ConnectionState.connected) {
         _startRefreshTimer();
-        _fetchData();
+        await _fetchData();
       } else {
-        final client = ref.read(clientProvider(params.alias));
+        final client = await ref.read(clientProvider(params.alias).future);
         _refreshTimer?.cancel();
         state = ServicesError(error: client.error());
       }
@@ -39,7 +39,7 @@ class ServicesNotifier extends StateNotifier<ServicesState> {
   Future<void> _fetchData() async {
     if (!mounted) return;
 
-    final client = ref.read(clientProvider(params.alias));
+    final client = await ref.read(clientProvider(params.alias).future);
     final clientState = ref.read(clientStateProvider(params.alias));
 
     if (clientState.value != cmk_api.ConnectionState.connected) {

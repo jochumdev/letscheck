@@ -49,7 +49,7 @@ class SlimLayout extends ConsumerWidget {
     final connectionNames = ref.read(
         settingsProvider.select((s) => s.connections.map((c) => c.alias)));
     for (final alias in connectionNames) {
-      final client = ref.read(clientProvider(alias));
+      final client = await ref.read(clientProvider(alias).future);
       if (client.requestedConnectionState != cmk_api.ConnectionState.paused) {
         await client.connect();
       }
