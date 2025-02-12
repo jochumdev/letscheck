@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Fixed
+- always use the last fetch data in background\_service
+
 ## 0.2.1+1273 - 2025-02-12
 ### Added
 - rework connection handling

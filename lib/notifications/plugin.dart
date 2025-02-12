@@ -158,7 +158,7 @@ var knownNotifications = <String, Map<String, DateTime>>{};
 Future<void> sendNotificationsForConnection(
     {required String conn,
     required cmk_api.Client client,
-    required int refreshSeconds}) async {
+    required DateTime lastFetch}) async {
   try {
     await _notificationsLock.acquire();
 
@@ -167,9 +167,10 @@ Future<void> sendNotificationsForConnection(
     }
     var aliasKnown = knownNotifications[conn]!;
 
-    final events = await client.getViewEvents(fromSecs: refreshSeconds);
+    final secs = ((DateTime.now().millisecondsSinceEpoch - lastFetch.millisecondsSinceEpoch) / 1000).round();
+    final events = await client.getViewEvents(fromSecs: secs);
     print(
-        "Found ${events.length} notifications for $conn within $refreshSeconds seconds");
+        "Found ${events.length} notifications for $conn within $secs seconds");
 
     for (var event in events) {
       final key =
@@ -181,7 +182,7 @@ Future<void> sendNotificationsForConnection(
     }
 
     var toOld = DateTime.now().toUtc().subtract(
-          Duration(seconds: refreshSeconds),
+          Duration(seconds: secs),
         );
     var toRemove = [];
     for (var key in aliasKnown.keys) {

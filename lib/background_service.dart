@@ -67,8 +67,9 @@ Timer? timer;
 var refreshSeconds = 60;
 var clients = <String, cmk_api.Client>{};
 var cSettings = <String, SettingsStateConnection>{};
+var cLastFetch = <String, DateTime>{};
 
-void _fetchAndRunNotificiations(Timer? timer) async {
+Future<void> _fetchAndRunNotificiations() async {
   try {
     mutex!.acquire();
 
@@ -85,7 +86,7 @@ void _fetchAndRunNotificiations(Timer? timer) async {
           sendNotificationsForConnection(
             conn: alias,
             client: client,
-            refreshSeconds: refreshSeconds,
+            lastFetch: cLastFetch[alias]!,
           );
         }
       }
@@ -108,7 +109,7 @@ void onStart(ServiceInstance service) async {
       // Create new timer.
       timer = Timer.periodic(
         Duration(seconds: refreshSeconds),
-        _fetchAndRunNotificiations,
+        (_) async => await _fetchAndRunNotificiations(),
       );
     } finally {
       mutex!.release();
@@ -164,6 +165,8 @@ void onStart(ServiceInstance service) async {
 
             clients[s.alias] = client;
             cSettings[s.alias] = s;
+            cLastFetch[s.alias] =
+                DateTime.now().subtract(Duration(seconds: refreshSeconds));
           }
         }
       }
@@ -173,12 +176,12 @@ void onStart(ServiceInstance service) async {
         timer?.cancel();
 
         // Fetch now, the timer fetches then again later.
-        _fetchAndRunNotificiations(timer);
+        await _fetchAndRunNotificiations();
 
         // Create new timer.
         timer = Timer.periodic(
           Duration(seconds: refreshSeconds),
-          _fetchAndRunNotificiations,
+          (_) async => await _fetchAndRunNotificiations(),
         );
       }
     } finally {
