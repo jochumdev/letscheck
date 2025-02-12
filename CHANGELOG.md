@@ -1,5 +1,5 @@
 # LetsCheck
-## Unreleased
+## 0.2.1+1273 - 2025-02-12
 ### Added
 - rework connection handling
 - rework connection handling, pt2
