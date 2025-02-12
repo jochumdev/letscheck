@@ -12,6 +12,10 @@ LetsCheck is a Checkmk client for Android, iOS, Linux, Mac OS-X and Windows writ
 - Notifications
 - Search Hosts/Services, use the | symbol to seperated multiple searches
 
+## Intodruction and new release notes
+
+See the [Checkmk forums](https://forum.checkmk.com/t/letscheck-a-checkmk-client-with-notifications-for-mobile-and-desktop/52088)
+
 ## Download
 
 Get it from [Github Releases](https://github.com/jochumdev/letscheck/releases)
@@ -19,10 +23,6 @@ Get it from [Github Releases](https://github.com/jochumdev/letscheck/releases)
 ## Demo:
 
 ![image](docs/videos/letscheck_v0.0.1-rc1.webp)
-
-## Preview:
-
-[Available as PWA](https://jochumdev.github.io/letscheck/pwa/) **important** you need proper CORS Headers on you'r Checkmk proxy for a connection to work.
 
 ## FAQ
 
