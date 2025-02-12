@@ -139,7 +139,9 @@ Future<void> main() async {
               ? 'io.github.jochumdev.letscheck'
               : 'assets/icons/letscheck.png',
     );
-    await trayManager.setTitle("LetsCheck");
+    if (!Platform.isWindows) {
+      await trayManager.setTitle("LetsCheck");
+    }
 
     Menu menu = Menu(
       items: [
