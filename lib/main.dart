@@ -219,8 +219,8 @@ class _AppState extends ConsumerState<App> with TrayListener {
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       title: 'LetsCheck',
-      theme: buildLightTheme(),
-      darkTheme: buildDarkTheme(),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       themeMode: settings.isLightMode ? ThemeMode.light : ThemeMode.dark,
     );
   }

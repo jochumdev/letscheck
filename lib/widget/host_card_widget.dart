@@ -9,7 +9,7 @@ class HostCardWidget extends StatelessWidget {
   final String alias;
   final cmk_api.Host host;
 
-  HostCardWidget({super.key, required this.alias, required this.host});
+  const HostCardWidget({super.key, required this.alias, required this.host});
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +41,17 @@ class HostCardWidget extends StatelessWidget {
           ),
           Expanded(
             flex: 20,
-            child: SelectableText(host.hostName!),
+            child: SelectableText(
+              host.hostName!,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
           ),
           Expanded(
             flex: 2,
             child: IconButton(
               onPressed: () {
-                context
-                    .push('/conn/$alias/host/${Uri.encodeComponent(host.hostName!)}');
+                context.push(
+                    '/conn/$alias/host/${Uri.encodeComponent(host.hostName!)}');
               },
               tooltip: "Goto host",
               icon: Icon(

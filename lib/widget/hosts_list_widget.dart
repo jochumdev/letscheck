@@ -7,7 +7,7 @@ class HostsListWidget extends StatelessWidget {
   final List<cmk_api.Host> hosts;
   final Key? listKey;
 
-  HostsListWidget({required this.alias, required this.hosts, this.listKey});
+  const HostsListWidget({required this.alias, required this.hosts, this.listKey});
 
   @override
   Widget build(BuildContext context) {

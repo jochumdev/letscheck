@@ -5,6 +5,7 @@
 - rework connection handling, pt2
 - intodruce talker, rework connection handling, pt3
 - rework connection handling, pt4
+- little work on the theme.
 
 ### Fixed
 - smaller fixes

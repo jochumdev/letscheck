@@ -60,6 +60,7 @@ dependencies:
   talker_dio_logger: ^4.6.11
   dio: ^5.8.0+1
   rxdart: ^0.28.0
+  flex_color_scheme: ^8.1.0
 
 dev_dependencies:
   lints: ^5.0.0

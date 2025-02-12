@@ -42,7 +42,10 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
               ),
               Expanded(
                 flex: 20,
-                child: SelectableText(groupName),
+                child: SelectableText(
+                  groupName,
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
               ),
               Expanded(
                 flex: 2,
@@ -125,17 +128,19 @@ class ServicesGroupedCardWidget extends ConsumerWidget {
             Expanded(
               flex: 3,
               child: Padding(
-                  padding: const EdgeInsets.only(left: 5),
-                  child: SelectableText(
-                      '@${comment!.author}\n${comment.entryTime}',
-                      style: Theme.of(context).textTheme.bodySmall)),
+                padding: const EdgeInsets.only(left: 5),
+                child: SelectableText(
+                    '@${comment!.author}\n${comment.entryTime}',
+                    style: Theme.of(context).textTheme.labelLarge),
+              ),
             ),
             Expanded(
               flex: 6,
               child: Padding(
-                  padding: const EdgeInsets.only(right: 5),
-                  child: SelectableText(comment.comment!,
-                      style: Theme.of(context).textTheme.labelMedium)),
+                padding: const EdgeInsets.only(right: 5),
+                child: SelectableText(comment.comment!,
+                    style: Theme.of(context).textTheme.labelMedium),
+              ),
             ),
           ]));
         }

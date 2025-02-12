@@ -67,7 +67,7 @@ class ServicesNotifier extends StateNotifier<ServicesState> {
       if (!mounted) return;
 
       state = ServicesLoaded(services: services);
-    } on cmk_api.NetworkException catch (e) {
+    } on cmk_api.BaseException catch (e) {
       if (!mounted) return;
       state = ServicesError(
         error: e,
