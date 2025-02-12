@@ -141,7 +141,7 @@ class SiteStatsWidget extends ConsumerWidget {
                     ),
                     IconButton(
                       onPressed: () {
-                        context.push('/settings/connection/conn/$alias');
+                        context.push('/settings/connection/$alias');
                       },
                       tooltip: 'Edit connection Details',
                       icon: Icon(Icons.settings_input_component,

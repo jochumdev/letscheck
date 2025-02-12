@@ -6,6 +6,9 @@
 - intodruce talker, rework connection handling, pt3
 - rework connection handling, pt4
 
+### Fixed
+- smaller fixes
+
 ## 0.2.0+1272 - 2025-02-08
 ### Added
 - upgrade check\_mk\_api, it's now using final classes

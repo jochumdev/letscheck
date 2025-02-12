@@ -106,9 +106,9 @@ final clientStateProvider =
     // Handle connection state based on settings and network conditions
     if (shouldBePaused) {
       client.pause(
-          reason: settings.wifiOnly
-              ? 'Paused - This is Wifi Only'
-              : 'Paused by Settings');
+          reason: settings.paused
+              ? 'Paused by Settings'
+              : 'Paused - This is Wifi Only');
     } else if (isPaused) {
       client.connect();
     }

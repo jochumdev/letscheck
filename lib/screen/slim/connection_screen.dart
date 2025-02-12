@@ -18,7 +18,7 @@ class ConnectionScreen extends ConsumerStatefulWidget {
 
 class ConnectionScreenState extends ConsumerState<ConnectionScreen> {
   SlimLayoutSettings layoutSettings() {
-    return SlimLayoutSettings('${widget.alias}', showSettings: true);
+    return SlimLayoutSettings(widget.alias, showSettings: true);
   }
 
   @override

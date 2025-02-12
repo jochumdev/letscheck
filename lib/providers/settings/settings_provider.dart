@@ -91,7 +91,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     _saveState();
   }
 
-  Future<void> setCurrentSite(String alias) async {
+  Future<void> setCurrentAlias(String alias) async {
     if (!hasConnection(alias)) {
       throw StateError('Connection with alias $alias does not exist');
     }

@@ -6,7 +6,8 @@ import 'package:letscheck/providers/providers.dart';
 import 'package:letscheck/screen/slim/slim_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final connections = ref.watch(settingsProvider.select((s) => s.connections));
+  final settings = ref.watch(settingsProvider);
+  final connections = settings.connections;
   final noConnection = connections.isEmpty;
   ref.keepAlive(); // Keep the router instance alive between rebuilds
 
@@ -21,7 +22,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (noConnection) {
         return '/settings/connection/+';
       } else if (state.uri.toString() == '/') {
-        return '/conn/${connections.first.alias}';
+        if (settings.currentAlias.isEmpty) {
+          return '/conn/${connections.first.alias}';
+        } else {
+          return '/conn/${settings.currentAlias}';
+        }
       }
       return null;
     },
