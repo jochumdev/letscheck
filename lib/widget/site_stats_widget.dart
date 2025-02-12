@@ -137,7 +137,7 @@ class SiteStatsWidget extends ConsumerWidget {
                       tooltip: hasFilters ? 'Edit' : 'Edit, no filters yet',
                       icon: Icon(Icons.filter_list,
                           size: 14,
-                          color: hasFilters ? Colors.yellow : Colors.green),
+                          color: hasFilters ? Colors.yellow : Theme.of(context).colorScheme.primary),
                     ),
                     IconButton(
                       onPressed: () {
@@ -148,7 +148,7 @@ class SiteStatsWidget extends ConsumerWidget {
                           size: 14,
                           color: clientState.valueOrNull ==
                                   cmk_api.ConnectionState.connected
-                              ? Colors.green
+                              ? Theme.of(context).colorScheme.primary
                               : Colors.red),
                     ),
                   ],

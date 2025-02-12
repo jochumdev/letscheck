@@ -6,6 +6,7 @@
 - intodruce talker, rework connection handling, pt3
 - rework connection handling, pt4
 - little work on the theme.
+- improve themeing, add floating action button
 
 ### Fixed
 - smaller fixes

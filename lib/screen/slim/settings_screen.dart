@@ -43,8 +43,8 @@ class SettingsScreenState extends ConsumerState<SettingsScreen> {
         subtitle: Text(cSettings.baseUrl),
         leading: Icon(Icons.settings_input_component,
             color: clientState.value == cmk_api.ConnectionState.connected
-                ? Colors.green
-                : Colors.red),
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.error),
         trailing: IconButton(
             onPressed: () => settingsNotifier.deleteConnection(cSettings),
             icon: Icon(Icons.delete, color: Colors.red)),
@@ -218,6 +218,18 @@ class SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ],
           ),
+          SettingsSection(
+            title: Text('Debug'),
+            tiles: [
+              SettingsTile(
+                title: Text('Logs'),
+                leading: Icon(Icons.list),
+                onPressed: (ctx) async {
+                  context.push('/logs');
+                },
+              ),
+            ],
+          ),          
           CustomSettingsSection(
             child: Column(
               children: [

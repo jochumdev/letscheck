@@ -39,10 +39,6 @@ class SettingsConnectionScreenState
 
   @override
   Widget build(BuildContext context) {
-    var titleColor = Theme.of(context).brightness == Brightness.dark
-        ? Color.fromRGBO(211, 227, 253, 1)
-        : Color.fromRGBO(11, 87, 208, 1);
-
     return SlimLayout(
       layoutSettings: settings(),
       child: SettingsList(
@@ -53,13 +49,6 @@ class SettingsConnectionScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    alias != '+' ? 'Connection: $alias' : 'Add Connection',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall!
-                        .copyWith(color: titleColor),
-                  ),
                   ConnectionForm(alias: alias)
                 ],
               ),

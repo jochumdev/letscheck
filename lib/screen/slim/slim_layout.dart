@@ -1,8 +1,9 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
 import 'dart:io' if (kIsWeb) 'package:web/web.dart' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -105,59 +106,56 @@ class SlimLayout extends ConsumerWidget {
       );
     }
 
-    var actions = <Widget>[];
-    if (layoutSettings.showLogs) {
-      actions.add(IconButton(
-        icon: Icon(Icons.list),
-        tooltip: "Logs",
-        onPressed: () async {
-          context.push('/logs');
-        },
-      ));
-    }
-
-    if (layoutSettings.showRefresh) {
-      actions.add(IconButton(
-        icon: Icon(Icons.refresh),
-        tooltip: "Refresh",
-        onPressed: () async {
-          await refreshAction(context, ref);
-        },
-      ));
-    }
-
-    if (layoutSettings.showSettings) {
-      actions.add(IconButton(
-        icon: Icon(Icons.settings),
-        tooltip: "Settings",
-        onPressed: () {
-          context.push('/settings');
-        },
-      ));
-    }
-
-    if (layoutSettings.showSearch) {
-      actions.add(IconButton(
-        icon: Icon(Icons.search),
-        tooltip: "Search",
-        onPressed: () {
-          showSearch(context: context, delegate: CustomSearchDelegate());
-        },
-      ));
-    }
-
     final talker = ref.read(talkerProvider);
 
     return Scaffold(
       key: _scaffoldKey,
       drawer: drawer,
+      floatingActionButtonLocation: ExpandableFab.location,
+      floatingActionButton: ExpandableFab(
+        openButtonBuilder: RotateFloatingActionButtonBuilder(
+          child: const Icon(Icons.add),
+        ),
+        // type: ExpandableFabType.up,
+        childrenAnimation: ExpandableFabAnimation.none,
+        // distance: 70,
+        children: [
+          FloatingActionButton.small(
+            heroTag: null,
+            onPressed: () async {
+              context.push('/settings');
+            },
+            child: const Icon(Icons.settings),
+          ),
+          FloatingActionButton.small(
+            heroTag: null,
+            onPressed: () async {
+              await refreshAction(context, ref);
+            },
+            child: const Icon(Icons.refresh),
+          ),
+          if (kDebugMode)
+            FloatingActionButton.small(
+              heroTag: null,
+              onPressed: () async {
+                context.push('/logs');
+              },
+              child: const Icon(Icons.list),
+            ),
+          FloatingActionButton.small(
+            heroTag: null,
+            onPressed: () =>
+                showSearch(context: context, delegate: CustomSearchDelegate()),
+            child: const Icon(Icons.search),
+          ),
+        ],
+      ),
       appBar: AppBar(
         elevation: 0.0,
         titleSpacing:
             layoutSettings.showLeading ? NavigationToolbar.kMiddleSpacing : 0.0,
         title: Text(layoutSettings.title),
         leading: layoutSettings.showLeading ? leading : null,
-        actions: actions,
       ),
       body: RefreshIndicator(
         onRefresh: () => refreshAction(context, ref),
