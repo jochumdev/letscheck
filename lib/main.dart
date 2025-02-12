@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart'
     show kIsWeb, LicenseRegistry, LicenseEntryWithLineBreaks;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:letscheck/javascript/javascript.dart';
+import 'package:letscheck/platform_interfaces/javascript/javascript.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:letscheck/providers/providers.dart';

@@ -9,7 +9,7 @@ import 'package:dio/dio.dart';
 
 import 'package:checkmk_api/checkmk_api.dart' as cmk_api;
 
-import 'package:letscheck/javascript/javascript.dart';
+import 'package:letscheck/platform_interfaces/javascript/javascript.dart';
 import 'package:letscheck/providers/connection_data/connection_data_notifier.dart';
 import 'package:letscheck/providers/connection_data/connection_data_state.dart';
 import 'package:letscheck/providers/hosts/hosts_provider.dart';
