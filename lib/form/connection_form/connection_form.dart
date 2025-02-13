@@ -142,10 +142,10 @@ class ConnectionFormNotifier extends StateNotifier<ConnectionFormState> {
         ),
       );
 
-      if (state.paused) {
+      if (!state.paused) {
         try {
           await client.testConnection();
-        } catch (e) {
+        } on cmk_api.BaseException catch (e) {
           state = state.copyWith(
             error: e.toString(),
             isSubmitting: false,

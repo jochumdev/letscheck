@@ -29,6 +29,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       final stateMap = jsonDecode(stateJson) as Map<String, dynamic>;
       try {
         state = SettingsState.fromJson(stateMap);
+        background_service.sendSettings(state);
       } catch (e) {
         // Ignore.
       }
@@ -38,9 +39,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   void _saveState() {
     _prefs.setString('settings', jsonEncode(state.toJson()));
 
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      background_service.sendSettings(state);
-    }
+    background_service.sendSettings(state);
   }
 
   Future<void> setTheme(bool lightMode) async {

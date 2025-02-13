@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
+import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -17,40 +18,81 @@ import 'package:letscheck/notifications/android.dart' as android;
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+class MethodCall {
+  final String method;
+  final Map<String, dynamic>? args;
+
+  MethodCall(this.method, this.args);
+}
+
+class SameThreadService implements ServiceInstance {
+  static SameThreadService instance = SameThreadService._internal();
+  final StreamController<MethodCall?> _controller =
+      StreamController.broadcast(sync: true);
+
+  SameThreadService._internal();
+
+  Future<void> configure(
+      {required dynamic Function(ServiceInstance service) onStart}) async {
+    await onStart(instance);
+  }
+
+  @override
+  void invoke(String method, [Map<String, dynamic>? args]) {
+    _controller.add(MethodCall(method, args));
+  }
+
+  @override
+  Stream<Map<String, dynamic>?> on(String method) {
+    return _controller.stream
+        .where((event) => event?.method == method)
+        .asyncMap((event) => event?.args);
+  }
+
+  @override
+  Future<void> stopSelf() async {}
+}
+
 Future<void> initialize() async {
-  final service = FlutterBackgroundService();
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    /// OPTIONAL, using custom notification channel id
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      android.notificationChannelId, // id
+      'LetsCheck', // title
+      description:
+          'This channel is used for important notifications.', // description
+      importance: Importance.low, // importance must be at least 'low'
+    );
 
-  /// OPTIONAL, using custom notification channel id
-  const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    android.notificationChannelId, // id
-    'LetsCheck', // title
-    description:
-        'This channel is used for important notifications.', // description
-    importance: Importance.low, // importance must be at least 'low'
-  );
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
 
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
+    final service = FlutterBackgroundService();
+    await service.configure(
+      iosConfiguration: IosConfiguration(
+        autoStart: true,
+        onForeground: onStart,
+        onBackground: onIosBackground,
+      ),
+      androidConfiguration: AndroidConfiguration(
+        autoStart: true,
+        onStart: onStart,
+        foregroundServiceTypes: [AndroidForegroundType.specialUse],
+        isForegroundMode: kDebugMode,
+        autoStartOnBoot: true,
+        notificationChannelId: android.notificationChannelId,
+        initialNotificationContent: "Fetching notifications",
+        foregroundServiceNotificationId: 1234,
+      ),
+    );
 
-  await service.configure(
-    iosConfiguration: IosConfiguration(
-      autoStart: true,
-      onForeground: onStart,
-      onBackground: onIosBackground,
-    ),
-    androidConfiguration: AndroidConfiguration(
-      autoStart: true,
-      onStart: onStart,
-      foregroundServiceTypes: [AndroidForegroundType.specialUse],
-      isForegroundMode: kDebugMode,
-      autoStartOnBoot: true,
-      notificationChannelId: android.notificationChannelId,
-      initialNotificationContent: "Fetching notifications",
-      foregroundServiceNotificationId: 1234,
-    ),
-  );
+    service.startService();
+  } else {
+    final service = SameThreadService.instance;
+    await service.configure(onStart: onStart);
+  }
 }
 
 @pragma('vm:entry-point')
@@ -83,8 +125,8 @@ Future<void> _fetchAndRunNotificiations() async {
 
           final client = clients[alias]!;
 
-          sendNotificationsForConnection(
-            conn: alias,
+          await sendNotificationsForConnection(
+            alias: alias,
             client: client,
             lastFetch: cLastFetch[alias]!,
           );
@@ -195,13 +237,26 @@ void sendSettings(SettingsState state) async {
   settings['refresh_seconds'] = state.refreshSeconds;
   settings['connections'] =
       List<Map<String, dynamic>>.from(state.connections.map((c) => c.toJson()));
-  FlutterBackgroundService().invoke('settings', settings);
+
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    FlutterBackgroundService().invoke('settings', settings);
+  } else {
+    SameThreadService.instance.invoke('settings', settings);
+  }
 }
 
 void start() {
-  FlutterBackgroundService().invoke('start');
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    FlutterBackgroundService().invoke('start');
+  } else {
+    SameThreadService.instance.invoke('start');
+  }
 }
 
 void stop() {
-  FlutterBackgroundService().invoke('stop');
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    FlutterBackgroundService().invoke('stop');
+  } else {
+    SameThreadService.instance.invoke('stop');
+  }
 }

@@ -156,27 +156,27 @@ var _notificationsLock = Mutex();
 var knownNotifications = <String, Map<String, DateTime>>{};
 
 Future<void> sendNotificationsForConnection(
-    {required String conn,
+    {required String alias,
     required cmk_api.Client client,
     required DateTime lastFetch}) async {
   try {
     await _notificationsLock.acquire();
 
-    if (!knownNotifications.containsKey(conn)) {
-      knownNotifications[conn] = {};
+    if (!knownNotifications.containsKey(alias)) {
+      knownNotifications[alias] = {};
     }
-    var aliasKnown = knownNotifications[conn]!;
+    var aliasKnown = knownNotifications[alias]!;
 
     final secs = ((DateTime.now().millisecondsSinceEpoch - lastFetch.millisecondsSinceEpoch) / 1000).round();
     final events = await client.getViewEvents(fromSecs: secs);
     print(
-        "Found ${events.length} notifications for $conn within $secs seconds");
+        "Found ${events.length} notifications for $alias within $secs seconds");
 
     for (var event in events) {
       final key =
           '${event.hostName}-${event.displayName}-${event.time.millisecondsSinceEpoch}';
       if (!aliasKnown.containsKey(key)) {
-        sendLogNotification(conn: conn, log: event);
+        sendLogNotification(conn: alias, log: event);
         aliasKnown[key] = event.time;
       }
     }
@@ -191,7 +191,7 @@ Future<void> sendNotificationsForConnection(
       }
     }
     aliasKnown.removeWhere((key, item) => toRemove.contains(key));
-  } on cmk_api.BaseException {
+  } catch (_) {
     // Ignore.
   } finally {
     _notificationsLock.release();

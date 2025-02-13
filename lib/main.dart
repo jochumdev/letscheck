@@ -159,10 +159,8 @@ Future<void> main() async {
     await trayManager.setContextMenu(menu);
   }
 
-  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-    await bg_service.initialize();
-    bg_service.start();
-  }
+  await bg_service.initialize();
+  bg_service.start();
 
   final talker =
       Talker(logger: TalkerLogger(formatter: ColoredLoggerFormatter()));

@@ -33,9 +33,6 @@ class ConnectionDataNotifier extends StateNotifier<ConnectionDataState> {
         state = ConnectionDataError(error: client.error());
       }
     });
-
-    if (!mounted) return;
-    await _fetchData();
   }
 
   Future<void> _fetchData() async {
