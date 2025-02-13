@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+
+Name=LetsCheck
+Comment=LetsCheck - the check_mk Client for GNU/Linux
+Categories=Network;Monitor;
+
+Icon=io.github.jochumdev.letscheck
+Exec=letscheck
+Terminal=false
