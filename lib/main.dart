@@ -27,10 +27,6 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:tray_manager/src/helpers/sandbox.dart' show runningInSandbox;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'notifications/android.dart' as notifications_android;
-import 'notifications/darwin.dart' as notifications_darwin;
-import 'notifications/linux.dart' as notifications_linux;
-import 'notifications/windows.dart' as notifications_windows;
 import 'notifications/plugin.dart';
 
 import 'theme_data.dart';
