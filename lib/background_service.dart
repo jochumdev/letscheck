@@ -235,10 +235,16 @@ class Notifier {
       categoryIdentifier: darwinNotificationCategoryPlain,
     );
 
-    const notificationDetails = NotificationDetails(
+    WindowsNotificationDetails windowsNotificationDetails =
+        WindowsNotificationDetails(
+          images: [], // WindowsImage(WindowsImage.getAssetUri('assets/icons/letscheck.png'), altText: 'LetsCheck')
+    );
+
+    var notificationDetails = NotificationDetails(
       android: androidNotificationDetails,
       macOS: macOSNotificationDetails,
       iOS: iosNotificationDetails,
+      windows: windowsNotificationDetails,
     );
 
     await flutterLocalNotificationsPlugin.show(
@@ -289,7 +295,7 @@ class Notifier {
     }
   }
 
-  Future<void> _fetchAndRunNotificiations() async {
+  Future<void> _fetchAndRunNotifications() async {
     await mutex.protect(() async {
       for (final alias in clients.keys) {
         if (cSettings.containsKey(alias) &&
@@ -321,7 +327,7 @@ class Notifier {
     // Create new timer.
     timer = Timer.periodic(
       Duration(seconds: refreshSeconds),
-      (_) async => await _fetchAndRunNotificiations(),
+      (_) async => await _fetchAndRunNotifications(),
     );
   }
 
@@ -376,14 +382,14 @@ class Notifier {
       timer?.cancel();
 
       // Fetch now, the timer fetches then again later.
-      await _fetchAndRunNotificiations();
+      await _fetchAndRunNotifications();
 
       _log("Creating a timer with $refreshSeconds seconds");
 
       // Create new timer.
       timer = Timer.periodic(
         Duration(seconds: refreshSeconds),
-        (timer) async => await _fetchAndRunNotificiations(),
+        (timer) async => await _fetchAndRunNotifications(),
       );
     }
     // });
