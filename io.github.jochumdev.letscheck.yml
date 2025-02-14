@@ -14,6 +14,7 @@ finish-args:
   - --device=dri
   - --share=network
   - --socket=session-bus
+  - --socket=system-bus
   - --talk-name=org.freedesktop.Notifications
   - --talk-name=org.kde.StatusNotifierWatcher
   - --talk-name=com.canonical.AppMenu.Registrar

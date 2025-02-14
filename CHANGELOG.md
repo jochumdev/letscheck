@@ -1,4 +1,8 @@
 # LetsCheck
+## Unreleased
+### Fixed
+- rework notifications
+
 ## 0.2.2+1274 - 2025-02-13
 ### Fixed
 - always use the last fetch data in background\_service

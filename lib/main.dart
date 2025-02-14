@@ -103,18 +103,6 @@ Future<void> main() async {
   await initializeDateFormatting(Intl.defaultLocale);
 
   if (!kIsWeb) {
-    final initializationSettings = InitializationSettings(
-      android: notifications_android.initializationSettings,
-      iOS: notifications_darwin.initializationSettings,
-      macOS: notifications_darwin.initializationSettings,
-      linux: notifications_linux.initializationSettings,
-      windows: notifications_windows.initializationSettings,
-    );
-
-    await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: selectNotificationStream.add,
-    );
     await grantNotificationPermission();
   }
 
@@ -159,11 +147,11 @@ Future<void> main() async {
     await trayManager.setContextMenu(menu);
   }
 
-  await bg_service.initialize();
-  bg_service.start();
-
   final talker =
       Talker(logger: TalkerLogger(formatter: ColoredLoggerFormatter()));
+
+  await bg_service.initialize(talker);
+  bg_service.start();
 
   final jsRuntime = await initJavascriptRuntime();
 
