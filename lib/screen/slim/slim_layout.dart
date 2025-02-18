@@ -29,7 +29,7 @@ class SlimLayoutSettings {
       this.showLeading = true,
       this.showSearch = true,
       this.showLogs = true}) {
-    showRefresh = Platform.isAndroid || Platform.isIOS;
+    showRefresh = kIsWeb || Platform.isAndroid || Platform.isIOS;
   }
 }
 

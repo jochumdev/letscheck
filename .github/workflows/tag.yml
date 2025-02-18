@@ -318,51 +318,8 @@ jobs:
       #     asset_name: letscheck-windows-x64-${{ github.event.release.tag_name }}.msix
       #     tag: ${{ github.ref }}
 
-  build-web:
-    name: "Build Web"
-    runs-on: ubuntu-22.04
-    permissions: write-all
-    timeout-minutes: 30
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: 'true'
-          fetch-depth: 0
-
-      - name: Set up fvm
-        run: ./scripts/setup_fvm.sh
-  
-      - name: Enable web
-        run: fvm flutter config --enable-web
-
-      - name: Flutter build app
-        run: fvm flutter build web --base-href "/letscheck/pwa/" --release
-
-      - name: Compress artifacts
-        run: cd build/web && zip -r ../../letscheck-web.zip .
-
-      - name: Upload zip
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-zip
-          path: letscheck-web.zip
-
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
-          destination_dir: pwa
-          force_orphan: true
-          user_name: 'github-ci[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
-          commit_message: 'Publish to gh-pages'
-
   release:
-    needs: [build-android-apk, build-linux-flatpak, build-macos, build-windows, build-web]
+    needs: [build-android-apk, build-linux-flatpak, build-macos, build-windows]
     name: "Release and upload artifacts"
     runs-on: ubuntu-22.04
     permissions: write-all
@@ -389,7 +346,6 @@ jobs:
           mv letscheck.dmg letscheck-${{ github.ref_name }}-macos.dmg
           mv letscheck-macos.zip letscheck-${{ github.ref_name }}-macos.zip
           mv letscheck-windows-x64.zip letscheck-${{ github.ref_name }}-windows-x64.zip
-          mv letscheck-web.zip letscheck-${{ github.ref_name }}-web.zip
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -403,4 +359,3 @@ jobs:
             letscheck-${{ github.ref_name }}-macos.dmg
             letscheck-${{ github.ref_name }}-macos.zip
             letscheck-${{ github.ref_name }}-windows-x64.zip
-            letscheck-${{ github.ref_name }}-web.zip
