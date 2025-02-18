@@ -1,5 +1,8 @@
 # LetsCheck
 ## Unreleased
+### Added
+- update flutter
+
 ### Fixed
 - rework notifications
 
