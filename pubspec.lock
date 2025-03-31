@@ -801,10 +801,10 @@ packages:
     dependency: "direct main"
     description:
       name: talker
-      sha256: a67ee21b020c060efefd18dd0d8c52c9d670eb6089c227f22136c6ff09454b0a
+      sha256: "45abef5b92f9b9bd42c3f20133ad4b20ab12e1da2aa206fc0a40ea874bed7c5d"
       url: "https://pub.dev"
     source: hosted
-    version: "4.6.11"
+    version: "4.7.1"
   talker_dio_logger:
     dependency: "direct main"
     description:
@@ -825,18 +825,18 @@ packages:
     dependency: transitive
     description:
       name: talker_logger
-      sha256: "73e0b40f60ff334216c054b11b75d94d18600abd50e9ff46b7e859c3705b86a6"
+      sha256: ed9b20b8c09efff9f6b7c63fc6630ee2f84aa92661ae09e5ba04e77272bf2ad2
       url: "https://pub.dev"
     source: hosted
-    version: "4.6.11"
+    version: "4.7.1"
   talker_riverpod_logger:
     dependency: "direct main"
     description:
       name: talker_riverpod_logger
-      sha256: "5e35cc05e60a053b41af5ee4081e4d5a9508693928009b2468ce8ee9f76b8c3c"
+      sha256: "08cc5458a8249f23899ba6a159a100e4f1b48d425c0b1e7394a81ac607671eb9"
       url: "https://pub.dev"
     source: hosted
-    version: "4.6.11"
+    version: "4.7.1"
   term_glyph:
     dependency: transitive
     description:
