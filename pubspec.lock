@@ -242,34 +242,34 @@ packages:
     description:
       path: flutter_local_notifications
       ref: HEAD
-      resolved-ref: ed1ad7861f4a6e88bec4b134b9614c79d00199d7
+      resolved-ref: "4e7698f114e44725437fc693fb1959b881c841f9"
       url: "https://github.com/MaikuB/flutter_local_notifications.git"
     source: git
-    version: "19.0.0-dev.6"
+    version: "19.3.0"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
       name: flutter_local_notifications_linux
-      sha256: "2f1ba596b52411cbcc27e91aa539ab3486d345693643d5456dfb0d2dac2c5e2c"
+      sha256: e3c277b2daab8e36ac5a6820536668d07e83851aeeb79c446e525a70710770a5
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.1"
+    version: "6.0.0"
   flutter_local_notifications_platform_interface:
     dependency: transitive
     description:
       name: flutter_local_notifications_platform_interface
-      sha256: "4d3acbc6f56a1e1ed2d1835f9448103452274fe362d7b0a826bdbf15c0abfc6f"
+      sha256: "277d25d960c15674ce78ca97f57d0bae2ee401c844b6ac80fcd972a9c99d09fe"
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.0-dev.1"
+    version: "9.1.0"
   flutter_local_notifications_windows:
     dependency: transitive
     description:
       name: flutter_local_notifications_windows
-      sha256: "3fcc00dc3be6a41184b8a244fbfbfdb0f6765f22b6fc6837fbf375864c1cb5a2"
+      sha256: "593625e6833c0def4853b361c5276464b314983c6c819178bf0fa5aba2540d86"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0-dev.4"
+    version: "1.0.1"
   flutter_localizations:
     dependency: transitive
     description: flutter
