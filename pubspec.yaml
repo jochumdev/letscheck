@@ -35,7 +35,7 @@ dependencies:
   grouped_list: ^6.0.0
   package_info_plus: ^8.3.1
   flutter_timezone: ^4.0.0
-  flutter_js: ^0.8.1
+  flutter_js: ^0.8.5
   flutter_local_notifications:
     git:
      url: https://github.com/MaikuB/flutter_local_notifications.git
