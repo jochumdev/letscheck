@@ -40,6 +40,7 @@ dependencies:
     git:
      url: https://github.com/MaikuB/flutter_local_notifications.git
      path: flutter_local_notifications
+    version: 19.4.0
   intl: ^0.19.0
   timezone: ^0.10.0
   window_manager: ^0.4.3
